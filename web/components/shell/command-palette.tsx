@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquareIcon, SearchIcon } from "lucide-react";
+import { MessageSquareIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 

@@ -6,6 +6,10 @@ Both tools call the same services the router calls; nothing is re-implemented he
 
 from typing import Annotated, Any
 
+from pydantic import BaseModel, Field
+
+from cashapp.api.schemas.review import ReviewQueuePage, ReviewQueueRowOut, UploadResultOut
+from cashapp.domain.principal import Permission
 from cashapp.services.chat.tools.cards import ResultCard, TableCard, TableColumn
 from cashapp.services.chat.tools.registry import (
     ConfirmPreview,
@@ -15,10 +19,6 @@ from cashapp.services.chat.tools.registry import (
     ToolSpec,
     who_line,
 )
-from pydantic import BaseModel, Field
-
-from cashapp.api.schemas.review import ReviewQueuePage, ReviewQueueRowOut, UploadResultOut
-from cashapp.domain.principal import Permission
 from cashapp.services.review.queue import ReviewQueueService
 from cashapp.services.review.upload import UploadService
 

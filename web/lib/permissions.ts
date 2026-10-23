@@ -18,3 +18,6 @@ export const ROUTE_PERMISSIONS = {
   "/review": { permission: "items:read", role: "VIEWER" },
   "/lab": { permission: "lab:run", role: "OPERATOR" },
 } as const;
+
+/** The permission the Engine mutations need. Must equal the API enum; the API is the control. */
+export const ENGINE_CONTROL = "engine:control" as const satisfies Schemas["Permission"];

@@ -132,14 +132,14 @@ class ReplayStartOut(BaseModel):
         )
 
 
-class MoneyByCurrencyOut(BaseModel):
+class LabMoneyByCurrencyOut(BaseModel):
     currency: str
     newly_matched: MoneyStr
     newly_unmatched: MoneyStr
     items: int
 
     @classmethod
-    def of(cls, row: MoneyByCurrency) -> "MoneyByCurrencyOut":
+    def of(cls, row: MoneyByCurrency) -> "LabMoneyByCurrencyOut":
         return cls.model_validate(
             {
                 "currency": row.currency,
@@ -187,7 +187,7 @@ class ReplayResultOut(BaseModel):
     newly_matched: int
     newly_failed: int
     newly_ambiguous: int
-    money_by_currency: list[MoneyByCurrencyOut]
+    money_by_currency: list[LabMoneyByCurrencyOut]
     items: list[ReplayItemOut]
     config_diff: list[ConfigDiffRow]
     duration_ms: int | None
@@ -211,7 +211,7 @@ class ReplayResultOut(BaseModel):
             newly_matched=result.newly_matched,
             newly_failed=result.newly_failed,
             newly_ambiguous=result.newly_ambiguous,
-            money_by_currency=[MoneyByCurrencyOut.of(m) for m in result.money_by_currency],
+            money_by_currency=[LabMoneyByCurrencyOut.of(m) for m in result.money_by_currency],
             items=[ReplayItemOut.of(i) for i in result.items],
             config_diff=[ConfigDiffRow.of(d) for d in result.config_diff],
             duration_ms=result.duration_ms,

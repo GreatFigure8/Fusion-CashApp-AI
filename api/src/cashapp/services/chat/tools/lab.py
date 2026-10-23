@@ -9,6 +9,11 @@ import asyncio
 import contextlib
 from typing import Any, Final
 
+from pydantic import BaseModel, Field, JsonValue
+
+from cashapp.domain import config_keys as ck
+from cashapp.domain.lab import ReplayStatus
+from cashapp.domain.principal import Permission
 from cashapp.services.chat.tools.cards import ReplayCard, ReplayCurrency
 from cashapp.services.chat.tools.registry import (
     ConfirmPreview,
@@ -20,11 +25,6 @@ from cashapp.services.chat.tools.registry import (
     ToolSpec,
     who_line,
 )
-from pydantic import BaseModel, Field, JsonValue
-
-from cashapp.domain import config_keys as ck
-from cashapp.domain.lab import ReplayStatus
-from cashapp.domain.principal import Permission
 from cashapp.services.config import RuntimeConfig
 from cashapp.services.lab.errors import LabError
 from cashapp.services.lab.service import Candidate, LabService, ReplayResult

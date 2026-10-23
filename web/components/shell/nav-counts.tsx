@@ -1,5 +1,6 @@
 "use client";
 
+import { useReviewOpenCount } from "@/components/review/nav-count";
 import { useFlowStream } from "@/components/shell/flow-stream";
 import type { NavCountSource } from "@/components/shell/nav";
 
@@ -21,11 +22,11 @@ function useNoCount(): number | null {
   return null;
 }
 
-/** One hook per count source; `review.queue` and `lab.candidates` are replaced by their owners. */
+/** One hook per count source; `lab.candidates` stays empty until the matching lab UI lands. */
 export const NAV_COUNT_SOURCES: Readonly<Record<NavCountSource, NavCountHook>> = {
   "flow.in_flight": useInFlight,
   "exceptions.open": useOpenExceptions,
-  "review.queue": useNoCount,
+  "review.queue": useReviewOpenCount,
   "lab.candidates": useNoCount,
 };
 

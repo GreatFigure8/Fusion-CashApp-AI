@@ -71,6 +71,7 @@ class ConfigChangeRepository(BaseRepository[ConfigChange]):
         change_set = func.coalesce(ConfigChange.change_set_id, -ConfigChange.id)
         stmt = select(func.count(func.distinct(change_set))).where(ConfigChange.key.in_(list(keys)))
         return int((await self.session.execute(stmt)).scalar_one())
+
     async def history_all(self, offset: int = 0, limit: int = 50) -> Page[ConfigChange]:
         """Change rows across every key, newest first."""
         return await self.list(

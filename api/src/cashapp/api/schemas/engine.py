@@ -63,7 +63,7 @@ class StationOut(BaseModel):
         )
 
 
-class PollerOut(BaseModel):
+class EnginePollerOut(BaseModel):
     name: Literal["intake-poller", "receipt-watcher"]
     interval_seconds: int
     last_beat_at: AwareDatetime | None
@@ -92,7 +92,7 @@ class EngineStatusOut(BaseModel):
     bus_healthy: bool
     total_lag: int
     dlq_total: int
-    pollers: list[PollerOut]
+    pollers: list[EnginePollerOut]
     region: str
     consumer_group: str
     stations: list[StationOut]
@@ -107,7 +107,7 @@ class EngineStatusOut(BaseModel):
             bus_healthy=data.bus_healthy,
             total_lag=data.total_lag,
             dlq_total=data.dlq_total,
-            pollers=[PollerOut.from_data(p) for p in data.pollers],
+            pollers=[EnginePollerOut.from_data(p) for p in data.pollers],
             region=data.region,
             consumer_group=data.consumer_group,
             stations=[StationOut.from_data(s) for s in data.stations],
