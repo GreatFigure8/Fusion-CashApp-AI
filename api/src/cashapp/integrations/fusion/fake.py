@@ -91,6 +91,7 @@ class FakeFusionClient:
         self._comments: dict[int, str] = {
             r.receipt_id: r.comments for r in self._receipts.values() if r.comments is not None
         }
+        self._transaction_comments: dict[int, str] = {}
         self._attachments: dict[int, list[AttachmentRef]] = {}
         self._posted: dict[str, list[dict[str, Any]]] = {}
         self._failures: dict[str, list[FusionError | FusionFault]] = {}
@@ -384,6 +385,9 @@ class FakeFusionClient:
             raise FusionError(
                 ErrorCode.FUSION_FAULT, f"unsupported resource {resource}", http_status=404
             )
+        for row in rows:
+            if resource != "standardReceipts":
+                row["Comments"] = self._transaction_comments.get(row["CustomerTransactionId"])
         wanted = _q_values(params.get("q"), key)
         if wanted is not None:
             rows = [row for row in rows if row.get(key) in wanted]
@@ -531,7 +535,9 @@ class FakeFusionClient:
             return self._create_transaction(body, TransactionKind.CREDIT_MEMO)
         if resource == "standardReceipts":
             return self._create_receipt(body)
-        match = re.fullmatch(r"receivablesInvoices/(\d+)/action/completeTransaction", resource)
+        match = re.fullmatch(
+            r"receivables(?:Invoices|CreditMemos)/(\d+)/action/completeTransaction", resource
+        )
         if match is not None:
             trx_id = int(match.group(1))
             txn = self._transactions.get(trx_id)
@@ -572,6 +578,9 @@ class FakeFusionClient:
             business_unit=_opt(body.get("BusinessUnit")),
             payment_terms=_opt(body.get("PaymentTerms")),
         )
+        comments = _opt(body.get("Comments"))
+        if comments is not None:
+            self._transaction_comments[trx_id] = comments
         return {"CustomerTransactionId": trx_id, "TransactionNumber": number}
 
     def _create_receipt(self, body: Mapping[str, Any]) -> dict[str, Any]:
@@ -579,6 +588,12 @@ class FakeFusionClient:
         self._next_receipt += 1
         amount = to_money(str(body.get("Amount", "0")))
         receipt_date = date.fromisoformat(str(body.get("ReceiptDate") or self._today())[:10])
+        comments = _opt(body.get("Comments"))
+        references = tuple(
+            str(ref[query.FIELDS_REMITTANCE_REFERENCE])
+            for ref in cast("list[Mapping[str, Any]]", body.get("remittanceReferences") or [])
+            if ref.get(query.FIELDS_REMITTANCE_REFERENCE) is not None
+        )
         receipt = FusionReceipt(
             receipt_id=receipt_id,
             receipt_number=str(body.get("ReceiptNumber") or f"FAKE-R-{receipt_id}"),
@@ -590,8 +605,12 @@ class FakeFusionClient:
             creation_date=datetime.combine(self._today(), datetime.min.time(), tzinfo=UTC),
             status="UNAPP",
             state="CLEARED",
+            remittance_references=references,
+            comments=comments,
         )
         self._receipts[receipt_id] = receipt
+        if comments is not None:
+            self._comments[receipt_id] = comments
         return {"StandardReceiptId": receipt_id, "ReceiptNumber": receipt.receipt_number}
 
     async def aclose(self) -> None:
