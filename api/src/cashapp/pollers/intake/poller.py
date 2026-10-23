@@ -7,11 +7,13 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
 
+from cashapp.domain.engine import ConsumerRef
 from cashapp.integrations.storage.base import ObjectStore
 from cashapp.pipeline.roles import Container, RoleState, RoleStatus
 from cashapp.pollers.intake.hooks import CYCLE_HOOKS, CycleHook, run_cycle_hooks
 from cashapp.pollers.intake.ingest import Normaliser, ingest
 from cashapp.pollers.intake.sources import ArtifactSource
+from cashapp.services.engine.pause_gate import PauseGate
 from cashapp.services.normalise import normalise
 
 logger = logging.getLogger(__name__)
@@ -82,7 +84,9 @@ class IntakePoller:
     async def run_cycle(self) -> CycleStats:
         """One pass over every source, then the cycle hooks. Tests call this directly."""
         ingested = duplicates = failed = source_errors = 0
-        for source in self._sources:
+        paused = await self._paused()
+        active: list[ArtifactSource] = [] if paused else self._sources
+        for source in active:
             kind = type(source).__name__
             try:
                 async for artifact in source.fetch_new():
@@ -129,6 +133,9 @@ class IntakePoller:
         if source_errors:
             self._status = "degraded"
             self._detail = f"{source_errors} source(s) failed to fetch"
+        elif paused:
+            self._status = "running"
+            self._detail = "paused: no fetch this cycle"
         else:
             self._status = "running"
             self._detail = None
@@ -140,6 +147,15 @@ class IntakePoller:
             source_errors,
         )
         return stats
+
+    async def _paused(self) -> bool:
+        """True when the intake station is paused: the cycle skips its fetch but still beats."""
+        try:
+            gate = PauseGate(self._container.config)
+            return await gate.is_paused(ConsumerRef.intake_poller())
+        except Exception as exc:
+            logger.warning("pause list unreadable; not holding: error=%s", type(exc).__name__)
+            return False
 
     def _stopping(self) -> bool:
         return self._stop is not None and self._stop.is_set()

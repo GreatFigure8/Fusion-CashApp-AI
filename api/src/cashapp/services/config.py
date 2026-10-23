@@ -618,11 +618,17 @@ class ConfigWriter:
         principal: Principal,
         reason: str,
         expected_version: int,
+        *,
+        permission: Permission = Permission.CONFIG_WRITE,
     ) -> int:
-        """Write `value` if the stored version is `expected_version`; return the new version."""
+        """Write `value` if the stored version is `expected_version`; return the new version.
+
+        ``permission`` is what the caller must hold: config:write by default, engine:control for
+        the engine's own keys.
+        """
         registry_key = lookup_key(key if isinstance(key, str) else key.name)
-        if not principal.can(Permission.CONFIG_WRITE):
-            raise ConfigForbidden("Missing permission config:write")
+        if not principal.can(permission):
+            raise ConfigForbidden(f"Missing permission {permission.value}")
         cleaned_reason = normalize_reason(
             registry_key.name,
             reason,
