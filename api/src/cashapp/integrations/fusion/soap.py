@@ -12,17 +12,20 @@ Envelopes are built with ElementTree so values are escaped by the serializer, ne
 from __future__ import annotations
 
 import asyncio
+import base64
 import random
 import re
 import time
 import xml.etree.ElementTree as ET
-from collections.abc import Awaitable, Callable
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 
 import httpx
+from pydantic import SecretStr
 
+from cashapp.domain.config_keys import FusionPod
 from cashapp.domain.error_codes import ErrorCode
 from cashapp.integrations.fusion.errors import (
     FusionError,
@@ -38,7 +41,6 @@ from cashapp.integrations.fusion.models import (
     UnapplyRequest,
     UnapplyResult,
 )
-from cashapp.domain.config_keys import FusionPod
 from cashapp.integrations.fusion.xmlutil import (
     XmlParseError,
     child_text,

@@ -18,7 +18,9 @@ _BOOTSTRAP_REASONS: dict[str, str] = {
     "CASHAPP_ATP__WALLET_PASSWORD": "The database connection itself.",
     "CASHAPP_ATP__POOL_SIZE": "Sizes the connection pool that reads every other setting.",
     "CASHAPP_ATP__MAX_OVERFLOW": "Sizes the connection pool that reads every other setting.",
-    "CASHAPP_ATP__POOL_TIMEOUT_SECONDS": "Sizes the connection pool that reads every other setting.",
+    "CASHAPP_ATP__POOL_TIMEOUT_SECONDS": (
+        "Sizes the connection pool that reads every other setting."
+    ),
     "CASHAPP_WORKER__HEALTH_PORT": (
         "Bound before the database is reachable and pinned by the deployment manifest."
     ),

@@ -7,11 +7,16 @@ and the in-flight count; the person types the reason at confirm; a stale ``expec
 conflict that changes nothing. Written against the registry contract of chat-agent-tool-registry.
 """
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any
 from uuid import UUID
 
+from pydantic import BaseModel, Field
+
+from cashapp.api.schemas.engine import EngineActionOut, EngineStatusOut, ReplayOut, StationName
+from cashapp.domain.engine import EngineAction, Station
+from cashapp.domain.principal import Permission
 from cashapp.services.chat.tools.cards import CardStat, CardStatus, ResultCard, StateCard
 from cashapp.services.chat.tools.registry import (
     ConfirmPreview,
@@ -22,11 +27,6 @@ from cashapp.services.chat.tools.registry import (
     ToolSpec,
     who_line,
 )
-from pydantic import BaseModel, Field
-
-from cashapp.api.schemas.engine import EngineActionOut, EngineStatusOut, ReplayOut, StationName
-from cashapp.domain.engine import EngineAction, Station
-from cashapp.domain.principal import Permission
 from cashapp.services.config import ConfigConflict, ConfigError
 from cashapp.services.engine import text
 from cashapp.services.engine.models import EnginePreview
@@ -71,7 +71,7 @@ class ReplayToolIn(BaseModel):
 
 
 @asynccontextmanager
-async def _engine_errors(tool: str) -> AsyncIterator[None]:
+async def _engine_errors(tool: str) -> AsyncGenerator[None]:
     """Turn the service's errors into the tool errors the chat shows."""
     try:
         yield

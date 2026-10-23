@@ -232,7 +232,7 @@ class AnthropicLlmClient:
         streaming can deliver a truncated one).
         """
         started = time.perf_counter()
-        client = self._client.with_options(timeout=request.timeout_s)
+        client = (await self._client.get()).with_options(timeout=request.timeout_s)
         kwargs: dict[str, Any] = {
             "model": self._model_id,
             "max_tokens": request.max_tokens,

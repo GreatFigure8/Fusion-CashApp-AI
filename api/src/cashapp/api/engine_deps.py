@@ -8,6 +8,7 @@ from cashapp.api.bus_deps import get_bus_health, get_event_bus
 from cashapp.api.config_deps import config_api_error, get_runtime_config
 from cashapp.api.deps import get_uow_factory
 from cashapp.api.errors import ApiError
+from cashapp.api.runtime_deps import get_runtime_settings
 from cashapp.domain.clock import SystemClock
 from cashapp.services.autofix.requeue import RequeueService
 from cashapp.services.config import ConfigConflict, ConfigError
@@ -21,7 +22,6 @@ from cashapp.services.engine.service import (
     UnknownStation,
 )
 from cashapp.services.locking import LockService
-from cashapp.settings import get_settings
 
 _service: EngineService | None = None
 
@@ -40,7 +40,7 @@ async def get_engine_service() -> EngineService:
             uow_factory=get_uow_factory(),
             config=config,
             bus_health=get_bus_health(),
-            settings=get_settings(),
+            runtime=get_runtime_settings(),
             clock=clock,
             lock_service=locks,
             requeue=RequeueService(lock_service=locks, clock=clock),

@@ -83,7 +83,7 @@ from cashapp.services.engine.models import (
 )
 from cashapp.services.locking import ItemBusy, LockConflict, LockForbidden, LockService
 from cashapp.services.poller_heartbeat import POLLER_NAMES
-from cashapp.settings import Settings
+from cashapp.services.runtime_settings import RuntimeSettings
 
 logger = logging.getLogger(__name__)
 
@@ -250,7 +250,7 @@ class EngineService:
         uow_factory: UowFactory,
         config: RuntimeConfig,
         bus_health: BusHealth,
-        settings: Settings,
+        runtime: RuntimeSettings,
         clock: Clock,
         lock_service: LockService,
         requeue: RequeueService,
@@ -260,11 +260,11 @@ class EngineService:
         self._config = config
         self._bus_health = bus_health
         self._bus = bus
-        self._settings = settings
+        self._runtime = runtime
         self._clock = clock
         self._locks = lock_service
         self._requeue = requeue
-        self._namer = TopicNamer.from_settings(settings.streaming)
+        self._namer = TopicNamer.from_config(runtime.streaming(), runtime.env)
         self._writer = ConfigWriter(clock)
         self._cache = StatusCache(clock)
 
@@ -424,8 +424,8 @@ class EngineService:
             total_lag=sum(max(lag, 0) for lag in lags.values()) + max(receipt_lag or 0, 0),
             dlq_total=sum(dlq_counts.values()),
             pollers=pollers,
-            region=self._settings.object_storage.region,
-            consumer_group=self._settings.streaming.consumer_group,
+            region=self._runtime.object_storage().region,
+            consumer_group=self._runtime.streaming().consumer_group,
             stations=tuple(stations),
             throttle=ThrottleStatus(dict(keys.per_stage), keys.apply_per_receipt),
             config_version=keys.version,
