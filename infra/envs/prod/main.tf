@@ -5,14 +5,22 @@ locals {
   secret_ids = merge(module.vault.secret_ids, { "atp-dsn" = module.atp.connect_string_secret_id })
   vault_ref  = { for name, id in local.secret_ids : name => "vault:${id}" }
 
-  # Environment for the api and every worker. Names follow the settings model (CASHAPP_ prefix,
-  # __ nesting); secret leaves are vault:<secret-ocid> references resolved at start-up.
-  api_env = merge(
+  # Environment for the api and every worker: the bootstrap set only (CASHAPP_ prefix, __
+  # nesting). Every other setting is a DB config key edited in Settings; see
+  # docs/reference/settings.md. Secret leaves are vault:<secret-ocid> references.
+  api_env = {
+    CASHAPP_ENV             = local.environment
+    CASHAPP_ATP__DSN        = local.vault_ref["atp-dsn"]
+    CASHAPP_ATP__USER       = local.schema_name
+    CASHAPP_ATP__PASSWORD   = local.vault_ref["atp-app-password"]
+    CASHAPP_SECRETS__SOURCE = "vault"
+  }
+
+  # The removed deploy variables, with the values they always had. Only the release migration
+  # container receives them (output migration_env): the s48 data migration seeds the DB config
+  # keys from them. Once every environment has applied s48 this local can be emptied.
+  settings_seed_env = merge(
     {
-      CASHAPP_ENV                                     = local.environment
-      CASHAPP_ATP__DSN                                = local.vault_ref["atp-dsn"]
-      CASHAPP_ATP__USER                               = local.schema_name
-      CASHAPP_ATP__PASSWORD                           = local.vault_ref["atp-app-password"]
       CASHAPP_STREAMING__BOOTSTRAP_SERVERS            = module.streaming.bootstrap_servers
       CASHAPP_STREAMING__SASL_USERNAME                = "${var.tenancy_name}/${var.streaming_user}/${module.streaming.stream_pool_id}"
       CASHAPP_STREAMING__SASL_PASSWORD                = local.vault_ref["streaming-auth-token"]

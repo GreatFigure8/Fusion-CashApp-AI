@@ -6,6 +6,11 @@
 # `job_launch_spec` Terraform output, waits for the container to exit, prints its logs, exits with
 # the container's exit code and always deletes the instance.
 #
+# RUN_IN_VCN_ENV_OUTPUT=<terraform output name> merges that output (a sensitive map of environment
+# variables) over the launch spec's environment. migrate.sh uses it to pass `migration_env`, which
+# carries the legacy variables the s48 data migration seeds the DB settings from; app containers
+# never receive them.
+#
 # VERIFY (OCI CLI): the `container-instances container-instance create|delete` and
 # `container-instances container get|retrieve-logs` command and flag names below were written from
 # the CLI reference; confirm with `oci container-instances ... --help` on the pinned CLI version
@@ -43,6 +48,9 @@ trap cleanup EXIT
 
 spec="$(tf_output "$env_name" job_launch_spec json)"
 printf '%s' "$spec" > "$work_dir/spec.json"
+if [[ -n "${RUN_IN_VCN_ENV_OUTPUT:-}" ]]; then
+  tf_output "$env_name" "$RUN_IN_VCN_ENV_OUTPUT" json > "$work_dir/extra_env.json"
+fi
 
 # Build the CLI JSON arguments from the launch spec in Python so nothing is shell-quoted by hand.
 umask 077
@@ -51,6 +59,9 @@ import base64, json, os, sys
 
 work, command = sys.argv[1], sys.argv[2:]
 spec = json.load(open(os.path.join(work, "spec.json")))
+extra_path = os.path.join(work, "extra_env.json")
+if os.path.exists(extra_path):
+    spec["environment"] = {**spec["environment"], **json.load(open(extra_path))}
 containers = [{
     "displayName": "job",
     "imageUrl": os.environ["RUN_IMAGE"],

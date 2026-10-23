@@ -26,7 +26,7 @@ on:
         type: string
         default: ""
       fusion_write_enabled:
-        description: "Set CASHAPP_FUSION__WRITE_ENABLED on workers"
+        description: "Seed value for the fusion.write_enabled setting (first seed only; later edit it in Settings)"
         required: false
         type: boolean
         default: false

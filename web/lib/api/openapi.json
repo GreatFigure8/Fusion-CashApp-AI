@@ -1130,6 +1130,37 @@
             "title": "Key",
             "type": "string"
           },
+          "last_changed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Changed At"
+          },
+          "last_changed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Changed By"
+          },
+          "restart_required": {
+            "title": "Restart Required",
+            "type": "boolean"
+          },
+          "secret_ref": {
+            "title": "Secret Ref",
+            "type": "boolean"
+          },
           "updated_at": {
             "anyOf": [
               {
@@ -1182,9 +1213,41 @@
           "updated_by",
           "updated_by_name",
           "updated_at",
-          "admin_only_write"
+          "admin_only_write",
+          "restart_required",
+          "secret_ref",
+          "last_changed_at",
+          "last_changed_by"
         ],
         "title": "ConfigEntry",
+        "type": "object"
+      },
+      "ConfigGroupOut": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "group": {
+            "title": "Group",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "group",
+          "label",
+          "count",
+          "description"
+        ],
+        "title": "ConfigGroupOut",
         "type": "object"
       },
       "ConfigUpdate": {
@@ -6142,6 +6205,56 @@
           }
         ],
         "summary": "List Config",
+        "tags": [
+          "config"
+        ]
+      }
+    },
+    "/config/groups": {
+      "get": {
+        "operationId": "list_groups_config_groups_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConfigGroupOut"
+                  },
+                  "title": "Response List Groups Config Groups Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Groups",
         "tags": [
           "config"
         ]
