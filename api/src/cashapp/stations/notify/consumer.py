@@ -68,16 +68,18 @@ class NotifyConsumer:
     def build(cls, container: Container) -> "NotifyConsumer":
         settings = container.settings
         dispatcher = NotificationDispatcher(
-            build_channels(settings), clock=container.clock, env_label=settings.env.upper()
+            build_channels(container.runtime), clock=container.clock, env_label=settings.env.upper()
         )
         return cls(
             bus=container.bus,
-            group=settings.streaming.consumer_group,
+            group=container.runtime.streaming().consumer_group,
             uow_factory=container.uow_factory,
             config=container.config,
             clock=container.clock,
             dispatcher=dispatcher,
-            topic=notify_topic(TopicNamer.from_settings(settings.streaming)),
+            topic=notify_topic(
+                TopicNamer.from_config(container.runtime.streaming(), container.runtime.env)
+            ),
         )
 
     def state(self) -> RoleState:

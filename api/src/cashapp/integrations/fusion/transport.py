@@ -7,27 +7,47 @@ attempt, latency and a Fusion code reach logs and spans.
 from __future__ import annotations
 
 import asyncio
+import base64
 import json
 import random
 import time
-from collections.abc import Awaitable, Callable, Mapping
+from collections.abc import AsyncGenerator, Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
 
 import httpx
+from pydantic import SecretStr
 
+from cashapp.domain.config_keys import FusionPod
 from cashapp.domain.error_codes import ErrorCode
 from cashapp.integrations.fusion.errors import FusionError, error_from_http
 from cashapp.observability.logging import get_logger
 from cashapp.observability.tracing import span
-from cashapp.settings import FusionPodSettings
 
 _log = get_logger(__name__)
 
 RFV_HEADER = {"REST-Framework-Version": "4"}
 
 SleepFn = Callable[[float], Awaitable[None]]
+PasswordProvider = Callable[[], Awaitable[SecretStr]]
+
+
+class PodAuth(httpx.Auth):
+    """Basic auth whose password is resolved from Vault on every request (TTL-cached there), so
+    a rotated secret is picked up without a restart and is never held by the client."""
+
+    def __init__(self, username: str, password: PasswordProvider) -> None:
+        self._username = username
+        self._password = password
+
+    async def async_auth_flow(
+        self, request: httpx.Request
+    ) -> AsyncGenerator[httpx.Request, httpx.Response]:
+        secret = (await self._password()).get_secret_value()
+        token = base64.b64encode(f"{self._username}:{secret}".encode()).decode("ascii")
+        request.headers["Authorization"] = f"Basic {token}"
+        yield request
 
 
 @dataclass(frozen=True, slots=True)
@@ -56,7 +76,8 @@ class FusionTransport:
         self,
         *,
         pod_name: str,
-        pod: FusionPodSettings,
+        pod: FusionPod,
+        password: PasswordProvider,
         options: FusionClientOptions,
         transport: httpx.AsyncBaseTransport | None = None,
         sleep: SleepFn = asyncio.sleep,
@@ -66,7 +87,7 @@ class FusionTransport:
         self._sleep = sleep
         self._client = httpx.AsyncClient(
             base_url=pod.base_url,
-            auth=httpx.BasicAuth(pod.username, pod.password.get_secret_value()),
+            auth=PodAuth(pod.username, password),
             timeout=options.timeout_s,
             transport=transport,
         )

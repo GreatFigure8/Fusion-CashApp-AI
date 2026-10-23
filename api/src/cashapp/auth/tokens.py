@@ -14,7 +14,7 @@ from jwt import PyJWKClient, PyJWKClientConnectionError, PyJWKClientError
 from cashapp.api.errors import ApiError
 
 if TYPE_CHECKING:
-    from cashapp.settings import IdentitySettings
+    from cashapp.services.runtime_settings import IdentityConfig
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +121,7 @@ class TokenValidator:
         )
 
     @classmethod
-    def from_settings(cls, identity: "IdentitySettings") -> "TokenValidator":
+    def from_config(cls, identity: "IdentityConfig") -> "TokenValidator":
         return cls(issuer=identity.issuer, audience=identity.audience, jwks_url=identity.jwks_url)
 
     async def validate(self, token: str) -> Claims:

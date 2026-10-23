@@ -20,10 +20,11 @@ from cashapp.pipeline.outcomes import StageOutcome
 from cashapp.pipeline.roles import Container
 from cashapp.pipeline.runner import RunnerDeps, StageRunner
 from cashapp.services.config import RuntimeConfig
+from cashapp.services.runtime_settings import RuntimeSettings
 from cashapp.settings import Settings
 from tests.support.clock import FrozenClock
 from tests.support.config import make_runtime_config
-from tests.support.settings import make_settings
+from tests.support.settings import make_settings, runtime_settings_for
 
 T = TypeVar("T")
 
@@ -68,6 +69,7 @@ class FakeContainer:
     def __init__(self, uow_factory: UowFactory, **overrides: Any) -> None:
         self.uow_factory = uow_factory
         self.settings: Settings = overrides.pop("settings", None) or make_settings()
+        self.runtime: RuntimeSettings = overrides.pop("runtime", None) or runtime_settings_for()
         self.config: RuntimeConfig = overrides.pop("config", None) or make_runtime_config()
         self.bus: EventBus = overrides.pop("bus", None) or InMemoryEventBus(namer=TEST_NAMER)
         self.clock: Clock = overrides.pop("clock", None) or FrozenClock()

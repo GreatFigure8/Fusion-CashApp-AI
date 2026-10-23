@@ -17,7 +17,7 @@ from cashapp.domain.stages import Stage
 from cashapp.domain.work_item import PRIORITY_LIVE
 from cashapp.pipeline.errors import MalformedEvent
 from cashapp.pipeline.relay import outbox_signal
-from cashapp.settings import StreamingSettings, get_settings
+from cashapp.services.runtime_settings import StreamingConfig
 
 EVENT_SCHEMA_VERSION: Final = 1
 
@@ -75,8 +75,8 @@ class TopicNamer:
     env: str
 
     @classmethod
-    def from_settings(cls, streaming: StreamingSettings) -> Self:
-        return cls(prefix=streaming.topic_prefix, env=streaming.topic_env)
+    def from_config(cls, streaming: StreamingConfig, env: str) -> Self:
+        return cls(prefix=streaming.topic_prefix, env=env)
 
     def for_stage(self, stage: Stage, kind: TopicKind = "main") -> str:
         return f"{self.prefix}.{self.env}.{stage.value.lower()}{_KIND_SUFFIX[kind]}"
@@ -90,9 +90,8 @@ _default_namer: TopicNamer | None = None
 
 
 def default_namer() -> TopicNamer:
-    global _default_namer
     if _default_namer is None:
-        _default_namer = TopicNamer.from_settings(get_settings().streaming)
+        raise RuntimeError("topic namer not set; RuntimeSettings.start() sets it")
     return _default_namer
 
 

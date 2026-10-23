@@ -6,13 +6,12 @@ Unverified against live until a DEV bucket probe (``-m live``) passes.
 import asyncio
 import base64
 import hashlib
-import os
 from collections.abc import Mapping
 from typing import Any, Protocol, Self
 
 from cashapp.integrations.storage.base import ObjectNotFound, ObjectRef
 from cashapp.integrations.storage.keys import validate_key
-from cashapp.settings import ObjectStorageSettings
+from cashapp.services.runtime_settings import ObjectStorageConfig
 
 
 class ObjectStorageClientLike(Protocol):
@@ -56,11 +55,11 @@ class OciObjectStore:
         self._bucket = bucket
 
     @classmethod
-    def from_settings(cls, s: ObjectStorageSettings) -> Self:
+    def from_config(cls, s: ObjectStorageConfig, signer: Any | None) -> Self:
+        """`signer` comes from `settings.oci_signer`; None falls back to ``~/.oci/config``."""
         sdk = _sdk()
         client: Any
-        if os.environ.get("OCI_RESOURCE_PRINCIPAL_VERSION"):
-            signer = sdk.auth.signers.get_resource_principals_signer()
+        if signer is not None:
             client = sdk.object_storage.ObjectStorageClient({"region": s.region}, signer=signer)
         else:
             config: dict[str, Any] = sdk.config.from_file()

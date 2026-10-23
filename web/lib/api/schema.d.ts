@@ -325,6 +325,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/config/groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Groups */
+        get: operations["list_groups_config_groups_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/exceptions": {
         parameters: {
             query?: never;
@@ -1180,6 +1197,14 @@ export interface components {
             group: string;
             /** Key */
             key: string;
+            /** Last Changed At */
+            last_changed_at: string | null;
+            /** Last Changed By */
+            last_changed_by: string | null;
+            /** Restart Required */
+            restart_required: boolean;
+            /** Secret Ref */
+            secret_ref: boolean;
             /** Updated At */
             updated_at: string | null;
             /** Updated By */
@@ -1189,6 +1214,17 @@ export interface components {
             value: components["schemas"]["JsonValue"];
             /** Version */
             version: number;
+        };
+        /** ConfigGroupOut */
+        ConfigGroupOut: {
+            /** Count */
+            count: number;
+            /** Description */
+            description: string;
+            /** Group */
+            group: string;
+            /** Label */
+            label: string;
         };
         /** ConfigUpdate */
         ConfigUpdate: {
@@ -3712,6 +3748,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConfigChangePage"];
+                };
+            };
+        };
+    };
+    list_groups_config_groups_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConfigGroupOut"][];
                 };
             };
         };

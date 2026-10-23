@@ -14,7 +14,7 @@ from cashapp.domain.stages import Stage
 from cashapp.pipeline.events import StageEvent, TopicNamer, default_namer, parse_event
 
 if TYPE_CHECKING:
-    from cashapp.settings import Settings
+    from cashapp.services.runtime_settings import RuntimeSettings
 
 
 @dataclass(slots=True)
@@ -222,16 +222,21 @@ def _resolve(waiter: asyncio.Future[None]) -> None:
 _shared_memory_bus: InMemoryEventBus | None = None
 
 
-def build_event_bus(settings: "Settings") -> EventBus:
+def build_event_bus(runtime: "RuntimeSettings") -> EventBus:
     """``local`` runs on the process-wide in-memory bus; every other environment uses Kafka."""
     global _shared_memory_bus
-    if settings.env == "local":
+    streaming = runtime.streaming()
+    if runtime.env == "local":
         if _shared_memory_bus is None:
             _shared_memory_bus = InMemoryEventBus(
-                namer=TopicNamer.from_settings(settings.streaming),
-                default_group=settings.streaming.consumer_group,
+                namer=TopicNamer.from_config(streaming, runtime.env),
+                default_group=streaming.consumer_group,
             )
         return _shared_memory_bus
     from cashapp.pipeline.kafka import KafkaEventBus
 
-    return KafkaEventBus(settings.streaming)
+    return KafkaEventBus(
+        streaming,
+        runtime.secret,
+        namer=TopicNamer.from_config(streaming, runtime.env),
+    )

@@ -26,7 +26,12 @@ from cashapp.pollers.intake.sources import ArtifactSource
 from cashapp.services.backlog.service import BacklogError, BacklogService, BacklogSourceError
 from cashapp.services.backlog.sources import build_backlog_mailbox_source
 from cashapp.services.config import build_runtime_config
-from cashapp.settings import Settings, SettingsError, load_settings
+from cashapp.services.runtime_settings import (
+    RuntimeSettings,
+    SettingsIncompleteError,
+    load_runtime_settings,
+)
+from cashapp.settings import SettingsError, load_settings
 
 app = typer.Typer(help="Backlog reprocessing.", add_completion=False, no_args_is_help=True)
 
@@ -35,7 +40,7 @@ _EXIT_ERROR = 2
 
 @dataclass(frozen=True, slots=True)
 class CliContext:
-    settings: Settings
+    runtime: RuntimeSettings
     uow_factory: UowFactory
     service: BacklogService
     principal: Principal
@@ -43,10 +48,10 @@ class CliContext:
 
 def make_context() -> CliContext:
     """Patch point for tests: the real settings, database, object store and operator principal."""
-    settings = load_settings()
+    runtime = load_runtime_settings(load_settings())
     uow_factory = get_uow_factory()
     service = BacklogService(
-        object_store=build_object_store(settings),
+        object_store=build_object_store(runtime),
         config=build_runtime_config(uow_factory),
     )
     user = getpass.getuser()
@@ -57,7 +62,7 @@ def make_context() -> CliContext:
         groups=(),
         roles=(Role.ADMIN,),
     )
-    return CliContext(settings, uow_factory, service, principal)
+    return CliContext(runtime, uow_factory, service, principal)
 
 
 def _fail(message: str) -> typer.Exit:
@@ -68,7 +73,7 @@ def _fail(message: str) -> typer.Exit:
 def _context() -> CliContext:
     try:
         return make_context()
-    except SettingsError as exc:
+    except (SettingsError, SettingsIncompleteError) as exc:
         raise _fail(f"settings error: {exc}") from exc
 
 
@@ -133,7 +138,7 @@ def import_batch(
     else:
         assert mailbox_folder is not None  # noqa: S101 - narrowed by the check above
         try:
-            source = build_backlog_mailbox_source(ctx.settings, mailbox_folder)
+            source = build_backlog_mailbox_source(ctx.runtime, mailbox_folder)
         except BacklogSourceError as exc:
             raise _fail(str(exc)) from exc
         kind, source_ref = BacklogSourceKind.MAILBOX_FOLDER, mailbox_folder
@@ -238,4 +243,4 @@ def _source_for(ctx: CliContext, kind: BacklogSourceKind, source_ref: str) -> Ar
     """The source an unfinished import reads from, rebuilt from what the batch stored."""
     if kind == BacklogSourceKind.FOLDER:
         return FolderSource(Path(source_ref), clock=SystemClock())
-    return build_backlog_mailbox_source(ctx.settings, source_ref)
+    return build_backlog_mailbox_source(ctx.runtime, source_ref)

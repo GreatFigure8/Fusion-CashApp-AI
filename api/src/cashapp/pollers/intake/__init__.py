@@ -9,7 +9,7 @@ from cashapp.pollers.intake.sources import build_sources
 def build(container: Container) -> IntakePoller:
     return IntakePoller(
         container=container,
-        sources=build_sources(container.settings),
+        sources=build_sources(container.runtime),
         object_store=container.resolve(ObjectStore),
     )
 

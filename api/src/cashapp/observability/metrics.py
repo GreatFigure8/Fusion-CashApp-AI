@@ -10,17 +10,19 @@ Unverified against live: the ingestion endpoint host, the 50-streams-per-call li
 
 import asyncio
 import logging
-import os
 from collections import defaultdict, deque
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Final, Protocol
+from typing import TYPE_CHECKING, Any, Final, Protocol
 
 from cashapp.domain.clock import Clock, SystemClock
 from cashapp.domain.error_codes import ErrorCode
 from cashapp.domain.stages import ItemState, Stage
-from cashapp.settings import Settings
+from cashapp.settings import oci_signer
+
+if TYPE_CHECKING:
+    from cashapp.services.runtime_settings import RuntimeSettings
 
 _log = logging.getLogger(__name__)
 
@@ -176,15 +178,13 @@ class OciMonitoringExporter:
         self._compartment_id = compartment_id
 
     @classmethod
-    def from_environment(cls, namespace: str, compartment_id: str) -> "OciMonitoringExporter":
-        """Resource principal when the platform injects one, otherwise instance principal."""
+    def from_signer(
+        cls, signer: Any, namespace: str, compartment_id: str
+    ) -> "OciMonitoringExporter":
+        """The signer comes from `settings.oci_signer`, which owns the environment reads."""
         import oci  # pyright: ignore[reportMissingTypeStubs]
 
         sdk: Any = oci
-        if os.environ.get("OCI_RESOURCE_PRINCIPAL_VERSION"):
-            signer = sdk.auth.signers.get_resource_principals_signer()
-        else:
-            signer = sdk.auth.signers.InstancePrincipalsSecurityTokenSigner()
         client: MonitoringClientLike = sdk.monitoring.MonitoringClient(
             config={"region": REGION}, signer=signer, service_endpoint=INGESTION_ENDPOINT
         )
@@ -239,13 +239,17 @@ class OciMonitoringExporter:
                 )
 
 
-def build_metrics(settings: Settings) -> Metrics:
+def build_metrics(runtime: "RuntimeSettings") -> Metrics:
     """In-memory sink locally; OCI Monitoring everywhere else."""
-    if settings.env == "local":
+    if runtime.env == "local":
         return InMemoryMetrics()
+    signer = oci_signer(runtime.settings)
+    if signer is None:
+        raise RuntimeError("no OCI signer is available for OCI Monitoring")
     return Metrics(
-        OciMonitoringExporter.from_environment(
-            settings.observability.oci_monitoring_namespace,
-            settings.oci_genai.compartment_ocid,
+        OciMonitoringExporter.from_signer(
+            signer,
+            runtime.observability().oci_monitoring_namespace,
+            runtime.oci_genai().compartment_ocid,
         )
     )

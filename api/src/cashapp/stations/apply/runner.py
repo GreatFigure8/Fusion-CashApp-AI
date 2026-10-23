@@ -418,13 +418,13 @@ class ApplyRunner(StageRunner):
             RunnerDeps.from_container(container),
             fusion=fusion,
             gate=container.resolve(ReceiptApplyGate),
-            guard=WriteGuard.from_settings(container.settings, fusion.pod_name),
+            guard=WriteGuard.from_runtime(container.runtime, fusion.pod_name),
         )
 
     async def process(self, ctx: StageContext) -> StageOutcome:
         uow, item = ctx.uow, ctx.item
         try:
-            self._guard.check("apply_receipt")
+            await self._guard.check("apply_receipt")
         except FusionError as exc:
             raise StageError(exc.code, {"op": "apply_receipt"}, exc.message) from exc
 

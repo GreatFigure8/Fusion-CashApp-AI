@@ -3,7 +3,7 @@
 from collections.abc import Mapping, Sequence
 from typing import Literal, Protocol
 
-from cashapp.settings import Settings
+from cashapp.services.runtime_settings import RuntimeSettings
 
 ChannelName = Literal["email", "teams"]
 
@@ -36,15 +36,16 @@ class NotificationChannel(Protocol):
 Channels = Mapping[ChannelName, NotificationChannel]
 
 
-def build_channels(settings: Settings) -> Channels:
+def build_channels(runtime: RuntimeSettings) -> Channels:
     """The channels this environment can use. A missing channel suppresses its sends."""
     from cashapp.integrations.email.fake import FakeChannel
     from cashapp.integrations.email.smtp import SmtpEmailChannel
     from cashapp.integrations.email.teams_webhook import TeamsWebhookChannel
 
-    if settings.env == "local":
+    if runtime.env == "local":
         return {"email": FakeChannel("email"), "teams": FakeChannel("teams")}
     channels: dict[ChannelName, NotificationChannel] = {"teams": TeamsWebhookChannel()}
-    if settings.smtp is not None:
-        channels["email"] = SmtpEmailChannel(settings.smtp)
+    smtp = runtime.smtp()
+    if smtp is not None:
+        channels["email"] = SmtpEmailChannel(smtp, lambda: runtime.secret(smtp.password_ref))
     return channels

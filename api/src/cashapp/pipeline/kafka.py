@@ -4,17 +4,18 @@
 import asyncio
 import logging
 import ssl
-from collections.abc import AsyncIterator, Mapping, Sequence
+from collections.abc import AsyncIterator, Awaitable, Callable, Mapping, Sequence
 from typing import Any
 
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer, TopicPartition
 from aiokafka.admin import AIOKafkaAdminClient
+from pydantic import SecretStr
 
 from cashapp.domain.stages import Stage
 from cashapp.pipeline.bus import CommitTracker as _CommitTracker
 from cashapp.pipeline.bus import Delivery
 from cashapp.pipeline.events import TopicNamer, default_namer
-from cashapp.settings import StreamingSettings
+from cashapp.services.runtime_settings import StreamingConfig
 
 logger = logging.getLogger(__name__)
 
@@ -24,31 +25,36 @@ _MAX_POLL_RECORDS = 10
 class KafkaEventBus:
     """Producer per bus, one consumer per ``subscribe`` call.
 
-    The consumer group is used exactly as given (``settings.streaming.consumer_group``): the bus
+    The consumer group is used exactly as given (``streaming.consumer_group``): the bus
     never derives, suffixes or resets it. Offsets are committed only when a delivery's
     ``commit()`` is called, and only up to the highest contiguous completed offset.
     """
 
     def __init__(
         self,
-        streaming: StreamingSettings,
+        streaming: StreamingConfig,
+        secret: Callable[[str], Awaitable[SecretStr]],
         *,
         namer: TopicNamer | None = None,
         client_id: str = "cashapp",
     ) -> None:
         self._streaming = streaming
+        self._secret = secret
         self._namer = namer
         self._client_id = client_id
         self._producer: Any = None
         self._producer_lock = asyncio.Lock()
 
-    def _auth(self) -> dict[str, Any]:
+    async def _auth(self) -> dict[str, Any]:
+        """Connection arguments; the SASL password is resolved from Vault each time a client is
+        built, so a rotated token is picked up on the next connect."""
+        password = await self._secret(self._streaming.sasl_password_ref)
         return {
             "bootstrap_servers": self._streaming.bootstrap_servers,
             "security_protocol": "SASL_SSL",
             "sasl_mechanism": "PLAIN",
             "sasl_plain_username": self._streaming.sasl_username,
-            "sasl_plain_password": self._streaming.sasl_password.get_secret_value(),
+            "sasl_plain_password": password.get_secret_value(),
             "ssl_context": ssl.create_default_context(),
             "client_id": self._client_id,
         }
@@ -59,7 +65,9 @@ class KafkaEventBus:
     async def _started_producer(self) -> Any:
         async with self._producer_lock:
             if self._producer is None:
-                producer = AIOKafkaProducer(**self._auth(), acks="all", enable_idempotence=False)
+                producer = AIOKafkaProducer(
+                    **await self._auth(), acks="all", enable_idempotence=False
+                )
                 await producer.start()
                 self._producer = producer
             return self._producer
@@ -90,7 +98,7 @@ class KafkaEventBus:
             enable_auto_commit=False,
             auto_offset_reset="earliest",
             max_poll_records=_MAX_POLL_RECORDS,
-            **self._auth(),
+            **await self._auth(),
         )
         await consumer.start()
         trackers: dict[str, _CommitTracker] = {topic: _CommitTracker() for topic in topics}
@@ -139,7 +147,7 @@ class KafkaEventBus:
 
     async def _offsets(self, topic: str) -> tuple[list[Any], dict[Any, int], dict[Any, int]]:
         """Partitions, end offsets and beginning offsets of ``topic`` (empty when it has none)."""
-        consumer: Any = AIOKafkaConsumer(**self._auth())
+        consumer: Any = AIOKafkaConsumer(**await self._auth())
         await consumer.start()
         try:
             partitions = consumer.partitions_for_topic(topic)
@@ -157,7 +165,7 @@ class KafkaEventBus:
             tps, ends, begins = await self._offsets(topic)
             if not tps:
                 return -1
-            admin: Any = AIOKafkaAdminClient(**self._auth())
+            admin: Any = AIOKafkaAdminClient(**await self._auth())
             await admin.start()
             try:
                 committed = await admin.list_consumer_group_offsets(self._streaming.consumer_group)

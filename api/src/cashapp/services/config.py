@@ -25,7 +25,7 @@ from cashapp.data.repositories.config import (
 from cashapp.data.uow import UnitOfWork, UowFactory
 from cashapp.domain import config_keys as ck
 from cashapp.domain.clock import Clock, SystemClock
-from cashapp.domain.config_keys import CONFIG_KEYS, ConfigKey
+from cashapp.domain.config_keys import CONFIG_GROUPS, CONFIG_KEYS, ConfigKey
 from cashapp.domain.paging import Page
 from cashapp.domain.principal import Permission, Principal
 from cashapp.services.config_groups import (
@@ -53,6 +53,7 @@ logger = logging.getLogger(__name__)
 
 FABLE_MESSAGE = "Claude Fable models are not allowed (zero data retention)"
 MAX_REASON_LENGTH = 1000
+RESTART_NOTE = " [takes effect on restart]"
 DEFAULT_TTL_SECONDS = 15.0
 
 type ErrorDict = dict[str, Any]
@@ -268,7 +269,9 @@ def to_json[T](key: ConfigKey[T], value: T) -> JsonValue:
     return cast(JsonValue, key.dump(value))
 
 
-def normalize_reason(key: str, reason: str) -> str:
+def normalize_reason(key: str, reason: str, *, suffix: str = "") -> str:
+    """Trim and check a reason; `suffix` is appended after the length check is applied to the
+    text, so the stored reason stays within the limit."""
     cleaned = reason.strip()
     if not cleaned:
         raise ConfigValidationError(key, [_fail("A reason is required", "reason")])
@@ -276,6 +279,8 @@ def normalize_reason(key: str, reason: str) -> str:
         raise ConfigValidationError(
             key, [_fail(f"Reason must be at most {MAX_REASON_LENGTH} characters", "reason")]
         )
+    if suffix:
+        cleaned = cleaned[: MAX_REASON_LENGTH - len(suffix)] + suffix
     return cleaned
 
 
@@ -618,7 +623,11 @@ class ConfigWriter:
         registry_key = lookup_key(key if isinstance(key, str) else key.name)
         if not principal.can(Permission.CONFIG_WRITE):
             raise ConfigForbidden("Missing permission config:write")
-        cleaned_reason = normalize_reason(registry_key.name, reason)
+        cleaned_reason = normalize_reason(
+            registry_key.name,
+            reason,
+            suffix=RESTART_NOTE if registry_key.restart_required else "",
+        )
         new_json = to_json(registry_key, validate_value(registry_key, value))
 
         repo = uow.repo(ConfigSettingRepository)
@@ -675,6 +684,30 @@ class ConfigEntryData:
     updated_by_name: str | None
     updated_at: datetime.datetime | None
     admin_only_write: bool
+    restart_required: bool
+    secret_ref: bool
+    last_changed_at: datetime.datetime | None
+    last_changed_by: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class ConfigGroupData:
+    group: str
+    label: str
+    count: int
+    description: str
+
+
+def list_config_groups() -> list[ConfigGroupData]:
+    """Every group with its key count, by `GroupSpec.order` and then by name."""
+    counts: dict[str, int] = {}
+    for key in CONFIG_KEYS.values():
+        counts[key.group] = counts.get(key.group, 0) + 1
+    groups = [
+        ConfigGroupData(group, CONFIG_GROUPS[group].label, count, CONFIG_GROUPS[group].description)
+        for group, count in counts.items()
+    ]
+    return sorted(groups, key=lambda g: (CONFIG_GROUPS[g.group].order, g.group))
 
 
 async def list_config_entries(uow: UnitOfWork, only: str | None = None) -> list[ConfigEntryData]:
@@ -706,6 +739,10 @@ async def list_config_entries(uow: UnitOfWork, only: str | None = None) -> list[
                 updated_by_name=change.changed_by_name if change is not None else None,
                 updated_at=row.updated_at if row is not None else None,
                 admin_only_write=key.admin_only_write,
+                restart_required=key.restart_required,
+                secret_ref=key.secret_ref,
+                last_changed_at=change.changed_at if change is not None else None,
+                last_changed_by=change.changed_by_name if change is not None else None,
             )
         )
     return entries

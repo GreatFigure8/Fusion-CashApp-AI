@@ -58,8 +58,20 @@ references from Terraform and read OCI Vault at runtime. GitHub OIDC to OCI is a
 
 ## Fusion writes
 
-`fusion_write_enabled` defaults to false and sets `CASHAPP_FUSION__WRITE_ENABLED` on the workers. Turning it
-on for prod is an explicit input on each release (`--fusion-write-enabled`).
+`fusion.write_enabled` is a DB config key set in Settings (admin role, with a reason); it is hot, so a change
+takes effect on the next write without a rollout. It defaults to false. The release input
+`--fusion-write-enabled` and the Terraform variable `fusion_write_enabled` only supply the value the one-time
+seed (below) writes the first time; they do not change an existing setting.
+
+## Settings and the one-time seed
+
+Containers receive only the bootstrap environment: `CASHAPP_ENV`, `CASHAPP_ATP__*`, `CASHAPP_WORKER__HEALTH_PORT`
+and `CASHAPP_SECRETS__*` (see `docs/reference/settings.md`). Every other setting is a DB config key. Migration
+`s48_db_stored_settings` seeds those keys from the old `CASHAPP_*` variables of the process that runs it. Terraform
+exposes them as the sensitive output `migration_env` (`local.settings_seed_env` plus the bootstrap set), and
+`migrate.sh` hands that output to the migration container only (`RUN_IN_VCN_ENV_OUTPUT`). The seed fails, naming
+every missing value, instead of writing an empty one. After the first release that applies `s48` in an
+environment, `settings_seed_env` can be emptied.
 
 ## First-time bootstrap
 

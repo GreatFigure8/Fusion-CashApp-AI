@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, Query, Response
 from cashapp.api.config_deps import RuntimeConfigDep
 from cashapp.api.deps import UowFactoryDep
 from cashapp.api.errors import ERROR_RESPONSES, ApiError
+from cashapp.api.runtime_deps import RuntimeSettingsDep
 from cashapp.api.schemas.reports import (
     DailySummaryResponse,
     EmailRequest,
@@ -112,12 +113,13 @@ async def email_daily_summary(
     principal: ReportsDep,
     uow_factory: UowFactoryDep,
     runtime: RuntimeConfigDep,
+    runtime_settings: RuntimeSettingsDep,
     clock: ClockDep,
 ) -> EmailResponse:
     config = await runtime.snapshot()
     try:
         async with uow_factory() as uow:
-            info = await ReportService(clock=clock).email_daily(
+            info = await ReportService(clock=clock, runtime_settings=runtime_settings).email_daily(
                 uow, body.date, body.recipients, principal, config
             )
             await uow.commit()

@@ -90,7 +90,7 @@ class RunnerDeps:
             bus=container.bus,
             clock=container.clock,
             failure_handler=container.failure_handler,
-            namer=TopicNamer.from_settings(container.settings.streaming),
+            namer=TopicNamer.from_config(container.runtime.streaming(), container.runtime.env),
         )
 
 
@@ -576,7 +576,7 @@ def consumer_role(runner_cls: type[StageRunner], name: str | None = None) -> Rol
         return StageConsumer(
             runner_cls.build(container),
             container.bus,
-            container.settings.streaming.consumer_group,
+            container.runtime.streaming().consumer_group,
             name=role_name,
         )
 

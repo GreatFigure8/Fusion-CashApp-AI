@@ -117,3 +117,9 @@ output "alarm_topic_id" {
   description = "OCID of the alarm notification topic."
   value       = module.observability.alarm_topic_id
 }
+
+output "migration_env" {
+  description = "Environment for the release migration container only: the bootstrap set plus the legacy variables the s48 data migration seeds the DB settings from."
+  value       = merge(local.api_env, local.settings_seed_env)
+  sensitive   = true
+}

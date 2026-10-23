@@ -22,6 +22,17 @@ class ConfigEntry(BaseModel):
     updated_by_name: str | None
     updated_at: datetime | None
     admin_only_write: bool
+    restart_required: bool
+    secret_ref: bool
+    last_changed_at: datetime | None
+    last_changed_by: str | None
+
+
+class ConfigGroupOut(BaseModel):
+    group: str
+    label: str
+    count: int
+    description: str
 
 
 class ConfigUpdate(BaseModel):

@@ -39,6 +39,7 @@ from cashapp.pipeline.failures import FailureDecision, FailureHandler, decision_
 from cashapp.pipeline.runner import StageContext
 from cashapp.services.autofix.engine import build_failure_handler
 from cashapp.services.config import ConfigSnapshot, RuntimeConfig
+from cashapp.services.runtime_settings import RuntimeSettings
 from cashapp.settings import Settings
 from cashapp.tools.anonymise.fixture_format import ExpectedDecision, PriorFixtures, expected_for
 
@@ -80,6 +81,10 @@ class _EvalContainer:
     @property
     def settings(self) -> Settings:
         raise RuntimeError("settings are not available in the evaluation harness")
+
+    @property
+    def runtime(self) -> RuntimeSettings:
+        raise RuntimeError("runtime settings are not available in the evaluation harness")
 
     @property
     def uow_factory(self) -> UowFactory:

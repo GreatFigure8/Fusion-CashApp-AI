@@ -15,10 +15,10 @@ def build(container: Container) -> "ReceiptArrivedConsumer":
     return ReceiptArrivedConsumer(
         uow_factory=container.uow_factory,
         bus=container.bus,
-        group=container.settings.streaming.consumer_group,
+        group=container.runtime.streaming().consumer_group,
         config=container.config,
         clock=container.clock,
-        namer=TopicNamer.from_settings(container.settings.streaming),
+        namer=TopicNamer.from_config(container.runtime.streaming(), container.runtime.env),
     )
 
 

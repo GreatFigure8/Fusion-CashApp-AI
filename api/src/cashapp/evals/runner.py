@@ -65,10 +65,11 @@ class _DiscardRecorder:
 async def _live_clients(snapshot: ConfigSnapshot) -> LlmClients:
     # Imported here so a replay run never loads the Anthropic and OCI SDKs.
     from cashapp.integrations.llm.factory import build_llm_clients
+    from cashapp.services.runtime_settings import start_runtime_settings
     from cashapp.settings import aload_settings
 
-    settings = await aload_settings()
-    return build_llm_clients(settings, snapshot, recorder=_DiscardRecorder())
+    runtime = await start_runtime_settings(await aload_settings())
+    return build_llm_clients(runtime, snapshot, recorder=_DiscardRecorder())
 
 
 def _replay_clients(options: EvalOptions) -> LlmClients:

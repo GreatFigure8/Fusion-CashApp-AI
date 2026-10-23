@@ -1,14 +1,17 @@
-"""Secret resolution: `vault:<secret-ocid>` references become values once, at startup.
+"""Secret resolution: a secret OCID becomes a value at the moment it is used.
 
-Exactly two `SecretSource` implementations exist: OCI Vault (deployed) and the environment
-(local and tests). Errors name the reference (an OCID, which is not secret), never a value.
+Exactly two `SecretSource` implementations exist: OCI Vault (deployed) and a value map (local and
+tests). `SecretResolver` caches resolved values for a short TTL and never logs them. Errors name
+the reference (an OCID, which is not secret), never a value.
 """
 
 import asyncio
 import base64
-import os
-from collections.abc import Mapping
+import time
+from collections.abc import Callable, Mapping
 from typing import Any, Protocol
+
+from pydantic import SecretStr
 
 VAULT_PREFIX = "vault:"
 VAULT_REGION = "us-ashburn-1"
@@ -41,15 +44,11 @@ class VaultSecretSource:
         self._client = client
 
     @classmethod
-    def from_environment(cls) -> "VaultSecretSource":
-        """Resource principal when the platform injects one, otherwise instance principal."""
+    def from_signer(cls, signer: Any) -> "VaultSecretSource":
+        """The signer comes from `settings.oci_signer`, which owns the environment reads."""
         import oci  # pyright: ignore[reportMissingTypeStubs]
 
         sdk: Any = oci
-        if os.environ.get("OCI_RESOURCE_PRINCIPAL_VERSION"):
-            signer = sdk.auth.signers.get_resource_principals_signer()
-        else:
-            signer = sdk.auth.signers.InstancePrincipalsSecurityTokenSigner()
         client: SecretsClientLike = sdk.secrets.SecretsClient(
             config={"region": VAULT_REGION}, signer=signer
         )
@@ -70,10 +69,10 @@ class VaultSecretSource:
 
 
 class EnvSecretSource:
-    """Resolves references from a mapping (the process environment by default)."""
+    """Resolves references from a mapping of OCID to value (local development and tests)."""
 
-    def __init__(self, values: Mapping[str, str] | None = None) -> None:
-        self._values: Mapping[str, str] = os.environ if values is None else values
+    def __init__(self, values: Mapping[str, str]) -> None:
+        self._values: Mapping[str, str] = values
 
     async def resolve(self, ref: str) -> str:
         try:
@@ -125,3 +124,46 @@ async def resolve_secret_refs(data: dict[str, Any], source: SecretSource) -> dic
         return _substitute(data, {})  # still a deep copy
     values = await asyncio.gather(*(source.resolve(ref) for ref in refs))
     return _substitute(data, dict(zip(refs, values, strict=True)))
+
+
+class SecretResolver:
+    """Resolves a secret OCID at use, with a TTL cache and one in-flight read per reference."""
+
+    def __init__(
+        self,
+        source: SecretSource,
+        *,
+        ttl_seconds: float = 300.0,
+        clock: Callable[[], float] | None = None,
+    ) -> None:
+        self._source = source
+        self._ttl = ttl_seconds
+        self._clock: Callable[[], float] = clock if clock is not None else time.monotonic
+        self._cache: dict[str, tuple[float, SecretStr]] = {}
+        self._lock = asyncio.Lock()
+
+    def _cached(self, ref: str) -> SecretStr | None:
+        entry = self._cache.get(ref)
+        if entry is None:
+            return None
+        stamped, value = entry
+        return value if 0 <= self._clock() - stamped < self._ttl else None
+
+    async def resolve(self, ref: str) -> SecretStr:
+        cached = self._cached(ref)
+        if cached is not None:
+            return cached
+        async with self._lock:
+            cached = self._cached(ref)
+            if cached is not None:
+                return cached
+            value = SecretStr(await self._source.resolve(ref))
+            self._cache[ref] = (self._clock(), value)
+            return value
+
+    def invalidate(self, ref: str | None = None) -> None:
+        """Forget one reference, or all of them (after a rotation or a changed ref)."""
+        if ref is None:
+            self._cache.clear()
+        else:
+            self._cache.pop(ref, None)

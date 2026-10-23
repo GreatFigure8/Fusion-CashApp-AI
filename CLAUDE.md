@@ -59,6 +59,7 @@ Oracle Autonomous AI Database (ATP)
 
 - Next.js never connects to the database. Its route handlers and server actions are thin proxies to the Python API, typed from the API's OpenAPI schema. They hold no business rules.
 - The `nextjs-fullstack-standards` rules still apply to everything else in `web/`: strict TypeScript, Zod at boundaries, Server Components by default, shadcn primitives from the CLI, `Result`-style errors. Its `lib/db` and `lib/repositories` sections don't apply here.
+- All settings except the database connection (and the few bootstrap values listed in docs/reference/settings.md) are DB config keys, edited in Settings, versioned and audited.
 - Layers depend only downward. Routers never import SQLAlchemy. Repositories never contain business rules. Services never touch `Request` or `Response` objects, so the same service can be called from a router, a stage runner or a test without changes.
 
 ### Data layer (`api/.../data/`)

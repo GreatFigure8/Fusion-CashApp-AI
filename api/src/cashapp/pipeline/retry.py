@@ -118,8 +118,8 @@ class RetryForwarder:
 def _build_forwarder(container: Container) -> RetryForwarder:
     return RetryForwarder(
         container.bus,
-        container.settings.streaming.consumer_group,
-        namer=TopicNamer.from_settings(container.settings.streaming),
+        container.runtime.streaming().consumer_group,
+        namer=TopicNamer.from_config(container.runtime.streaming(), container.runtime.env),
         clock=container.clock,
     )
 
