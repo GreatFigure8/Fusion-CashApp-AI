@@ -288,20 +288,27 @@ Facts from the previous build (reference doc §3):
 
 ## Repository layout
 
-*Proposed.* Create it in the first BMN run, then update this section to match what was built.
+```
+api/                          Python service (uv project, package `cashapp`)
+  src/cashapp/
+    main.py                   create_app(): middleware, error handlers, router auto-discovery
+    api/                      transmission layer: errors.py (single error shape), middleware.py, discovery.py
+      routers/                one module per endpoint group, each exporting `router`
+    data/                     data layer: engine.py, base.py, models/, repositories/
+    domain/ services/ pipeline/ stations/ pollers/ integrations/ workers/ observability/ auth/ tools/
+  alembic/                    async migrations against ATP (env.py auto-imports data/models/*)
+  tests/                      pytest (conftest.py, support/)
+web/                          Next.js App Router, no src/ directory
+  app/ components/{ui,common}/ lib/ hooks/ tests/ e2e/
+infra/                        Terraform: versions.tf, providers.tf, variables.tf, modules/, envs/{dev,prod}
+docs/                         design notes and reference/; BMN writes runs to docs/sprints/bmn-<run-slug>/
+```
 
-```
-api/          Python service (uv project): data/, services/, pipeline/, api/ (routers), integrations/, workers
-  alembic/    migrations against ATP
-  tests/
-web/          Next.js app
-infra/        OCI infrastructure as code (Terraform / Resource Manager)
-docs/         design notes and reference/; BMN writes runs to docs/sprints/bmn-<run-slug>/
-```
+- Router auto-discovery: a new endpoint group is a new module in `api/src/cashapp/api/routers/` exporting `router`. No story edits `main.py`.
+- New ORM models are new modules in `api/src/cashapp/data/models/`; `alembic/env.py` imports them automatically.
+- `components/ui/` is shadcn CLI output only (this shadcn version has `field` instead of `form`). Shared components go in `components/common/`.
 
 ## Commands
-
-*Proposed defaults.* Nothing is scaffolded yet. Once the first run creates the projects, replace this section with the real commands.
 
 **API (`api/`):** Python 3.12+, `uv`
 
@@ -309,11 +316,13 @@ docs/         design notes and reference/; BMN writes runs to docs/sprints/bmn-<
 uv sync                                   # install
 uv run ruff check . && uv run ruff format --check .
 uv run pyright                            # type-check (BMN code gate)
-uv run pytest                             # full suite
+uv run pytest                             # full suite (atp and live markers skipped by default)
+uv run pytest -m atp                      # tests needing the DEV ATP schema
 uv run pytest tests/test_matching.py::test_exact_amount   # single test
-uv run alembic upgrade head               # apply migrations (DEV schema only)
-uv run alembic revision --autogenerate -m "<msg>"
-uv run fastapi dev src/<pkg>/main.py      # run the API locally
+CASHAPP_DATABASE_URL=... uv run alembic upgrade head      # apply migrations (DEV schema only)
+CASHAPP_DATABASE_URL=... uv run alembic revision --autogenerate -m "<msg>"
+uv run alembic heads
+uv run fastapi dev src/cashapp/main.py    # run the API locally
 ```
 
 **Web (`web/`):**
@@ -323,7 +332,14 @@ npm install
 npx next typegen && npx tsc --noEmit      # type-check (BMN code gate)
 npx eslint .                              # lint (BMN code gate)
 npx vitest run path/to/file.test.ts -t "name"   # single test
+npx playwright test                       # e2e (builds and serves on PLAYWRIGHT_PORT, default 3100)
 npm run dev
+```
+
+**Infra (`infra/`):**
+
+```bash
+terraform -chdir=infra init -backend=false && terraform -chdir=infra fmt -check -recursive && terraform -chdir=infra validate
 ```
 
 ## Working with BMN
