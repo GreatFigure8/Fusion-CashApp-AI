@@ -32,6 +32,7 @@ export function ConfirmDialog({
   expectedVersion,
   reasonLabel = "Reason",
   reasonPlaceholder,
+  defaultReason = "",
   pending = false,
   error,
   onConfirm,
@@ -45,12 +46,14 @@ export function ConfirmDialog({
   expectedVersion?: number;
   reasonLabel?: string;
   reasonPlaceholder?: string;
+  /** Prefills the reason; the caller re-keys the dialog when the prefill changes. */
+  defaultReason?: string;
   pending?: boolean;
   error?: ReactNode;
   onConfirm: (result: { reason: string }) => void | Promise<void>;
 }) {
   const { me } = useShellSession();
-  const [reason, setReason] = useState("");
+  const [reason, setReason] = useState(defaultReason);
   const trimmed = reason.trim();
   const role = highestRole(me);
   const actor = role ? `${me.display_name} · ${role}` : me.display_name;
@@ -60,7 +63,7 @@ export function ConfirmDialog({
     <AlertDialog
       open={open}
       onOpenChange={(next) => {
-        if (!next) setReason("");
+        if (!next) setReason(defaultReason);
         onOpenChange(next);
       }}
     >

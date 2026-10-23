@@ -8,6 +8,7 @@ export const STREAM_PATHS = [
   "/engine/stream",
   "/metrics/stream",
   "/chat/tool-calls/:id/confirm",
+  "/lab/replays/:id/stream",
 ] as const;
 
 type ExpandParams<P extends string> = P extends `${infer Head}:${string}/${infer Tail}`
