@@ -4,12 +4,25 @@ import datetime as dt
 from decimal import Decimal
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, PlainSerializer, StringConstraints
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    PlainSerializer,
+    StringConstraints,
+    field_validator,
+)
 
 from cashapp.domain.error_codes import ErrorCode
 from cashapp.domain.money import CurrencyCode, MoneyStr
-from cashapp.domain.reports import GENERATED_BY_CUTOVER
+from cashapp.domain.reports import (
+    GENERATED_BY_CUTOVER,
+    HtmlReportKind,
+    ReportSection,
+    ReportWindow,
+)
 from cashapp.domain.status import LineStatus
+from cashapp.services.reports.html_service import ReportExportInfo
 from cashapp.services.reports.models import (
     DailySummary,
     PartiallyPaidRow,
@@ -191,3 +204,46 @@ class EmailResponse(BaseModel):
     date: dt.date
     emailed_to: list[str]
     emailed_at: dt.datetime
+
+
+class HtmlExportRequest(BaseModel):
+    """Body of ``POST /reports/html/export``: the same three fields the preview takes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: HtmlReportKind
+    window: ReportWindow
+    sections: Annotated[list[ReportSection], Field(min_length=1, max_length=len(ReportSection))]
+
+    @field_validator("sections")
+    @classmethod
+    def _unique(cls, value: list[ReportSection]) -> list[ReportSection]:
+        return list(dict.fromkeys(value))
+
+
+class ReportExportOut(BaseModel):
+    id: int
+    kind: HtmlReportKind
+    window: ReportWindow
+    sections: list[ReportSection]
+    filename: str
+    bytes: int
+    actor_name: str
+    at: dt.datetime
+
+    @classmethod
+    def of(cls, info: ReportExportInfo) -> "ReportExportOut":
+        return cls(
+            id=info.id,
+            kind=info.kind,
+            window=info.window,
+            sections=list(info.sections),
+            filename=info.filename,
+            bytes=info.bytes,
+            actor_name=info.actor_name,
+            at=info.at,
+        )
+
+
+class ReportExportsResponse(BaseModel):
+    data: list[ReportExportOut]

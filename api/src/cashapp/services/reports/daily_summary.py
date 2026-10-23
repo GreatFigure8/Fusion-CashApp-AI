@@ -1,6 +1,6 @@
 """The daily summary: counts, money applied and aging for one UTC day."""
 
-from datetime import date
+from datetime import date, datetime
 from decimal import ROUND_HALF_UP, Decimal
 
 from cashapp.data.repositories.reports import ReportQueryRepository
@@ -25,6 +25,18 @@ def percent(part: int, whole: int) -> Decimal | None:
     return (Decimal(part) * _HUNDRED / Decimal(whole)).quantize(_ONE_DP, rounding=ROUND_HALF_UP)
 
 
+async def aging_counts(uow: UnitOfWork, as_of: datetime) -> tuple[AgingBucketCount, ...]:
+    """Open items bucketed by age at ``as_of``. The one aging query; the daily summary uses it."""
+    open_since = await ReportQueryRepository(uow.session).open_item_ages(as_of)
+    counts = dict.fromkeys((bucket.key for bucket in AGING_BUCKETS), 0)
+    for since in open_since:
+        age_days = max(0, int((as_of - since).total_seconds() // _SECONDS_PER_DAY))
+        counts[bucket_for(age_days).key] += 1
+    return tuple(
+        AgingBucketCount(bucket.key, bucket.label, counts[bucket.key]) for bucket in AGING_BUCKETS
+    )
+
+
 async def daily_summary(uow: UnitOfWork, day: date) -> DailySummary:
     start, end = day_bounds(day)
     queries = ReportQueryRepository(uow.session)
@@ -34,12 +46,7 @@ async def daily_summary(uow: UnitOfWork, day: date) -> DailySummary:
     applied = await queries.applied_by_currency(start, end)
     failures = await queries.failures_by_code(start, end)
     escalations = await queries.escalations(start, end)
-    open_since = await queries.open_item_ages(end)
-
-    counts = dict.fromkeys((bucket.key for bucket in AGING_BUCKETS), 0)
-    for since in open_since:
-        age_days = max(0, int((end - since).total_seconds() // _SECONDS_PER_DAY))
-        counts[bucket_for(age_days).key] += 1
+    aging = await aging_counts(uow, end)
 
     return DailySummary(
         day=day,
@@ -49,10 +56,7 @@ async def daily_summary(uow: UnitOfWork, day: date) -> DailySummary:
         auto_applied_pct=percent(auto_applied, completed),
         applied_by_currency=tuple(CurrencyAmount(code, amount) for code, amount in applied),
         failures_by_error_code=tuple(ErrorCodeCount(code, count) for code, count in failures),
-        aging_buckets=tuple(
-            AgingBucketCount(bucket.key, bucket.label, counts[bucket.key])
-            for bucket in AGING_BUCKETS
-        ),
+        aging_buckets=aging,
         escalations=escalations,
         has_activity=(items_in + completed + escalations + sum(count for _, count in failures)) > 0,
     )

@@ -17,7 +17,6 @@ export function ReportsTabs({
   const router = useRouter();
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold tracking-tight">Reports</h1>
       <Tabs
         value={tab}
         onValueChange={(next) => {

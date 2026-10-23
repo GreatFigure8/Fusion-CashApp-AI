@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+<title>{{ title }}</title>
+<style>
+body{margin:0;background:#fbfbfd;color:#151922;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:1.5}
+.doc{max-width:860px;margin:0 auto;padding:40px 44px;display:flex;flex-direction:column;gap:20px}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.label{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#5d6778}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+h1{margin:6px 0 0;font-size:28px;font-weight:600;letter-spacing:-.01em}
+h2{margin:0 0 8px;font-size:16px;font-weight:600}
+.stamp{font-size:12px;color:#5d6778;text-align:right}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.tile{border-radius:10px;background:#eef1f5;padding:12px 14px;display:flex;flex-direction:column}
+.tile .k{font-size:12px;color:#5d6778}
+.tile .v{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:24px}
+.tile .n{font-size:11.5px;color:#5d6778}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-weight:600;color:#5d6778;border-bottom:1px solid #d6dbe3;padding:7px 8px}
+td{border-bottom:1px solid #e6e9ef;padding:7px 8px}
+.r{text-align:right}
+td.r{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.scroll{overflow-x:auto}
+.note{margin:0;font-size:12px;color:#5d6778}
+svg{display:block;width:100%;height:100px}
+@media print{body{background:#fff}.doc{padding:0;max-width:none}.tile{break-inside:avoid}section{break-inside:avoid}}
+</style>
+</head>
+<body>
+<article class="doc" data-as-of="{{ as_of_value }}" aria-label="{{ title }}">
+<header class="head">
+<div><div class="label">{{ title }}</div><h1>{{ range_text }}</h1></div>
+<div class="stamp"><div>{{ generated_text }}</div><div>{{ as_of_text }}</div></div>
+</header>
+{% if "HEADLINE" in sections %}
+<section data-section="HEADLINE">
+<div class="tiles">
+{% for tile in tiles %}
+<div class="tile"><span class="k">{{ tile.label }}</span><span class="v">{{ tile.value }}</span><span class="n">{{ tile.note }}</span></div>
+{% endfor %}
+</div>
+</section>
+{% endif %}
+{% if "MONEY_BY_CURRENCY" in sections %}
+<section data-section="MONEY_BY_CURRENCY">
+<h2>Money applied by currency</h2>
+{% if money_rows %}
+<div class="scroll"><table>
+<thead><tr><th>Currency</th><th class="r">Applied</th><th class="r">Receipts</th><th class="r">Residual</th></tr></thead>
+<tbody>
+{% for row in money_rows %}
+<tr><td>{{ row.currency }}</td><td class="r">{{ row.applied }}</td><td class="r">{{ row.receipts }}</td><td class="r">{{ row.residual }}</td></tr>
+{% endfor %}
+</tbody>
+</table></div>
+{% else %}
+<p class="note">No money was applied in this window.</p>
+{% endif %}
+<p class="note">Each currency is shown on its own and never summed with another.</p>
+</section>
+{% endif %}
+{% if "THROUGHPUT" in sections %}
+<section data-section="THROUGHPUT">
+<h2>Daily throughput</h2>
+<svg viewBox="0 0 {{ svg_width }} {{ svg_height }}" preserveAspectRatio="none" role="img" aria-label="{{ svg_label }}"><line x1="0" y1="{{ svg_base }}" x2="{{ svg_width }}" y2="{{ svg_base }}" stroke="#d6dbe3"></line><path d="{{ svg_path }}" fill="none" stroke="#2f5bdb" stroke-width="2.5" vector-effect="non-scaling-stroke"></path></svg>
+</section>
+{% endif %}
+{% if "EXCEPTIONS_BY_REASON" in sections %}
+<section data-section="EXCEPTIONS_BY_REASON">
+<h2>Exceptions by reason</h2>
+{% if reason_rows %}
+<div class="scroll"><table>
+<thead><tr><th>Error code</th><th class="r">Items</th><th class="r">Fixed</th></tr></thead>
+<tbody>
+{% for row in reason_rows %}
+<tr><td class="mono">{{ row.code }}</td><td class="r">{{ row.count }}</td><td class="r">{{ row.fixed }}</td></tr>
+{% endfor %}
+</tbody>
+</table></div>
+{% else %}
+<p class="note">No auto-fix attempts in this window.</p>
+{% endif %}
+{% if show_aging %}
+<h2 style="margin-top:16px">Open items by age</h2>
+<div class="scroll"><table>
+<thead><tr><th>Age</th><th class="r">Items</th></tr></thead>
+<tbody>
+{% for row in aging_rows %}
+<tr><td>{{ row.label }}</td><td class="r">{{ row.count }}</td></tr>
+{% endfor %}
+</tbody>
+</table></div>
+<h2 style="margin-top:16px">Oldest open exceptions</h2>
+{% if oldest_rows %}
+<div class="scroll"><table>
+<thead><tr><th>Item</th><th>Payer</th><th class="r">Amount</th><th class="r">Age</th></tr></thead>
+<tbody>
+{% for row in oldest_rows %}
+<tr><td class="mono">{{ row.item }}</td><td>{{ row.payer }}</td><td class="r">{{ row.amount }}</td><td class="r">{{ row.age }}</td></tr>
+{% endfor %}
+</tbody>
+</table></div>
+{% else %}
+<p class="note">No open exceptions.</p>
+{% endif %}
+{% endif %}
+</section>
+{% endif %}
+{% if "MODEL_EFFICIENCY" in sections %}
+<section data-section="MODEL_EFFICIENCY">
+<h2>Model efficiency</h2>
+{% if model_rows %}
+<div class="scroll"><table>
+<thead><tr><th>Role</th><th>Model</th><th class="r">Calls</th><th class="r">Cost</th><th class="r">Cost unknown</th><th class="r">Agreement</th><th class="r">Human corr.</th><th class="r">Accuracy</th></tr></thead>
+<tbody>
+{% for row in model_rows %}
+<tr><td>{{ row.role }}</td><td class="mono">{{ row.model }}</td><td class="r">{{ row.calls }}</td><td class="r">{{ row.cost }}</td><td class="r">{{ row.cost_unknown }}</td><td class="r">{{ row.agreement }}</td><td class="r">{{ row.correction }}</td><td class="r">{{ row.accuracy }}</td></tr>
+{% endfor %}
+</tbody>
+</table></div>
+{% else %}
+<p class="note">No model calls in this window.</p>
+{% endif %}
+</section>
+{% endif %}
+<footer>
+{% for note in footnotes %}
+<p class="note">{{ note }}</p>
+{% endfor %}
+</footer>
+</article>
+</body>
+</html>
