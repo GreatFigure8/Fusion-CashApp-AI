@@ -21,8 +21,13 @@ NOISE_CODES: frozenset[str] = frozenset(
     }
 )
 
+# UNVERIFIED: Fusion's fault code(s) for a rejected discount. Empty until the s39 live probe
+# records them; until then a rejection arrives as FUSION_FAULT (fail closed, a person decides).
+DISCOUNT_REJECT_CODES: frozenset[str] = frozenset()
+
 FUSION_CODE_MAP: Mapping[str, ErrorCode] = MappingProxyType(
     {
+        **dict.fromkeys(DISCOUNT_REJECT_CODES, ErrorCode.FUSION_DISCOUNT_REJECTED),
         "AR-855287": ErrorCode.FUSION_OVERAPPLY,
         "AR-856102": ErrorCode.FUSION_ALREADY_APPLIED,
         "ORA-00054": ErrorCode.FUSION_LOCKED,
@@ -35,6 +40,7 @@ FUSION_CODE_MAP: Mapping[str, ErrorCode] = MappingProxyType(
 _PRECEDENCE: tuple[ErrorCode, ...] = (
     ErrorCode.FUSION_OVERAPPLY,
     ErrorCode.FUSION_ALREADY_APPLIED,
+    ErrorCode.FUSION_DISCOUNT_REJECTED,
     ErrorCode.FUSION_GL_DATE,
     ErrorCode.FUSION_LOCKED,
 )

@@ -21,11 +21,13 @@ from cashapp.integrations.fusion.fake import FakeFusionClient
 from cashapp.integrations.fusion.guard import WriteGuard
 from cashapp.integrations.fusion.models import (
     CustomerRelationship,
+    DiscountTier,
     FusionApplication,
     FusionCustomer,
     FusionCustomerSite,
     FusionReceipt,
     FusionTransaction,
+    PaymentTerms,
     TransactionKind,
 )
 
@@ -47,6 +49,7 @@ class FusionScenario:
         self._applications: list[FusionApplication] = []
         self._relationships: list[CustomerRelationship] = []
         self._reports: dict[str, bytes] = {}
+        self._payment_terms: dict[str, PaymentTerms] = {}
 
     def customer(
         self,
@@ -76,6 +79,7 @@ class FusionScenario:
         terms: str | None = None,
         business_unit: str = "BU1",
         bill_to_site: str | None = None,
+        transaction_date: date | None = None,
     ) -> Self:
         original = _m(amount)
         self._transactions[f"{number}|{TransactionKind.INVOICE}"] = FusionTransaction(
@@ -90,6 +94,7 @@ class FusionScenario:
             bill_to_site=bill_to_site,
             business_unit=business_unit,
             payment_terms=terms,
+            transaction_date=transaction_date,
         )
         return self
 
@@ -181,6 +186,26 @@ class FusionScenario:
         )
         return self
 
+    def payment_terms(
+        self,
+        name: str,
+        tiers: Sequence[tuple[int, str | Decimal]],
+        *,
+        term_id: int | None = None,
+    ) -> Self:
+        """Define payment terms; each tier is `(days, percent)` with percent 2 meaning 2%."""
+        self._payment_terms[name] = PaymentTerms(
+            term_id=term_id,
+            name=name,
+            discount_tiers=tuple(
+                sorted(
+                    (DiscountTier(days=d, percent=Decimal(str(p))) for d, p in tiers),
+                    key=lambda t: t.days,
+                )
+            ),
+        )
+        return self
+
     def relationship(self, account: str, related: str, *, name: str | None = None) -> Self:
         self._relationships.append(CustomerRelationship(account, related, name, _BOTH))  # pyright: ignore[reportArgumentType]
         return self
@@ -197,6 +222,7 @@ class FusionScenario:
             receipts=self._receipts.values(),
             applications=self._applications,
             customers=self._customers.values(),
+            payment_terms=self._payment_terms.values(),
             relationships=self._relationships,
             reports=self._reports,
             guard=guard,
@@ -241,6 +267,12 @@ def _populate(scenario: FusionScenario, client: FakeFusionClient) -> FusionScena
         )
         for r in document["relationships"]
     ]
+    for terms in document["payment_terms"]:
+        scenario.payment_terms(
+            terms["name"],
+            [(t["days"], t["percent"]) for t in terms["tiers"]],
+            term_id=terms["term_id"],
+        )
     scenario._reports = {k: v.encode("utf-8") for k, v in document["reports"].items()}  # pyright: ignore[reportPrivateUsage]
     return scenario
 

@@ -30,6 +30,22 @@ class FusionTransaction:
     bill_to_site: str | None = None
     business_unit: str | None = None
     payment_terms: str | None = None
+    transaction_date: date | None = None  # invoices: TransactionDate (UNVERIFIED)
+
+
+@dataclass(frozen=True, slots=True)
+class DiscountTier:
+    """One early-payment tier: `percent` (2.00 means 2%) if paid within `days` of the invoice."""
+
+    days: int
+    percent: Decimal
+
+
+@dataclass(frozen=True, slots=True)
+class PaymentTerms:
+    term_id: int | None
+    name: str
+    discount_tiers: tuple[DiscountTier, ...]  # sorted by days ascending
 
 
 @dataclass(frozen=True, slots=True)
@@ -56,6 +72,7 @@ class FusionApplication:
     amount_applied: Decimal
     apply_date: date
     status: str  # "APP"; reversed applications are kept with their status
+    discount_amount: Decimal | None = None  # earned discount taken (UNVERIFIED)
 
 
 @dataclass(frozen=True, slots=True)

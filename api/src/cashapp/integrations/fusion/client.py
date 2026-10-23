@@ -12,7 +12,7 @@ from collections.abc import Awaitable, Callable, Mapping, Sequence
 from datetime import UTC, date, datetime, time
 from decimal import Decimal
 from types import TracebackType
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, Protocol, cast
 
 import httpx
 
@@ -26,11 +26,13 @@ from cashapp.integrations.fusion.models import (
     ApplyResult,
     AttachmentRef,
     CustomerRelationship,
+    DiscountTier,
     FusionApplication,
     FusionCustomer,
     FusionCustomerSite,
     FusionReceipt,
     FusionTransaction,
+    PaymentTerms,
     TransactionKind,
     UnapplyRequest,
     UnapplyResult,
@@ -70,6 +72,8 @@ class FusionClient(Protocol):
     ) -> list[FusionApplication]: ...
 
     async def get_customer_account(self, account_number: str) -> FusionCustomer: ...
+
+    async def get_payment_terms(self, term: int | str) -> PaymentTerms | None: ...
 
     async def customer_relationships(
         self, account_numbers: Sequence[str]
@@ -134,6 +138,34 @@ def _date(value: Any) -> date:
     return date.fromisoformat(str(value)[:10])
 
 
+def _opt_date(value: Any) -> date | None:
+    if value is None or value == "":
+        return None
+    return date.fromisoformat(str(value)[:10])
+
+
+def _map_payment_terms(row: Mapping[str, Any]) -> PaymentTerms:
+    tiers: list[DiscountTier] = []
+    raw: Any = row.get(query.PAYMENT_TERMS_TIERS_KEY)
+    if isinstance(raw, list):
+        for tier in cast("list[Any]", raw):
+            if not isinstance(tier, dict):
+                continue
+            tier_row = cast("dict[str, Any]", tier)
+            days: Any = tier_row.get(query.PAYMENT_TERMS_TIER_DAYS)
+            percent: Any = tier_row.get(query.PAYMENT_TERMS_TIER_PERCENT)
+            if days is None or percent is None:
+                continue
+            tiers.append(DiscountTier(days=_int(days), percent=Decimal(str(percent))))
+    tiers.sort(key=lambda t: t.days)
+    term_id = row.get(query.PAYMENT_TERMS_ID_FIELD)
+    return PaymentTerms(
+        term_id=None if term_id is None else _int(term_id),
+        name=_str(row.get(query.PAYMENT_TERMS_NAME_FIELD)),
+        discount_tiers=tuple(tiers),
+    )
+
+
 def _datetime(value: Any) -> datetime:
     if value is None:
         return datetime.min.replace(tzinfo=UTC)
@@ -157,6 +189,7 @@ def _map_invoice(row: Mapping[str, Any]) -> FusionTransaction:
         bill_to_site=_opt_str(row.get("BillToSite")),
         business_unit=_opt_str(row.get("BusinessUnit")),
         payment_terms=_opt_str(row.get("PaymentTerms")),
+        transaction_date=_opt_date(row.get("TransactionDate")),  # UNVERIFIED
     )
 
 
@@ -217,6 +250,9 @@ def _map_application(
         amount_applied=_money(row.get("AmountApplied")),
         apply_date=_date(row.get("ApplyDate")),
         status=_str(row.get("Status"), "APP"),
+        discount_amount=(
+            _money(row["DiscountTaken"]) if row.get("DiscountTaken") is not None else None
+        ),  # UNVERIFIED: field name
     )
 
 
@@ -409,6 +445,26 @@ class HttpFusionClient:
             currency_codes=tuple(currencies),
             sites=tuple(sites.values()),
         )
+
+    async def get_payment_terms(self, term: int | str) -> PaymentTerms | None:
+        # UNVERIFIED: resource, filter and every field name (CONTRACTS.md, s39 live probe).
+        if isinstance(term, int):
+            rows = await self._http.get_json_paged(
+                self._url(query.PAYMENT_TERMS_RESOURCE),
+                op="get_payment_terms",
+                fields=query.FIELDS_PAYMENT_TERMS,
+                params={"q": f"{query.PAYMENT_TERMS_ID_FIELD}={int(term)}"},
+            )
+        else:
+            rows = await self._http.get_json_paged(
+                self._url(query.PAYMENT_TERMS_RESOURCE),
+                op="get_payment_terms",
+                fields=query.FIELDS_PAYMENT_TERMS,
+                params={"q": f"{query.PAYMENT_TERMS_NAME_FIELD}={query.q_literal(term)}"},
+            )
+        if not rows:
+            return None
+        return _map_payment_terms(rows[0])
 
     async def customer_relationships(
         self, account_numbers: Sequence[str]
