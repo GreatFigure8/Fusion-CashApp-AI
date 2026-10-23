@@ -19,7 +19,7 @@ from xml.sax.saxutils import escape
 
 from cashapp.domain.error_codes import ErrorCode
 from cashapp.domain.money import to_money
-from cashapp.integrations.fusion import bip, query
+from cashapp.integrations.fusion import bip, query, soap
 from cashapp.integrations.fusion.client import ReceiptDateBasis
 from cashapp.integrations.fusion.errors import FusionError, FusionFault, fault_from_messages
 from cashapp.integrations.fusion.guard import WriteGuard
@@ -73,6 +73,7 @@ class FakeFusionClient:
         customers: Iterable[FusionCustomer] = (),
         relationships: Iterable[CustomerRelationship] = (),
         reports: Mapping[str, bytes] | None = None,
+        raw: Mapping[str, bytes] | None = None,
         guard: WriteGuard | None = None,
         relationships_report_path: str = "/Custom/CashApp/Relationships.xdo",
         today: Callable[[], date] | None = None,
@@ -85,6 +86,7 @@ class FakeFusionClient:
         self._customers: dict[str, FusionCustomer] = {c.account_number: c for c in customers}
         self._relationships: list[CustomerRelationship] = list(relationships)
         self._reports: dict[str, bytes] = dict(reports or {})
+        self._raw: dict[str, bytes] = {**_default_raw(), **(raw or {})}
         self._guard = guard or WriteGuard.allow_all()
         self._relationships_report_path = relationships_report_path
         self._today = today or date.today
@@ -364,7 +366,12 @@ class FakeFusionClient:
         params = params or {}
         rows: list[dict[str, Any]]
         key: str
-        if resource == "receivablesInvoices":
+        if resource == "standardReceipts/describe":
+            return json.loads(_RECEIPT_DESCRIBE)
+        if resource == _resource(query.CUSTOMER_ACCOUNTS_PATH):
+            key = "AccountNumber"
+            rows = [_customer_account_row(c) for c in self._customers.values()]
+        elif resource == "receivablesInvoices":
             key = "TransactionNumber"
             rows = [
                 _invoice_row(t)
@@ -391,7 +398,27 @@ class FakeFusionClient:
         wanted = _q_values(params.get("q"), key)
         if wanted is not None:
             rows = [row for row in rows if row.get(key) in wanted]
-        return {"items": rows, "hasMore": False, "count": len(rows)}
+        offset = int(params.get("offset", "0"))
+        limit = int(params.get("limit", str(len(rows) or 1)))
+        page = rows[offset : offset + limit]
+        return {
+            "items": page,
+            "hasMore": offset + len(page) < len(rows),
+            "count": len(page),
+            "limit": limit,
+            "offset": offset,
+        }
+
+    async def get_raw(self, path: str, params: Mapping[str, str] | None = None) -> bytes:
+        self._record("get_raw", path, params)
+        self._raise_if_injected("get_raw")
+        key = path.split("?", 1)[0]
+        try:
+            return self._raw[key]
+        except KeyError:
+            raise FusionError(
+                ErrorCode.FUSION_FAULT, f"not found: {key}", http_status=404, retryable=False
+            ) from None
 
     # --- writes --------------------------------------------------------------------------------
 
@@ -622,6 +649,38 @@ class FakeFusionClient:
 
 def _opt(value: Any) -> str | None:
     return None if value is None or value == "" else str(value)
+
+
+_WSDL_TEMPLATE = (
+    '<?xml version="1.0" encoding="UTF-8"?>'
+    '<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" name="{name}">'
+    '<wsdl:portType name="{name}"><wsdl:operation name="{operation}"/></wsdl:portType>'
+    "</wsdl:definitions>"
+)
+
+_RECEIPT_DESCRIBE = json.dumps(
+    {
+        "Resources": {
+            "standardReceipts": {"children": {"attachments": {}, "remittanceReferences": {}}}
+        }
+    }
+)
+
+
+def _default_raw() -> dict[str, bytes]:
+    """Minimal WSDL shapes for the two SOAP services and the receipt describe (UNVERIFIED)."""
+    return {
+        soap.SOAP_PATH_RECEIPTS: _WSDL_TEMPLATE.format(
+            name="StandardReceiptService", operation="createApplyReceipt"
+        ).encode(),
+        bip.BIP_PATH: _WSDL_TEMPLATE.format(
+            name="ExternalReportWSSService", operation="runReport"
+        ).encode(),
+    }
+
+
+def _customer_account_row(c: FusionCustomer) -> dict[str, Any]:
+    return {"AccountNumber": c.account_number, "PartyName": c.name}
 
 
 def _resource(path: str) -> str:

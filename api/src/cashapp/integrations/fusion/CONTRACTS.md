@@ -27,3 +27,7 @@ carries an `# UNVERIFIED:` comment in code. The fake models this contract; it do
 | SOAP unapply operation `createUnapplyReceipt` and its elements | soap | UNVERIFIED | confirmed by s38 |
 | BIP namespace `PublicReportService`, request element names, HTTP basic auth | bip | UNVERIFIED | |
 | Relationships report row shape (`P_ACCOUNT_NUMBERS`, `G_1` rows) | bip | PINNED by this client | s32 builds the report to match |
+| GET `?WSDL` on `StandardReceiptService` and `ExternalReportWSSService` (operations `createApplyReceipt`, `runReport`) | preflight | UNVERIFIED | s32 |
+| `GET standardReceipts/describe` lists an `attachments` child | preflight | UNVERIFIED | s32 |
+| BIP report paths `/Custom/CashApp/CashAppRelationships.xdo`, `/Custom/CashApp/CashAppReceiptSignals.xdo` | fusion/bip | UNVERIFIED | s32 |
+| SQL data models `relationships.sql`, `receipt_signals.sql` (HZ/AR/CE/IBY table and column names) | fusion/bip | UNVERIFIED | s32 |

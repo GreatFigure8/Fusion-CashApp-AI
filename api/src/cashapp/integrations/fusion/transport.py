@@ -227,6 +227,13 @@ class FusionTransport:
             offset += len(rows)
         raise FusionError(ErrorCode.FUSION_FAULT, f"{op}: exceeded {self.options.max_pages} pages")
 
+    async def get_bytes(
+        self, url: str, *, op: str, params: Mapping[str, str] | None = None
+    ) -> bytes:
+        """Plain GET with the read retry policy; no RFV header, `onlyData` or JSON parsing."""
+        response = await self.request("GET", url, op=op, params=params)
+        return response.content
+
     async def send_json(
         self, method: str, url: str, body: Mapping[str, Any], *, op: str
     ) -> dict[str, Any]:

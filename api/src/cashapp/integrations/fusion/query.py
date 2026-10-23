@@ -6,6 +6,8 @@ from collections.abc import Iterable, Sequence
 from datetime import UTC, date, datetime
 
 REST_BASE = "/fscmRestApi/resources/11.13.18.05"
+CRM_BASE = "/crmRestApi/resources/11.13.18.05"  # UNVERIFIED
+CUSTOMER_ACCOUNTS_PATH = f"{CRM_BASE}/accounts"  # UNVERIFIED: resource name
 
 # Explicit field lists (CLAUDE.md: always send fields=). Names marked UNVERIFIED are tracked in
 # CONTRACTS.md and confirmed by the live probes.
