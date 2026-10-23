@@ -1,0 +1,31 @@
+From: ap@example-payer.test
+To: cash@example-receiver.test
+Subject: Forwarded remittance
+Date: Thu, 15 Jan 2026 09:30:00 +0000
+Message-ID: <2476990094@example-payer.test>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============3413339794590077997=="
+
+--===============3413339794590077997==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Please see the forwarded message.
+
+--===============3413339794590077997==
+Content-Type: message/rfc822
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="inner.eml"
+MIME-Version: 1.0
+
+RnJvbTogYXBAZXhhbXBsZS1wYXllci50ZXN0ClRvOiBjYXNoQGV4YW1wbGUtcmVjZWl2ZXIudGVz
+dApTdWJqZWN0OiBGd2Q6IFBheW1lbnQgYWR2aWNlCkRhdGU6IFRodSwgMTUgSmFuIDIwMjYgMDk6
+MzA6MDAgKzAwMDAKTWVzc2FnZS1JRDogPDM4OTgzNTcwMzhAZXhhbXBsZS1wYXllci50ZXN0PgpD
+b250ZW50LVR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9InV0Zi04IgpDb250ZW50LVRyYW5zZmVy
+LUVuY29kaW5nOiBxdW90ZWQtcHJpbnRhYmxlCk1JTUUtVmVyc2lvbjogMS4wCgpIZWxsbywKClBh
+eW1lbnQgYWR2aWNlIGZyb20gRXhhbXBsZSBQYXllciBDbywgcGFpZCAyMDI2LTAxLTE0IGJ5IEVG
+VCwgcmVmZXJlbmNlIEVQLTIwPQoyNjAxMTQuCgpJbnZvaWNlICAgICAgQW1vdW50CklOVi0xMDAw
+MSAgICAxNTAwLjAwCklOVi0xMDAwMiAgICA4MjAuNTAKSU5WLTEwMDAzICAgIDk5Ljk5CgpUb3Rh
+bCAyNDIwLjQ5IFVTRAo=
+
+--===============3413339794590077997==--

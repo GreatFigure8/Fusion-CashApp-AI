@@ -1,0 +1,20 @@
+From: ap@example-payer.test
+To: cash@example-receiver.test
+Subject: Payment advice
+Date: Thu, 15 Jan 2026 09:30:00 +0000
+Message-ID: <2533248257@example-payer.test>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Hello,
+
+Payment advice from Example Payer Co, paid 2026-01-14 by EFT, reference EP-20=
+260114.
+
+Invoice      Amount
+INV-10001    1500.00
+INV-10002    820.50
+INV-10003    99.99
+
+Total 2420.49 USD

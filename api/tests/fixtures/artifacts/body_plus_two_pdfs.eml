@@ -1,0 +1,63 @@
+From: ap@example-payer.test
+To: cash@example-receiver.test
+Subject: Payment advice with attachments
+Date: Thu, 15 Jan 2026 09:30:00 +0000
+Message-ID: <2062002866@example-payer.test>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============1050960406043023467=="
+
+--===============1050960406043023467==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+Hello,
+
+Payment advice from Example Payer Co, paid 2026-01-14 by EFT, reference EP-20=
+260114.
+
+Invoice      Amount
+INV-10001    1500.00
+INV-10002    820.50
+INV-10003    99.99
+
+Total 2420.49 USD
+
+--===============1050960406043023467==
+Content-Type: application/pdf
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="remittance_1.pdf"
+MIME-Version: 1.0
+
+JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2Jq
+CjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2Jq
+CjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIg
+NzkyXSAvQ29udGVudHMgNCAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNSAwIFIgPj4g
+Pj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL0xlbmd0aCAxMjYgPj4Kc3RyZWFtCkJUIC9GMSAxMiBU
+ZiA1MCA3NTAgVGQgMTQgVEwgKEV4YW1wbGUgUGF5ZXIgQ28gcmVtaXR0YW5jZSkgJyAoSU5WLTEw
+MDAxIDE1MDAuMDApICcgKElOVi0xMDAwMiA4MjAuNTApICcgKElOVi0xMDAwMyA5OS45OSkgJyBF
+VAplbmRzdHJlYW0KZW5kb2JqCjUgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUx
+IC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1
+IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAw
+MDAwIG4gCjAwMDAwMDAyNDEgMDAwMDAgbiAKMDAwMDAwMDQxOCAwMDAwMCBuIAp0cmFpbGVyCjw8
+IC9TaXplIDYgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjQ4OAolJUVPRgo=
+
+--===============1050960406043023467==
+Content-Type: application/pdf
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="remittance_2.pdf"
+MIME-Version: 1.0
+
+JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2Jq
+CjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2Jq
+CjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIg
+NzkyXSAvQ29udGVudHMgNCAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNSAwIFIgPj4g
+Pj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL0xlbmd0aCAxMDYgPj4Kc3RyZWFtCkJUIC9GMSAxMiBU
+ZiA1MCA3NTAgVGQgMTQgVEwgKEV4YW1wbGUgUGF5ZXIgQ28gcmVtaXR0YW5jZSAyKSAnIChJTlYt
+MTAwMDQgMzEwLjAwKSAnIChJTlYtMTAwMDUgNDUuMTApICcgRVQKZW5kc3RyZWFtCmVuZG9iago1
+IDAgb2JqCjw8IC9UeXBlIC9Gb250IC9TdWJ0eXBlIC9UeXBlMSAvQmFzZUZvbnQgL0hlbHZldGlj
+YSA+PgplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAw
+IG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAw
+MDAwIG4gCjAwMDAwMDAzOTggMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBS
+ID4+CnN0YXJ0eHJlZgo0NjgKJSVFT0YK
+
+--===============1050960406043023467==--
