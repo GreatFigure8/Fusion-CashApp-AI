@@ -1,7 +1,7 @@
 {
  "run": "bmn-ui-techy-redesign",
  "estimate": "~2-3 h to code (14 stories, 1 wave)",
- "phase": "plan",
+ "phase": "code",
  "integration": "sprint/ui-techy-redesign",
  "worktree": "D:/Fusion-CashApp-AI-ui-techy-redesign",
  "live": "dev",
@@ -28,7 +28,7 @@
    "title": "chat-agent-tool-registry",
    "deps": [],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/chat-agent-tool-registry",
    "merges": [],
    "detail": ""
@@ -38,7 +38,7 @@
    "title": "db-stored-settings",
    "deps": [],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/db-stored-settings",
    "merges": [],
    "detail": ""
@@ -50,7 +50,7 @@
     "chat-agent-tool-registry"
    ],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/engine-control-api",
    "merges": [],
    "detail": ""
@@ -63,7 +63,7 @@
     "chat-agent-tool-registry"
    ],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/fusion-mcp-transport",
    "merges": [],
    "detail": ""
@@ -75,7 +75,7 @@
     "engine-control-api"
    ],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/glass-theme-shell",
    "merges": [],
    "detail": ""
@@ -88,7 +88,7 @@
     "chat-agent-tool-registry"
    ],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/live-progress-dashboard",
    "merges": [],
    "detail": ""
@@ -100,7 +100,7 @@
     "glass-theme-shell"
    ],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/exceptions-workbench-restyle",
    "merges": [],
    "detail": ""
@@ -115,7 +115,7 @@
     "live-progress-dashboard"
    ],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/engine-control-panel-ui",
    "merges": [],
    "detail": ""
@@ -129,7 +129,7 @@
     "fusion-mcp-transport"
    ],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/settings-screen-redesign",
    "merges": [],
    "detail": ""
@@ -144,7 +144,7 @@
     "live-progress-dashboard"
    ],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/failed-receipt-review",
    "merges": [],
    "detail": ""
@@ -158,7 +158,7 @@
     "chat-agent-tool-registry"
    ],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/html-progress-reports",
    "merges": [],
    "detail": ""
@@ -174,7 +174,7 @@
     "engine-control-api"
    ],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/assistant-chat-redesign",
    "merges": [],
    "detail": ""
@@ -188,7 +188,7 @@
     "db-stored-settings"
    ],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/matching-lab-replay-api",
    "merges": [],
    "detail": ""
@@ -203,7 +203,7 @@
     "live-progress-dashboard"
    ],
    "interfaces": [],
-   "status": "split",
+   "status": "planned",
    "branch": "wip/ui-techy-redesign/matching-lab-ui",
    "merges": [],
    "detail": ""
