@@ -1,0 +1,167 @@
+{
+  "parts_sha256": "87c5f917ee496a489eb2654d71923573905382c76434d9970753c41d6f48fa4f",
+  "purpose": "extract.reader_a",
+  "result": {
+    "output": {
+      "bank_fees": [],
+      "currency": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "USD"
+      },
+      "currency_ambiguous": false,
+      "currency_raw": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "USD"
+      },
+      "dates": [
+        {
+          "confidence": 0.95,
+          "kind": "payment",
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "value": "2026-03-05"
+        }
+      ],
+      "ers_refs": [],
+      "lines": [
+        {
+          "amount_paid": "1500.00",
+          "confidence": 0.95,
+          "deduction": null,
+          "discount_claimed": null,
+          "ers_reference": null,
+          "gross_amount": null,
+          "kind": "INVOICE",
+          "line_no": 1,
+          "po_number": null,
+          "sales_order": null,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "transaction_number": "INV-10021"
+        },
+        {
+          "amount_paid": "1200.00",
+          "confidence": 0.95,
+          "deduction": null,
+          "discount_claimed": null,
+          "ers_reference": null,
+          "gross_amount": null,
+          "kind": "INVOICE",
+          "line_no": 2,
+          "po_number": null,
+          "sales_order": null,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "transaction_number": "2598014"
+        },
+        {
+          "amount_paid": "-350.00",
+          "confidence": 0.95,
+          "deduction": null,
+          "discount_claimed": null,
+          "ers_reference": null,
+          "gross_amount": null,
+          "kind": "CREDIT_MEMO",
+          "line_no": 3,
+          "po_number": null,
+          "sales_order": null,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "transaction_number": "2598014-1"
+        }
+      ],
+      "notes": null,
+      "payer_bank_account": {
+        "confidence": 0.9,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": null
+      },
+      "payer_name": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "Example Payer One"
+      },
+      "payment_amount": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "2350.00"
+      },
+      "payment_date": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "2026-03-05"
+      },
+      "po_refs": [],
+      "remittance_reference": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "REF-G01"
+      },
+      "sales_order_refs": []
+    },
+    "refused": false,
+    "response_id": null,
+    "stop_reason": "end_turn",
+    "usage": {
+      "input_tokens": 1800,
+      "latency_ms": 1500,
+      "model_id": "claude-opus-5-5",
+      "output_tokens": 900
+    }
+  },
+  "schema": "RemittanceExtraction@1",
+  "verified_against_live": false
+}

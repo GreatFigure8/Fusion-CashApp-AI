@@ -1,0 +1,129 @@
+{
+  "parts_sha256": "83a7ed8b9a74bf3c65c27717e3cf67660701a5ea05e0f75b42aa79587480c3cf",
+  "purpose": "extract.reader_a",
+  "result": {
+    "output": {
+      "bank_fees": [],
+      "currency": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": null
+      },
+      "currency_ambiguous": true,
+      "currency_raw": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "$"
+      },
+      "dates": [
+        {
+          "confidence": 0.95,
+          "kind": "payment",
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "value": "2026-03-18"
+        }
+      ],
+      "ers_refs": [],
+      "lines": [
+        {
+          "amount_paid": "980.00",
+          "confidence": 0.95,
+          "deduction": null,
+          "discount_claimed": null,
+          "ers_reference": null,
+          "gross_amount": null,
+          "kind": "INVOICE",
+          "line_no": 1,
+          "po_number": null,
+          "sales_order": null,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "transaction_number": "INV-30007"
+        }
+      ],
+      "notes": null,
+      "payer_bank_account": {
+        "confidence": 0.9,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": null
+      },
+      "payer_name": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "Example Payer Three"
+      },
+      "payment_amount": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "980.00"
+      },
+      "payment_date": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "2026-03-18"
+      },
+      "po_refs": [],
+      "remittance_reference": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "REF-G03"
+      },
+      "sales_order_refs": []
+    },
+    "refused": false,
+    "response_id": null,
+    "stop_reason": "end_turn",
+    "usage": {
+      "input_tokens": 1800,
+      "latency_ms": 1500,
+      "model_id": "claude-opus-5-5",
+      "output_tokens": 900
+    }
+  },
+  "schema": "RemittanceExtraction@1",
+  "verified_against_live": false
+}

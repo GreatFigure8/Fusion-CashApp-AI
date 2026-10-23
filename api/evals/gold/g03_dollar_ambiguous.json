@@ -1,0 +1,24 @@
+{
+  "case_id": "g03_dollar_ambiguous",
+  "synthetic": true,
+  "artifact": "g03_dollar_ambiguous.txt",
+  "tags": [
+    "dollar",
+    "negative"
+  ],
+  "expected": {
+    "payer_name": "Example Payer Three",
+    "remittance_reference": "REF-G03",
+    "payment_amount": "980.00",
+    "currency": null,
+    "currency_ambiguous": true,
+    "payment_date": "2026-03-18",
+    "lines": [
+      {
+        "kind": "INVOICE",
+        "transaction_number": "INV-30007",
+        "amount_paid": "980.00"
+      }
+    ]
+  }
+}

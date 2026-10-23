@@ -1,0 +1,8 @@
+Payer,Example Payer Six
+Payment reference,REF-G06
+Payment date,2026-03-25
+Currency,INR
+Total,125000
+Invoice,Amount,PO
+INV-60001,75000,PO-6001
+INV-60002,50000,PO-6002

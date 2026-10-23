@@ -1,0 +1,10 @@
+REMITTANCE
+Payer: Example Payer Five
+Reference: REF-G05
+Date: 2026-03-20
+Currency: USD
+Net amount received: 3,985.00
+
+INV-50001    2,000.00
+INV-50002    2,000.00
+Bank charges deducted    15.00
