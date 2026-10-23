@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { GlassPanel } from "@/components/common/glass-panel";
 import { Pill } from "@/components/common/pill";
-import { useEventStream, type StreamEvent } from "@/lib/api/use-event-stream";
+import { useEventStream, type StreamEvent } from "@/hooks/use-event-stream";
 import { engineStatusSchema, formatFooter, type EngineStatus } from "@/lib/engine/status";
 
 /**
