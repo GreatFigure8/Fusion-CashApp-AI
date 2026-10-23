@@ -1,22 +1,18 @@
 """Async Alembic environment. Models self-register by living in cashapp.data.models."""
 
 import asyncio
-import importlib
-import pkgutil
 
 from alembic import context
 from sqlalchemy.engine import Connection
 from sqlalchemy.pool import NullPool
 
-import cashapp.data.models as models_pkg
-from cashapp.data.base import Base
 from cashapp.data.engine import create_engine
+from cashapp.data.models import Base, load_all_models
 from cashapp.settings import get_settings
 
 config = context.config
 
-for _info in pkgutil.iter_modules(models_pkg.__path__):
-    importlib.import_module(f"{models_pkg.__name__}.{_info.name}")
+load_all_models()
 
 target_metadata = Base.metadata
 
