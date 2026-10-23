@@ -21,6 +21,10 @@ from cashapp.integrations.llm.base import (
     LlmRequest,
     LlmResult,
     LlmUsage,
+    ToolTurnComplete,
+    ToolTurnDelta,
+    ToolTurnEvent,
+    ToolTurnRequest,
     parts_digest,
 )
 
@@ -34,7 +38,9 @@ class ScriptedStep:
     result: LlmResult[Any] | None = None  # output may be a BaseModel or a dict
     error: LlmError | None = None
     delay_s: float = 0.0  # above request.timeout_s this simulates a timeout
-    text_chunks: tuple[str, ...] = ()  # for stream_text
+    text_chunks: tuple[str, ...] = ()  # for stream_text and stream_tool_turn
+    tool_blocks: tuple[dict[str, Any], ...] = ()  # extra content blocks (tool_use) for a tool turn
+    stop_reason: str = "end_turn"  # for a tool turn; "tool_use" when tool_blocks hold calls
 
 
 @dataclass(frozen=True, slots=True)
@@ -92,6 +98,7 @@ class ReplayLlmClient:
         self._cursor: dict[str, int] = {}
         self._recordings: dict[tuple[str, str], Recording] | None = None
         self.calls: list[LlmRequest] = []
+        self.tool_calls: list[ToolTurnRequest] = []
 
     @property
     def model_id(self) -> str:
@@ -123,6 +130,34 @@ class ReplayLlmClient:
     @staticmethod
     def timeout(seconds: float = 3600.0) -> ScriptedStep:
         return ScriptedStep(delay_s=seconds)
+
+    async def stream_tool_turn(self, request: ToolTurnRequest) -> AsyncIterator[ToolTurnEvent]:
+        """A scripted tool turn: text deltas, then the text and tool blocks as final content."""
+        self.tool_calls.append(request)
+        script = self._script
+        purpose_key = request.purpose
+        steps = script.get(purpose_key) if isinstance(script, Mapping) else script
+        if steps is None:
+            raise self._fail(f"no script for purpose {purpose_key}")
+        key = purpose_key if isinstance(script, Mapping) else ""
+        index = self._cursor.get(key, 0)
+        if index >= len(steps):
+            raise self._fail("script exhausted")
+        self._cursor[key] = index + 1
+        step = steps[index]
+        if step.delay_s:
+            await asyncio.sleep(step.delay_s)
+        if step.error is not None:
+            raise step.error
+        if step.result is not None and step.result.refused:
+            raise self._fail("model refused", LlmErrorCode.LLM_REFUSAL)
+        for chunk in step.text_chunks:
+            yield ToolTurnDelta(chunk)
+        text = "".join(step.text_chunks)
+        blocks: list[dict[str, Any]] = [{"type": "text", "text": text}] if text else []
+        blocks.extend(step.tool_blocks)
+        usage = LlmUsage(model_id=self._model_id, input_tokens=0, output_tokens=0, latency_ms=0)
+        yield ToolTurnComplete(content=tuple(blocks), stop_reason=step.stop_reason, usage=usage)
 
     def _fail(self, detail: str, code: LlmErrorCode = LlmErrorCode.EXTRACTION_FAILED) -> LlmError:
         return LlmError(code, detail, provider=PROVIDER, model_id=self._model_id)

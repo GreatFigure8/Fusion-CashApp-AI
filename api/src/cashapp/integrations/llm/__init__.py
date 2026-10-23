@@ -13,6 +13,11 @@ from cashapp.integrations.llm.base import (
     LlmUsage,
     PdfPart,
     TextPart,
+    ToolCallingLlm,
+    ToolTurnComplete,
+    ToolTurnDelta,
+    ToolTurnEvent,
+    ToolTurnRequest,
     parts_digest,
 )
 
@@ -29,5 +34,10 @@ __all__ = [
     "LlmUsage",
     "PdfPart",
     "TextPart",
+    "ToolCallingLlm",
+    "ToolTurnComplete",
+    "ToolTurnDelta",
+    "ToolTurnEvent",
+    "ToolTurnRequest",
     "parts_digest",
 ]

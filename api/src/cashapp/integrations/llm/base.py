@@ -9,7 +9,7 @@ import hashlib
 from collections.abc import AsyncIterator, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import TYPE_CHECKING, Literal, Protocol, Self
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, runtime_checkable
 
 from pydantic import BaseModel
 
@@ -31,6 +31,11 @@ __all__ = [
     "LlmUsage",
     "PdfPart",
     "TextPart",
+    "ToolCallingLlm",
+    "ToolTurnComplete",
+    "ToolTurnDelta",
+    "ToolTurnEvent",
+    "ToolTurnRequest",
     "parts_digest",
 ]
 
@@ -156,6 +161,45 @@ class LlmClient(Protocol):
 
     def stream_text(self, request: LlmRequest) -> AsyncIterator[str]:
         """Text deltas of a plain-text reply. Raises ``LlmError``."""
+        ...
+
+
+@dataclass(frozen=True, slots=True)
+class ToolTurnRequest:
+    """One model turn of the tool-using chat: whole history, offered tools, no sampling knobs."""
+
+    system: str
+    messages: tuple[dict[str, Any], ...]  # Anthropic message dicts, thinking blocks verbatim
+    tools: tuple[dict[str, Any], ...]
+    max_tokens: int
+    timeout_s: float
+    purpose: str
+    effort: str | None = None
+    work_item_id: int | None = None
+    prompt_version: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ToolTurnDelta:
+    text: str
+
+
+@dataclass(frozen=True, slots=True)
+class ToolTurnComplete:
+    content: tuple[dict[str, Any], ...]  # the final content blocks, verbatim
+    stop_reason: str
+    usage: LlmUsage
+
+
+type ToolTurnEvent = ToolTurnDelta | ToolTurnComplete
+
+
+@runtime_checkable
+class ToolCallingLlm(Protocol):
+    """A client that can run a tool-using turn. Separate from ``LlmClient``: Cohere lacks it."""
+
+    def stream_tool_turn(self, request: ToolTurnRequest) -> AsyncIterator[ToolTurnEvent]:
+        """Text deltas, then one ``ToolTurnComplete``. Raises ``LlmError`` (a refusal included)."""
         ...
 
 

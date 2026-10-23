@@ -25,6 +25,10 @@ from cashapp.integrations.llm.base import (
     LlmUsage,
     PdfPart,
     TextPart,
+    ToolTurnComplete,
+    ToolTurnDelta,
+    ToolTurnEvent,
+    ToolTurnRequest,
 )
 
 PROVIDER = "anthropic"
@@ -193,3 +197,39 @@ class AnthropicLlmClient:
         on_usage(self._usage(final, started))
         if str(final.stop_reason) == "refusal":
             raise self._error(LlmErrorCode.LLM_REFUSAL, "model refused")
+
+    async def stream_tool_turn(self, request: ToolTurnRequest) -> AsyncIterator[ToolTurnEvent]:
+        """One tool-using turn: text deltas, then the final content blocks verbatim.
+
+        Adaptive thinking stays at its default (no ``thinking`` parameter), effort is explicit,
+        there is no forced ``tool_choice`` and no sampling parameter. A refusal stop reason is
+        raised before any content is read. The caller validates every tool input (eager input
+        streaming can deliver a truncated one).
+        """
+        started = time.perf_counter()
+        client = self._client.with_options(timeout=request.timeout_s)
+        kwargs: dict[str, Any] = {
+            "model": self._model_id,
+            "max_tokens": request.max_tokens,
+            "system": request.system,
+            "messages": list(request.messages),
+            "tools": list(request.tools),
+            "cache_control": {"type": "ephemeral"},
+        }
+        if request.effort is not None:
+            kwargs["output_config"] = {"effort": request.effort}
+        try:
+            async with client.messages.stream(**kwargs) as stream:
+                async for delta in stream.text_stream:
+                    yield ToolTurnDelta(delta)
+                final: Any = await stream.get_final_message()
+        except Exception as exc:
+            raise self._map(exc) from exc
+        usage = self._usage(final, started)
+        stop_reason = str(final.stop_reason)
+        if stop_reason == "refusal":
+            raise self._error(LlmErrorCode.LLM_REFUSAL, "model refused", usage)
+        blocks: list[dict[str, Any]] = [
+            block.model_dump(mode="json", exclude_none=True) for block in final.content
+        ]
+        yield ToolTurnComplete(content=tuple(blocks), stop_reason=stop_reason, usage=usage)
