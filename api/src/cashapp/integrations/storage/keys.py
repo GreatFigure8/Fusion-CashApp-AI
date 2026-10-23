@@ -4,7 +4,10 @@ import re
 
 from cashapp.integrations.storage.base import InvalidObjectKey
 
-_KEY_RE = re.compile(r"^artifacts/[0-9a-f]{64}/(original|parts/[1-9][0-9]{0,3}(\.txt)?)$")
+_KEY_RE = re.compile(
+    r"^(artifacts/[0-9a-f]{64}/(original|parts/[1-9][0-9]{0,3}(\.txt)?)|staging/[0-9a-f]{32}(\.json)?)$"
+)
+_UPLOAD_ID_RE = re.compile(r"^[0-9a-f]{32}$")
 _SHA_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
@@ -31,6 +34,18 @@ def part_text_key(document_hash: str, part_no: int) -> str:
 
 def text_key_for(object_key: str) -> str:
     return validate_key(f"{validate_key(object_key)}.txt")
+
+
+def staged_key(upload_id: str) -> str:
+    """A chat-staged upload (sanitised bytes), waiting to be submitted for review."""
+    if not _UPLOAD_ID_RE.fullmatch(upload_id):
+        raise InvalidObjectKey("an upload id must be 32 lowercase hex characters")
+    return validate_key(f"staging/{upload_id}")
+
+
+def staged_meta_key(upload_id: str) -> str:
+    """The JSON sidecar of a staged upload."""
+    return validate_key(f"{staged_key(upload_id)}.json")
 
 
 def validate_key(key: str) -> str:

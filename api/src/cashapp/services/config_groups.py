@@ -179,3 +179,15 @@ class ReportsConfig:
 @dataclass(frozen=True, slots=True)
 class DiscountConfig:
     enabled: bool
+
+
+@dataclass(frozen=True, slots=True)
+class UploadsConfig:
+    max_file_bytes: int
+    max_files_per_request: int
+    daily_per_user: int
+    allowed_types: tuple[str, ...]
+    max_pixels: int
+    max_pdf_pages: int
+    stage_ttl_seconds: int
+    review_effort: str

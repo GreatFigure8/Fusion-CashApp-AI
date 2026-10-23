@@ -47,6 +47,7 @@ from cashapp.services.config_groups import (
     ReportsConfig,
     RetentionConfig,
     RetriesConfig,
+    UploadsConfig,
 )
 
 logger = logging.getLogger(__name__)
@@ -243,6 +244,12 @@ _EXTRA_CHECKS: Mapping[str, Callable[[Any], list[ErrorDict]]] = MappingProxyType
         ck.BUDGET_DAILY_USD.name: _non_negative_number,
         ck.NOTIFICATIONS_BATCH_WINDOW_SECONDS.name: _min_int(0),
         ck.REPORTS_DAILY_SUMMARY_CUTOVER.name: _check_cutover,
+        ck.UPLOADS_MAX_FILE_BYTES.name: _min_int(1),
+        ck.UPLOADS_MAX_FILES_PER_REQUEST.name: _min_int(1),
+        ck.UPLOADS_DAILY_PER_USER.name: _min_int(0),
+        ck.UPLOADS_MAX_PIXELS.name: _min_int(1),
+        ck.UPLOADS_MAX_PDF_PAGES.name: _min_int(1),
+        ck.UPLOADS_STAGE_TTL_SECONDS.name: _min_int(60),
     }
 )
 
@@ -454,6 +461,18 @@ class ConfigSnapshot:
     def discount(self) -> DiscountConfig:
         return DiscountConfig(self.get(ck.DISCOUNT_ENABLED))
 
+    def uploads(self) -> UploadsConfig:
+        return UploadsConfig(
+            max_file_bytes=self.get(ck.UPLOADS_MAX_FILE_BYTES),
+            max_files_per_request=self.get(ck.UPLOADS_MAX_FILES_PER_REQUEST),
+            daily_per_user=self.get(ck.UPLOADS_DAILY_PER_USER),
+            allowed_types=tuple(self.get(ck.UPLOADS_ALLOWED_TYPES)),
+            max_pixels=self.get(ck.UPLOADS_MAX_PIXELS),
+            max_pdf_pages=self.get(ck.UPLOADS_MAX_PDF_PAGES),
+            stage_ttl_seconds=self.get(ck.UPLOADS_STAGE_TTL_SECONDS),
+            review_effort=self.get(ck.REVIEW_EFFORT),
+        )
+
 
 class RuntimeConfig:
     """Cached access to configuration: values are at most `ttl_seconds` old."""
@@ -555,6 +574,9 @@ class RuntimeConfig:
 
     async def discount(self) -> DiscountConfig:
         return (await self.snapshot()).discount()
+
+    async def uploads(self) -> UploadsConfig:
+        return (await self.snapshot()).uploads()
 
 
 def build_runtime_config(

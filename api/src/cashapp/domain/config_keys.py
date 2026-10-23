@@ -88,6 +88,12 @@ def _error_code_or_star(value: dict[str, int]) -> dict[str, int]:
     return value
 
 
+def _unique_items[V](value: list[V]) -> list[V]:
+    if len(set(value)) != len(value):
+        raise ValueError("values must be unique")
+    return value
+
+
 def _key[T](
     name: str,
     tp: Any,
@@ -653,6 +659,9 @@ CONFIG_GROUPS: Mapping[str, GroupSpec] = MappingProxyType(
         "chat": GroupSpec("Assistant", "Assistant tool calls and confirmations.", 260),
         "mcp": GroupSpec("Fusion MCP", "Connection to the fusion-sql-mcp server.", 280),
         "ui": GroupSpec("User interface", "Sample-data pill and the access request link.", 290),
+        "uploads": GroupSpec(
+            "Uploads and review", "Failed-receipt upload limits and review effort.", 300
+        ),
         "engine": GroupSpec("Engine", "Paused and draining stations, engine status timing.", 270),
     }
 )
@@ -732,6 +741,60 @@ MCP_MAX_ROWS = _key(
     Annotated[int, Field(ge=1, le=50000)],
     2000,
     "Row cap of the assistant's Fusion query tool and the page size of run_query.",
+)
+
+UPLOADS_MAX_FILE_BYTES = _key(
+    "uploads.max_file_bytes",
+    Annotated[int, Field(ge=1, le=10_485_760)],
+    5_242_880,
+    "Largest accepted size, in bytes, of one uploaded failed-receipt file.",
+)
+UPLOADS_MAX_FILES_PER_REQUEST = _key(
+    "uploads.max_files_per_request",
+    Annotated[int, Field(ge=1, le=20)],
+    10,
+    "Most files accepted in one upload request.",
+)
+UPLOADS_DAILY_PER_USER = _key(
+    "uploads.daily_per_user",
+    Annotated[int, Field(ge=0, le=500)],
+    20,
+    "Most files one user may submit for in-depth review per UTC day (0 blocks uploads).",
+)
+UPLOADS_ALLOWED_TYPES = _key(
+    "uploads.allowed_types",
+    Annotated[
+        list[Literal["png", "jpeg", "webp", "pdf"]],
+        Field(min_length=1),
+        AfterValidator(_unique_items),
+    ],
+    ["png", "jpeg", "webp", "pdf"],
+    "File types accepted for upload, decided from the file's bytes, not its declared type.",
+)
+UPLOADS_MAX_PIXELS = _key(
+    "uploads.max_pixels",
+    Annotated[int, Field(ge=1, le=100_000_000)],
+    40_000_000,
+    "Largest accepted image, in pixels (width times height), checked before decoding.",
+)
+UPLOADS_MAX_PDF_PAGES = _key(
+    "uploads.max_pdf_pages",
+    Annotated[int, Field(ge=1, le=100)],
+    20,
+    "Most pages accepted in one uploaded PDF.",
+)
+UPLOADS_STAGE_TTL_SECONDS = _key(
+    "uploads.stage_ttl_seconds",
+    Annotated[int, Field(ge=60, le=86_400)],
+    3600,
+    "Seconds a chat-attached upload waits to be submitted before it expires.",
+)
+REVIEW_EFFORT = ConfigKey(
+    name="review.effort",
+    group="uploads",
+    type=Literal["low", "medium", "high", "max"],
+    default="high",
+    description="Reader A and adjudicator effort for items uploaded for in-depth review.",
 )
 
 _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
@@ -818,6 +881,14 @@ _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     MCP_MAX_ROWS,
     UI_SAMPLE_DATA,
     UI_ACCESS_REQUEST_URL,
+    UPLOADS_MAX_FILE_BYTES,
+    UPLOADS_MAX_FILES_PER_REQUEST,
+    UPLOADS_DAILY_PER_USER,
+    UPLOADS_ALLOWED_TYPES,
+    UPLOADS_MAX_PIXELS,
+    UPLOADS_MAX_PDF_PAGES,
+    UPLOADS_STAGE_TTL_SECONDS,
+    REVIEW_EFFORT,
 )
 
 
