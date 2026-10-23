@@ -1,4 +1,9 @@
-"""SOAP envelopes and fail-closed parsing for `StandardReceiptService`.
+"""The direct SOAP path to Fusion: envelopes, fail-closed parsing and the HTTP transport.
+
+`SoapTransport` is the only code in the package that opens an HTTP client to a Fusion host. Reads
+and REST writes go through the MCP server (mcp_client.py); only `createApplyReceipt` and
+`createUnapplyReceipt` (and the `?WSDL` probe) come here. Nothing logs or traces a URL query, a
+body or a credential: only method, pod, HTTP status, attempt, latency and a Fusion code.
 
 Namespaces, the SOAPAction values and the unapply operation are UNVERIFIED (see CONTRACTS.md).
 Envelopes are built with ElementTree so values are escaped by the serializer, never formatted in.
@@ -6,14 +11,23 @@ Envelopes are built with ElementTree so values are escaped by the serializer, ne
 
 from __future__ import annotations
 
+import asyncio
+import random
 import re
+import time
 import xml.etree.ElementTree as ET
+from collections.abc import Awaitable, Callable
+from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 
+import httpx
+
 from cashapp.domain.error_codes import ErrorCode
 from cashapp.integrations.fusion.errors import (
+    FusionError,
     FusionFault,
+    error_from_http,
     fault_from_messages,
     is_noise,
 )
@@ -33,6 +47,11 @@ from cashapp.integrations.fusion.xmlutil import (
     local_name,
     safe_fromstring,
 )
+from cashapp.observability.logging import get_logger
+from cashapp.observability.tracing import span
+from cashapp.settings import FusionPodSettings
+
+_log = get_logger(__name__)
 
 SOAP_PATH_RECEIPTS = "/fscmService/StandardReceiptService"
 SOAP_ENV_NS = "http://schemas.xmlsoap.org/soap/envelope/"
@@ -197,3 +216,155 @@ def parse_unapply_response(xml: bytes) -> UnapplyResult:
             raw_messages=messages,
         )
     return UnapplyResult(ok=True, fault=None, raw_messages=messages)
+
+
+# --- transport ----------------------------------------------------------------------------
+
+SleepFn = Callable[[float], Awaitable[None]]
+
+# Failures where Fusion certainly did not process the request: safe to retry a write.
+_NOT_PROCESSED = (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout)
+_WRITE_RETRY_STATUS = frozenset({401, 503})
+
+
+@dataclass(frozen=True, slots=True)
+class SoapOptions:
+    timeout_s: float = 60.0
+    max_attempts: int = 3
+    backoff_base_s: float = 0.5
+    backoff_max_s: float = 8.0
+
+
+class SoapTransport:
+    """HTTP Basic client for the pod's SOAP services with bounded retry and backoff."""
+
+    def __init__(
+        self,
+        *,
+        pod_name: str,
+        pod: FusionPodSettings,
+        options: SoapOptions = SoapOptions(),  # noqa: B008 - frozen value object
+        transport: httpx.AsyncBaseTransport | None = None,
+        sleep: SleepFn = asyncio.sleep,
+    ) -> None:
+        self.pod_name = pod_name
+        self.options = options
+        self._sleep = sleep
+        self._client = httpx.AsyncClient(
+            base_url=pod.base_url,
+            auth=httpx.BasicAuth(pod.username, pod.password.get_secret_value()),
+            timeout=options.timeout_s,
+            transport=transport,
+        )
+
+    async def aclose(self) -> None:
+        await self._client.aclose()
+
+    def _delay(self, attempt: int) -> float:
+        cap = min(self.options.backoff_max_s, self.options.backoff_base_s * (2 ** (attempt - 1)))
+        return random.uniform(0, cap)  # noqa: S311 - jitter, not security
+
+    async def _request(
+        self,
+        method: str,
+        url: str,
+        *,
+        op: str,
+        content: bytes | None = None,
+        headers: dict[str, str] | None = None,
+        write: bool = False,
+        soap_fault_ok: bool = False,
+    ) -> httpx.Response:
+        """Send with bounded retry. Returns the response for 2xx (and SOAP-fault 500s if allowed).
+
+        Reads retry every transient failure. Writes retry only when Fusion certainly did not
+        process the request; any other transient write failure raises `outcome_unknown=True`.
+        """
+        started = time.perf_counter()
+        last_error: FusionError | None = None
+        attempts = 0
+        with span(f"fusion.{op}", pod=self.pod_name) as active:
+            for attempt in range(1, self.options.max_attempts + 1):
+                attempts = attempt
+                try:
+                    response = await self._client.request(
+                        method, url, content=content, headers=headers
+                    )
+                except httpx.TransportError as exc:  # TimeoutException is a TransportError
+                    certain = isinstance(exc, _NOT_PROCESSED)
+                    last_error = FusionError(
+                        ErrorCode.FUSION_TRANSIENT,
+                        f"{type(exc).__name__} calling Fusion",
+                        outcome_unknown=write and not certain,
+                    )
+                    retry = certain or not write
+                else:
+                    if response.is_success or (
+                        soap_fault_ok
+                        and response.status_code == 500
+                        and b"Fault" in response.content
+                    ):
+                        self._finish(op, response.status_code, attempts, started, None)
+                        active.set(status=response.status_code, attempts=attempts)
+                        return response
+                    error = error_from_http(response.status_code, response.content)
+                    if not error.retryable:
+                        self._finish(op, response.status_code, attempts, started, error)
+                        active.set(status=response.status_code, attempts=attempts)
+                        raise error
+                    if write:
+                        retry = response.status_code in _WRITE_RETRY_STATUS
+                        error.outcome_unknown = not retry
+                    else:
+                        retry = True
+                    last_error = error
+                if not retry or attempt >= self.options.max_attempts:
+                    break
+                await self._sleep(self._delay(attempt))
+            assert last_error is not None  # noqa: S101 - loop always sets it before breaking
+            self._finish(op, last_error.http_status, attempts, started, last_error)
+            active.set(status=last_error.http_status or 0, attempts=attempts)
+            raise last_error
+
+    def _finish(
+        self,
+        op: str,
+        status: int | None,
+        attempts: int,
+        started: float,
+        error: FusionError | None,
+    ) -> None:
+        _log.info(
+            "fusion call",
+            extra={
+                "fusion_method": op,
+                "pod": self.pod_name,
+                "http_status": status,
+                "attempts": attempts,
+                "latency_ms": round((time.perf_counter() - started) * 1000),
+                "fusion_code": error.code.value if error else None,
+            },
+        )
+
+    async def post_soap(
+        self, url: str, envelope: bytes, *, action: str, op: str, write: bool
+    ) -> bytes:
+        response = await self._request(
+            "POST",
+            url,
+            op=op,
+            content=envelope,
+            headers={
+                "Content-Type": "text/xml; charset=utf-8",
+                "SOAPAction": action,
+                "Accept": "text/xml",
+            },
+            write=write,
+            soap_fault_ok=True,
+        )
+        return response.content
+
+    async def get_wsdl(self, path: str) -> bytes:
+        """`GET <path>?WSDL` with the read retry policy (the preflight and contract probe)."""
+        response = await self._request("GET", f"{path}?WSDL", op="get_wsdl")
+        return response.content

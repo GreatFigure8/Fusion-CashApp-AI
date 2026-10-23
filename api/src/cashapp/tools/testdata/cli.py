@@ -14,7 +14,8 @@ from typing import Annotated
 import typer
 from pydantic import ValidationError
 
-from cashapp.integrations.fusion import FusionClient, FusionClientFactory
+from cashapp.integrations.fusion import FusionClient
+from cashapp.integrations.fusion.factory import standalone_factory
 from cashapp.settings import FusionPodSettings, FusionTestDataSettings, Settings, load_settings
 from cashapp.tools.testdata.cleanup import cleanup, render_cleanup_steps
 from cashapp.tools.testdata.fixtures import write_fixtures, write_manifest
@@ -190,7 +191,7 @@ def run(
         raise _fail(str(exc), EXIT_REFUSED) from exc
 
     if do_cleanup:
-        fusion = FusionClientFactory(settings).for_pod(pod_name)
+        fusion = standalone_factory(settings).for_pod(pod_name)
         raise typer.Exit(code=asyncio.run(_cleanup_run(fusion, tag=tag, out=out, guard=guard)))
 
     defaults = pod_settings.testdata
@@ -200,7 +201,7 @@ def run(
         raise typer.BadParameter("required for a real run", param_hint="--customer")
     params = _params(currency, lines, seed, _parse_date(as_of))
     plan = _plan_for(scenario, params, tag, customer)
-    fusion = FusionClientFactory(settings).for_pod(pod_name)
+    fusion = standalone_factory(settings).for_pod(pod_name)
     code = asyncio.run(
         _generate_run(
             plan,

@@ -142,6 +142,8 @@ class FusionPodSettings(_Group):
     password: SecretStr
     is_production: bool = False
     testdata: FusionTestDataSettings | None = None
+    # The MCP server's Fusion source label for this pod; None falls back to `mcp.fusion_source`.
+    mcp_source: str | None = None
 
     @field_validator("base_url")
     @classmethod
