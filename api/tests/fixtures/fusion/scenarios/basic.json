@@ -1,0 +1,29 @@
+{
+  "customers": [
+    {"account_number": "1001", "name": "Customer A", "currency_codes": ["USD"], "sites": []}
+  ],
+  "transactions": [
+    {"customer_trx_id": 100001, "number": "INV-1", "kind": "INVOICE", "balance": "60.00",
+     "original_amount": "100.00", "currency": "USD", "status": "Open",
+     "bill_to_customer_number": "1001", "bill_to_site": null, "business_unit": "BU1",
+     "payment_terms": null},
+    {"customer_trx_id": 100002, "number": "CM-1", "kind": "CREDIT_MEMO", "balance": "-25.00",
+     "original_amount": "-25.00", "currency": "USD", "status": "Open",
+     "bill_to_customer_number": "1001", "bill_to_site": null, "business_unit": "BU1",
+     "payment_terms": null}
+  ],
+  "receipts": [
+    {"receipt_id": 500001, "receipt_number": "R-1", "amount": "100.00", "unapplied_amount": "60.00",
+     "currency": "USD", "customer_account_number": "1001", "receipt_date": "2026-01-05",
+     "creation_date": "2026-01-06T09:00:00+00:00", "status": "UNAPP", "state": "CLEARED",
+     "remittance_references": [], "comments": null}
+  ],
+  "applications": [
+    {"application_id": 900001, "receipt_id": 500001, "customer_trx_id": 100001,
+     "amount_applied": "40.00", "apply_date": "2026-01-06", "status": "APP"}
+  ],
+  "relationships": [
+    {"account_number": "1001", "related_account_number": "2002", "related_account_name": null}
+  ],
+  "reports": {}
+}
