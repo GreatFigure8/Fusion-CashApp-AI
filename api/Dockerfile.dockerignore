@@ -1,0 +1,11 @@
+**
+!api/pyproject.toml
+!api/uv.lock
+!api/README*
+!api/src/**
+!api/alembic.ini
+!api/alembic/**
+!deploy/scripts/smoke.sh
+**/.env*
+**/__pycache__
+**/.venv

@@ -1,0 +1,9 @@
+{
+  "groups": {
+    "intake": ["intake-poller", "classify"],
+    "extraction": ["extract", "adjudicate"],
+    "matching": ["validate", "resolve-customer", "receipt-arrived"],
+    "fusion": ["receipt-watcher"],
+    "pipeline": ["relay", "retry-forwarder"]
+  }
+}
