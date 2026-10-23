@@ -32,6 +32,12 @@ from cashapp.pipeline.outcomes import Advance, StageOutcome
 from cashapp.pipeline.roles import Container
 from cashapp.pipeline.runner import RunnerDeps, StageContext, StageRunner
 from cashapp.services.history import HistoryEntry, record_history
+from cashapp.services.matching.discount import (
+    DiscountContext,
+    DiscountReason,
+    discount_audit,
+    load_payment_terms,
+)
 from cashapp.services.matching.lines import (
     APPLICABLE_LINE_KINDS,
     LedgerRowView,
@@ -113,6 +119,25 @@ class MatchLinesRunner(StageRunner):
         header_amount = item.payment_amount or extraction.payment_amount.value
         if header_amount is not None:
             header_amount -= sum((r.amount for r in applied_rows), Decimal("0.00"))
+        tolerance = ctx.config.matching().tolerance_for(currency)
+        discount_ctx: DiscountContext | None = None
+        if ctx.config.discount().enabled:
+            claiming = {
+                number_key(ln.transaction_number) for ln in todo if ln.discount_claimed is not None
+            }
+            names = [
+                t.payment_terms
+                for key, t in transactions.items()
+                if key in claiming and t.payment_terms
+            ]
+            try:
+                terms = await load_payment_terms(self._fusion, names)
+            except FusionError as exc:
+                raise _fusion_error(exc, "get_payment_terms", receipt_id) from exc
+            if header_payment_date := (item.payment_date or extraction.payment_date.value):
+                discount_ctx = DiscountContext(
+                    payment_date=header_payment_date, terms=terms, tolerance=tolerance
+                )
         plan = plan_lines(
             todo,
             transactions,
@@ -120,9 +145,10 @@ class MatchLinesRunner(StageRunner):
             [a for a in existing if a.application_id not in owned_applications],
             currency,
             header_amount=header_amount,
-            tolerance=ctx.config.matching().tolerance_for(currency),
+            tolerance=tolerance,
             owners=owners,
             ambiguous=ambiguous,
+            discount=discount_ctx,
         )
 
         await self._persist(
@@ -245,7 +271,11 @@ class MatchLinesRunner(StageRunner):
                 target_status=step.target_status,
                 merged_into=None,
                 error_code=None,
-                reason=None,
+                reason=(
+                    "discount claimed; discount application disabled"
+                    if step.discount_reason is DiscountReason.DISABLED
+                    else None
+                ),
             )
         step_lines = {s.line_no for s in plan.steps}
         for draft in plan.results:
@@ -305,6 +335,7 @@ class MatchLinesRunner(StageRunner):
                     "duplicates": {str(k): list(v) for k, v in plan.duplicates.items()},
                     "receipt_remaining_after": plan.receipt_remaining_after,
                     "reconciled": len(reconciled),
+                    "discounts": discount_audit(plan.steps),
                 },
             ),
             clock=ctx.clock,

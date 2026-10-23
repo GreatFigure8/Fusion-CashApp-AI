@@ -70,10 +70,10 @@ class DiscountStep(Protocol):
     """The slice of s15's `LineStep` the audit reads."""
 
     @property
-    def line_number(self) -> int: ...
+    def line_no(self) -> int: ...
 
     @property
-    def discount_amount(self) -> Decimal | None: ...
+    def discount(self) -> Decimal | None: ...
 
     @property
     def discount_reason(self) -> DiscountReason | None: ...
@@ -156,10 +156,10 @@ def discount_audit(steps: Sequence[DiscountStep]) -> list[dict[str, str | int | 
         if reason is None:
             continue
         decision: DiscountDecision | None = getattr(step, "discount_decision", None)
-        amount = step.discount_amount
+        amount = step.discount
         audit.append(
             {
-                "line": step.line_number,
+                "line": step.line_no,
                 "reason": reason.value,
                 "claimed": None
                 if decision is None or decision.claimed is None

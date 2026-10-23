@@ -21,6 +21,12 @@ from cashapp.integrations.fusion.models import (
     FusionTransaction,
     TransactionKind,
 )
+from cashapp.services.matching.discount import (
+    DiscountContext,
+    DiscountDecision,
+    DiscountReason,
+    earned_discount,
+)
 
 # Compared upper-cased. VERIFY the values on the non-production pod (CONTRACTS.md).
 OPEN_TRANSACTION_STATUSES: Final = frozenset({"OPEN", "COMPLETE"})
@@ -44,7 +50,9 @@ class LineStep:
     stated_amount: Decimal | None
     balance_before: Decimal
     merged_line_nos: tuple[int, ...] = ()
-    discount: Decimal | None = None  # s39 fills it; s15 always None
+    discount: Decimal | None = None  # earned discount sent with the cash (s39); None otherwise
+    discount_reason: DiscountReason | None = None
+    discount_decision: DiscountDecision | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -198,6 +206,7 @@ class _Group:
     primary: ExtractedLine
     others: tuple[ExtractedLine, ...]
     stated: Decimal | None
+    claimed: Decimal | None = None  # summed discount claim; None unless every member states one
 
 
 def _group_lines(
@@ -216,7 +225,11 @@ def _group_lines(
             stated: Decimal | None = to_money(sum((a for a in amounts if a is not None), _ZERO))
         else:
             stated = primary.amount_paid
-        groups.append(_Group(primary, others, stated))
+        claims = [m.discount_claimed for m in members]
+        claimed: Decimal | None = None
+        if all(c is not None for c in claims):
+            claimed = to_money(sum((c for c in claims if c is not None), _ZERO))
+        groups.append(_Group(primary, others, stated, claimed))
     groups.sort(key=lambda g: g.primary.line_no)
     return groups
 
@@ -327,6 +340,34 @@ def _verdict(
     return None
 
 
+def _decide_discount(
+    group: _Group,
+    transaction: FusionTransaction,
+    context: DiscountContext | None,
+    receipt_remaining: Decimal,
+) -> DiscountDecision:
+    """The discount for a valid invoice line. Never invents one: it needs a claim on the line."""
+    claimed = group.claimed
+    if context is None:
+        reason = DiscountReason.DISABLED if claimed is not None else DiscountReason.NOT_CLAIMED
+        return DiscountDecision(None, reason, claimed=claimed)
+    terms = context.terms.get(transaction.payment_terms) if transaction.payment_terms else None
+    decision = earned_discount(
+        transaction, terms, context.payment_date, claimed, group.stated, context.tolerance
+    )
+    if decision.amount is not None and group.stated is not None:
+        cash = min(group.stated, transaction.balance - decision.amount, receipt_remaining)
+        if cash < group.stated and not money_eq(cash, group.stated):
+            return DiscountDecision(
+                None,
+                DiscountReason.RECEIPT_REMAINING_SHORT,
+                tier=decision.tier,
+                computed=decision.computed,
+                claimed=decision.claimed,
+            )
+    return decision
+
+
 def plan_lines(
     lines: Sequence[ExtractedLine],
     transactions: Mapping[str, FusionTransaction],
@@ -338,6 +379,7 @@ def plan_lines(
     tolerance: Decimal = Decimal("0.00"),
     owners: Collection[str] | None = None,
     ambiguous: Collection[str] = (),
+    discount: DiscountContext | None = None,
 ) -> LinePlan:
     """Plan the applications for ``lines``. ``transactions`` is keyed by ``number_key``."""
     ignored = tuple(sorted(ln.line_no for ln in lines if ln.kind not in APPLICABLE_LINE_KINDS))
@@ -387,6 +429,8 @@ def plan_lines(
             continue
         balance = transaction.balance
         merged = tuple(o.line_no for o in group.others)
+        step_discount: Decimal | None = None
+        decision: DiscountDecision | None = None
         if transaction.kind is TransactionKind.CREDIT_MEMO:
             wanted = abs(stated) if stated is not None else abs(balance)
             applied = to_money(min(wanted, abs(balance)))
@@ -409,7 +453,13 @@ def plan_lines(
                 )
                 continue
             wanted = stated if stated is not None else balance
-            applied = to_money(min(wanted, balance, remaining))
+            decision = _decide_discount(group, transaction, discount, remaining)
+            if decision.amount is not None:
+                step_discount = decision.amount
+                applied = to_money(min(wanted, balance - step_discount, remaining))
+            else:
+                step_discount = None
+                applied = to_money(min(wanted, balance, remaining))
             if applied <= _HALF_CENT:
                 results.append(
                     _draft(
@@ -425,12 +475,16 @@ def plan_lines(
             remaining -= applied
             capped = applied < wanted and not money_eq(applied, wanted)
             short = applied < balance and not money_eq(applied, balance)
+            if step_discount is not None:
+                short = False  # cash plus the earned discount close the invoice
         if capped:
             target = LineStatus.ALLOCATION_APPLIED_LESS_THAN_INSTRUCTION
         elif short:
             target = LineStatus.ALLOCATION_APPLIED_SHORT_PAY
         else:
             target = LineStatus.ALLOCATION_APPLIED
+        if step_discount is not None and not capped:
+            target = LineStatus.ALLOCATION_APPLIED_WITH_DISCOUNT
         steps.append(
             LineStep(
                 line_no=group.primary.line_no,
@@ -441,6 +495,9 @@ def plan_lines(
                 stated_amount=stated,
                 balance_before=balance,
                 merged_line_nos=merged,
+                discount=step_discount,
+                discount_reason=decision.reason if decision is not None else None,
+                discount_decision=decision,
             )
         )
 

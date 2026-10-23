@@ -21,7 +21,7 @@ from cashapp.domain.error_codes import ErrorCode
 from cashapp.domain.ledger import APPLIED_BY_SYSTEM, LedgerStatus
 from cashapp.domain.money import to_money
 from cashapp.domain.stages import Stage
-from cashapp.domain.status import HeaderResult, LineStatus, PaymentStatus, roll_up
+from cashapp.domain.status import HeaderResult, InfoFlag, LineStatus, PaymentStatus, roll_up
 from cashapp.domain.work_item import FixHints, HistoryAction
 from cashapp.integrations.fusion.client import FusionClient
 from cashapp.integrations.fusion.errors import FusionError
@@ -166,47 +166,125 @@ async def apply_one(
             await uow.commit()
             return
 
-        request = ApplyRequest(
-            receipt_id=row.receipt_id,
-            customer_trx_id=row.customer_trx_id,
-            amount_applied=row.amount,
-            receipt_currency=receipt.currency,
-            application_date=accounting_date,
-            accounting_date=accounting_date,
-            discount_amount=row.discount_amount,
-        )
-        await ledger.update(row, request=_request_json(request))
-        result: ApplyResult | None = None
-        error: FusionError | None = None
-        try:
-            result = await fusion.apply_receipt(request)
-        except FusionError as exc:
-            error = exc
-
-        if result is not None and result.ok:
-            await _record_applied(
-                ctx,
-                row,
-                application_id=result.application_id,
-                amount=row.amount,
-                messages=result.raw_messages,
-                note="applied",
+        attempts: list[list[dict[str, Any]]] = []
+        discount_sent = row.discount_amount
+        while True:
+            request = ApplyRequest(
+                receipt_id=row.receipt_id,
+                customer_trx_id=row.customer_trx_id,
+                amount_applied=row.amount,
+                receipt_currency=receipt.currency,
+                application_date=accounting_date,
                 accounting_date=accounting_date,
+                discount_amount=row.discount_amount,
             )
-            await uow.commit()
-            return
+            await ledger.update(row, request=_request_json(request))
+            result: ApplyResult | None = None
+            error: FusionError | None = None
+            try:
+                result = await fusion.apply_receipt(request)
+            except FusionError as exc:
+                error = exc
 
-        if error is not None:
-            code, fusion_code, message = error.code, error.fusion_code, error.message
-            messages: tuple[FusionMessage, ...] = ()
-            transient = error.retryable or error.outcome_unknown
-        else:
-            fault = result.fault if result is not None else None
-            code = fault.code if fault is not None else ErrorCode.FUSION_FAULT
-            fusion_code = fault.fusion_code if fault is not None else None
-            message = fault.message if fault is not None else "apply not confirmed by Fusion"
-            messages = result.raw_messages if result is not None else ()
-            transient = False
+            if result is not None and result.ok:
+                await _record_applied(
+                    ctx,
+                    row,
+                    application_id=result.application_id,
+                    amount=row.amount,
+                    messages=result.raw_messages,
+                    note="applied"
+                    if not attempts
+                    else "discount rejected by Fusion; applied cash only",
+                    accounting_date=accounting_date,
+                    discount_rejected=bool(attempts),
+                    attempts=attempts,
+                )
+                await uow.commit()
+                return
+
+            if error is not None:
+                code, fusion_code, message = error.code, error.fusion_code, error.message
+                messages: tuple[FusionMessage, ...] = ()
+                transient = error.retryable or error.outcome_unknown
+            else:
+                fault = result.fault if result is not None else None
+                code = fault.code if fault is not None else ErrorCode.FUSION_FAULT
+                fusion_code = fault.fusion_code if fault is not None else None
+                message = fault.message if fault is not None else "apply not confirmed by Fusion"
+                messages = result.raw_messages if result is not None else ()
+                transient = False
+
+            if (
+                code is ErrorCode.FUSION_DISCOUNT_REJECTED
+                and row.discount_amount is not None
+                and not attempts
+            ):
+                # Transaction A: record the rejection and drop the discount before retrying, so a
+                # crash resumes as a plain cash-only PLANNED row.
+                attempts.append(_messages_json(messages))
+                flags = [*item.info_flags]
+                if InfoFlag.DISCOUNT_REJECTED_BY_FUSION.value not in flags:
+                    flags.append(InfoFlag.DISCOUNT_REJECTED_BY_FUSION.value)
+                item.info_flags = flags
+                await ledger.update(
+                    row,
+                    discount_amount=None,
+                    error_code=None,
+                    response_messages={"attempts": attempts},
+                )
+                await record_history(
+                    uow,
+                    item.id,
+                    HistoryEntry(
+                        action=HistoryAction.FUSION_WRITE,
+                        error_code=code,
+                        reasoning=(
+                            "Fusion rejected the earned discount (attempt 1); "
+                            "re-applying the cash without it."
+                        ),
+                        payload={
+                            **_detail(row, fusion_code, accounting_date),
+                            "attempt": 1,
+                            "discount_amount": discount_sent,
+                            "messages": _messages_json(messages),
+                        },
+                    ),
+                    clock=ctx.clock,
+                )
+                await uow.commit()
+                # Transaction B: the same row through the same idempotency re-check and apply.
+                try:
+                    existing = await fusion.list_receipt_applications(row.receipt_id)
+                except FusionError as exc:
+                    raise StageError(
+                        exc.code,
+                        {"op": "list_receipt_applications", "receipt_id": row.receipt_id},
+                    ) from exc
+                landed = next(
+                    (
+                        a
+                        for a in existing
+                        if is_active_application(a)
+                        and a.customer_trx_id == row.customer_trx_id
+                        and a.application_id not in owned
+                    ),
+                    None,
+                )
+                if landed is not None:
+                    await _record_applied(
+                        ctx,
+                        row,
+                        application_id=landed.application_id,
+                        amount=landed.amount_applied,
+                        messages=(),
+                        note="already present in Fusion; not re-applied",
+                        accounting_date=accounting_date,
+                    )
+                    await uow.commit()
+                    return
+                continue
+            break
 
         if code is ErrorCode.FUSION_WRITE_DISABLED:
             await uow.commit()
@@ -260,22 +338,31 @@ async def _record_applied(
     messages: tuple[FusionMessage, ...],
     note: str,
     accounting_date: date,
+    discount_rejected: bool = False,
+    attempts: list[list[dict[str, Any]]] | None = None,
 ) -> None:
     """Mark the ledger row APPLIED and write the line result and history (no commit)."""
     uow, item = ctx.uow, ctx.item
     ledger = uow.repo(ApplicationLedgerRepository)
     results = uow.repo(LineResultRepository)
+    response: Any = _messages_json(messages) if messages else row.response_messages
+    if discount_rejected:
+        response = {"attempts": [*(attempts or []), _messages_json(messages)]}
     await ledger.mark_applied(
         row,
         fusion_application_id=application_id,
         amount=amount,
         applied_at=ctx.clock.now(),
         applied_by=APPLIED_BY_SYSTEM,
-        response_messages=_messages_json(messages) if messages else row.response_messages,
+        response_messages=response,
     )
     current = await results.get_line(item.id, row.line_no)
     stated = current.stated_amount if current is not None else None
     target = current.target_status if current is not None else None
+    if discount_rejected:
+        balance = current.balance_before if current is not None else None
+        short = balance is None or abs(amount) < abs(balance)
+        target = LineStatus.ALLOCATION_APPLIED_SHORT_PAY if short else LineStatus.ALLOCATION_APPLIED
     await results.upsert(
         item.id,
         row.line_no,
@@ -298,8 +385,10 @@ async def _record_applied(
                 "receipt_id": row.receipt_id,
                 "customer_trx_id": row.customer_trx_id,
                 "amount": amount,
+                "discount_amount": row.discount_amount,
                 "application_id": application_id,
                 "accounting_date": accounting_date.isoformat(),
+                **({"attempt": 2} if discount_rejected else {}),
             },
         ),
         clock=ctx.clock,
