@@ -147,7 +147,7 @@ export function Composer({
       className={cn(
         "resize-none",
         form === "dock"
-          ? "max-h-56 min-h-[3.5rem] w-full border-0 bg-transparent px-2 pt-1 text-base shadow-none focus-visible:ring-0 placeholder:text-muted-foreground"
+          ? "max-h-56 min-h-[3.5rem] w-full rounded-none border-0 bg-transparent px-1 py-0 text-base shadow-none outline-none focus-visible:border-0 focus-visible:ring-0 disabled:bg-transparent disabled:opacity-100 dark:bg-transparent dark:disabled:bg-transparent md:text-base"
           : form === "full"
             ? "max-h-48 min-h-12 border-0 bg-transparent px-0 text-[15px] shadow-none focus-visible:ring-0"
             : "max-h-32 min-h-9",
@@ -164,7 +164,7 @@ export function Composer({
     return (
       <form
         onSubmit={onSubmit}
-        className="relative flex flex-col gap-2 rounded-2xl border border-white/10 bg-[#141416] px-4 pb-3 pt-4 transition-colors focus-within:border-white/20"
+        className="relative flex flex-col gap-2 rounded-2xl border border-white/10 bg-background px-4 pb-3 pt-4 transition-colors focus-within:border-white/20"
       >
         {showPrompts ? <PromptList query={text.slice(1)} onPick={pickPrompt} /> : null}
         {input}
