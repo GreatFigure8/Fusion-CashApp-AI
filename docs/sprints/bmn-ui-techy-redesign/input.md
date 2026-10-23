@@ -13,3 +13,9 @@ Acceptance criteria (from the issue):
 
 Repo rules: see CLAUDE.md (python API owns data/logic; web/ is a thin Next.js client; shared components once; Haiku is the chat workhorse; zero data retention).
 Local rule: `dev` is protected in this repo. Never push dev. Land work on dev by pull request (`gh pr create --base dev`, merged with `gh pr merge --merge`).
+
+## Addition from Jonathan (mid-run, during RESEARCH)
+
+"oh one other thing we need to take into consideration... we need a control panel for the processing engine. a way to control the flow of the data through the engine (Kafka)."
+
+Treated as part of this story: an engine control panel in the UI (admin/operator permission, enforced in the API, audited with the Principal) to control flow through the stations and the bus behind the `EventBus` interface: per-station pause/resume, drain, consumer lag and throughput per topic, concurrency/throttle (Fusion apply back-pressure), retry and dead-letter queues with replay/requeue. No scheduler, and no third poller (CLAUDE.md non-negotiables 4 and 5): this controls event flow, it does not add polling.
