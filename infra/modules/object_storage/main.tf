@@ -14,3 +14,37 @@ resource "oci_objectstorage_bucket" "artifacts" {
   object_events_enabled = false
   freeform_tags         = local.tags
 }
+
+# Chat-staged receipt uploads that were never submitted expire after a day. The app has no
+# scheduler, so the bucket removes them. Needs the usual object-storage service policy for
+# lifecycle rules (`Allow service objectstorage-<region> to manage object-family`).
+resource "oci_objectstorage_object_lifecycle_policy" "staging_expiry" {
+  namespace = data.oci_objectstorage_namespace.this.namespace
+  bucket    = oci_objectstorage_bucket.artifacts.name
+
+  rules {
+    name        = "expire-staged-uploads"
+    action      = "DELETE"
+    is_enabled  = true
+    target      = "objects"
+    time_amount = 1
+    time_unit   = "DAYS"
+
+    object_name_filter {
+      inclusion_prefixes = ["staging/"]
+    }
+  }
+
+  rules {
+    name        = "expire-staged-upload-versions"
+    action      = "DELETE"
+    is_enabled  = true
+    target      = "previous-object-versions"
+    time_amount = 1
+    time_unit   = "DAYS"
+
+    object_name_filter {
+      inclusion_prefixes = ["staging/"]
+    }
+  }
+}
