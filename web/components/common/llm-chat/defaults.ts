@@ -7,7 +7,11 @@ export const ROUTE_CHIPS: Readonly<Record<string, readonly string[]>> = {
   "/exceptions": ["Work my oldest exception", "Which auto-fix fails most?", "Submit failed receipts"],
   "/reports": ["Export this week's report", "Show live progress", "Which auto-fix fails most?"],
   "/config": ["What changed in settings this week?", "Show live progress"],
-  "/lab": ["Replay the current candidate", "What would this rule change?"],
+  "/lab": [
+    "Try a ±3 day window for INR only",
+    "Why do INR items go ambiguous?",
+    "Replay my last candidate on 7 days",
+  ],
   "/review": ["Submit failed receipts", "Work my oldest exception"],
   "/items": ["Why is this stuck?", "Which receipt fits best?"],
 };
