@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Self
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from cashapp.domain.artifacts import PartKind
 from cashapp.domain.money import MoneyStr
@@ -42,6 +42,14 @@ class QuotaOut(BaseModel):
     @classmethod
     def from_quota(cls, quota: Quota) -> Self:
         return cls(used=quota.used, limit=quota.limit)
+
+
+class UploadLimitsOut(BaseModel):
+    """The configured upload limits, so the page shows them instead of hard-coding them."""
+
+    max_file_bytes: int
+    max_files_per_request: int
+    allowed_types: list[str]
 
 
 class UploadResultOut(BaseModel):
@@ -137,7 +145,7 @@ class ReviewResultOut(BaseModel):
     payment_status: PaymentStatus | None
     fields: list[ReviewFieldOut]
     adjudication_note: str | None
-    confidence: float | None = Field(default=None, ge=0, le=1)
+    confidence: float | None
     applied: AppliedOut | None
     preview: PreviewOut | None
 

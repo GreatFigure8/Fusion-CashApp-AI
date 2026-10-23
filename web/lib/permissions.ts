@@ -13,4 +13,5 @@ export const ROUTE_PERMISSIONS = {
   "/exceptions": { permission: "items:read", role: "VIEWER" },
   "/reports": { permission: "reports:read", role: "VIEWER" },
   "/config": { permission: "config:read", role: "VIEWER" },
+  "/review": { permission: "items:read", role: "VIEWER" },
 } as const;

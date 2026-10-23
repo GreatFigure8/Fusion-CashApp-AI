@@ -213,6 +213,38 @@
         "title": "AppliedMoneyOut",
         "type": "object"
       },
+      "AppliedOut": {
+        "properties": {
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "lines": {
+            "title": "Lines",
+            "type": "integer"
+          },
+          "receipt_number": {
+            "title": "Receipt Number",
+            "type": "string"
+          },
+          "residual": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Residual",
+            "type": "string"
+          }
+        },
+        "required": [
+          "receipt_number",
+          "lines",
+          "residual",
+          "currency"
+        ],
+        "title": "AppliedOut",
+        "type": "object"
+      },
       "AutofixAttemptOut": {
         "properties": {
           "at": {
@@ -2492,6 +2524,17 @@
         "title": "FieldChangeOut",
         "type": "object"
       },
+      "FieldSource": {
+        "description": "Where the adjudicated value of a field came from.",
+        "enum": [
+          "A_EQ_B",
+          "A_B_DIFFERED",
+          "A_ONLY",
+          "B_ONLY"
+        ],
+        "title": "FieldSource",
+        "type": "string"
+      },
       "FlowKpisOut": {
         "properties": {
           "applied_by_currency": {
@@ -4138,6 +4181,49 @@
         "title": "PollerOut",
         "type": "object"
       },
+      "PreviewOut": {
+        "properties": {
+          "artifact_key": {
+            "title": "Artifact Key",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PartKind"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "part_no": {
+            "title": "Part No",
+            "type": "integer"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RegionOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "artifact_key",
+          "part_no",
+          "kind",
+          "media_type",
+          "page",
+          "region"
+        ],
+        "title": "PreviewOut",
+        "type": "object"
+      },
       "PromptKey": {
         "enum": [
           "item",
@@ -4223,6 +4309,24 @@
           "dry_run"
         ],
         "title": "PurgeRequest",
+        "type": "object"
+      },
+      "QuotaOut": {
+        "properties": {
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "used": {
+            "title": "Used",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "used",
+          "limit"
+        ],
+        "title": "QuotaOut",
         "type": "object"
       },
       "ReaderSlot": {
@@ -4327,6 +4431,34 @@
           "reservation_status"
         ],
         "title": "ReceiptOut",
+        "type": "object"
+      },
+      "RegionOut": {
+        "properties": {
+          "h": {
+            "title": "H",
+            "type": "number"
+          },
+          "w": {
+            "title": "W",
+            "type": "number"
+          },
+          "x": {
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "title": "Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "w",
+          "h"
+        ],
+        "title": "RegionOut",
         "type": "object"
       },
       "RelationshipOut": {
@@ -4710,6 +4842,215 @@
         "title": "ReverseOut",
         "type": "object"
       },
+      "ReviewFieldOut": {
+        "properties": {
+          "field": {
+            "title": "Field",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/FieldSource"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "field",
+          "value",
+          "source"
+        ],
+        "title": "ReviewFieldOut",
+        "type": "object"
+      },
+      "ReviewQueuePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewQueueRowOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ],
+        "title": "ReviewQueuePage",
+        "type": "object"
+      },
+      "ReviewQueueRowOut": {
+        "properties": {
+          "age_seconds": {
+            "title": "Age Seconds",
+            "type": "integer"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "filename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filename"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "payment_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaymentStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stage": {
+            "$ref": "#/components/schemas/Stage"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ItemState"
+          }
+        },
+        "required": [
+          "item_id",
+          "filename",
+          "stage",
+          "status",
+          "payment_status",
+          "age_seconds",
+          "created_at",
+          "confidence"
+        ],
+        "title": "ReviewQueueRowOut",
+        "type": "object"
+      },
+      "ReviewResultOut": {
+        "properties": {
+          "adjudication_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adjudication Note"
+          },
+          "applied": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AppliedOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewFieldOut"
+            },
+            "title": "Fields",
+            "type": "array"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "payment_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaymentStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PreviewOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/ItemState"
+          }
+        },
+        "required": [
+          "item_id",
+          "status",
+          "payment_status",
+          "fields",
+          "adjudication_note",
+          "confidence",
+          "applied",
+          "preview"
+        ],
+        "title": "ReviewResultOut",
+        "type": "object"
+      },
       "Role": {
         "enum": [
           "ADMIN",
@@ -4968,6 +5309,34 @@
         "title": "StageItemsOut",
         "type": "object"
       },
+      "StagedUploadsOut": {
+        "properties": {
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/UploadFileResultOut"
+            },
+            "title": "Files",
+            "type": "array"
+          },
+          "quota": {
+            "$ref": "#/components/schemas/QuotaOut"
+          },
+          "upload_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Upload Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "upload_ids",
+          "files",
+          "quota"
+        ],
+        "title": "StagedUploadsOut",
+        "type": "object"
+      },
       "StreamErrorData": {
         "properties": {
           "code": {
@@ -5004,6 +5373,98 @@
         ],
         "title": "TokenData",
         "type": "object"
+      },
+      "UploadFileResultOut": {
+        "properties": {
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "item_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Id"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UploadStatus"
+          }
+        },
+        "required": [
+          "filename",
+          "status",
+          "item_id",
+          "message"
+        ],
+        "title": "UploadFileResultOut",
+        "type": "object"
+      },
+      "UploadLimitsOut": {
+        "description": "The configured upload limits, so the page shows them instead of hard-coding them.",
+        "properties": {
+          "allowed_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Types",
+            "type": "array"
+          },
+          "max_file_bytes": {
+            "title": "Max File Bytes",
+            "type": "integer"
+          },
+          "max_files_per_request": {
+            "title": "Max Files Per Request",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "max_file_bytes",
+          "max_files_per_request",
+          "allowed_types"
+        ],
+        "title": "UploadLimitsOut",
+        "type": "object"
+      },
+      "UploadResultOut": {
+        "properties": {
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/UploadFileResultOut"
+            },
+            "title": "Files",
+            "type": "array"
+          },
+          "quota": {
+            "$ref": "#/components/schemas/QuotaOut"
+          }
+        },
+        "required": [
+          "files",
+          "quota"
+        ],
+        "title": "UploadResultOut",
+        "type": "object"
+      },
+      "UploadStatus": {
+        "enum": [
+          "STORED",
+          "DUPLICATE",
+          "TOO_LARGE",
+          "NOT_ALLOWED",
+          "QUOTA"
+        ],
+        "title": "UploadStatus",
+        "type": "string"
       },
       "UsageCallOut": {
         "properties": {
@@ -8260,6 +8721,303 @@
         "summary": "Get Partially Paid",
         "tags": [
           "reports"
+        ]
+      }
+    },
+    "/review/items/{item_id}/result": {
+      "get": {
+        "operationId": "review_result_review_items__item_id__result_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResultOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Review Result",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/review/limits": {
+      "get": {
+        "operationId": "review_limits_review_limits_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadLimitsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Review Limits",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/review/queue": {
+      "get": {
+        "operationId": "review_queue_review_queue_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "open_only",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Open Only",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewQueuePage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Review Queue",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/review/quota": {
+      "get": {
+        "operationId": "review_quota_review_quota_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotaOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Review Quota",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/review/uploads": {
+      "post": {
+        "description": "Submit files for in-depth review, or only stage them for a chat message (``stage_only``).",
+        "operationId": "upload_files_review_uploads_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "stage_only",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Stage Only",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/UploadResultOut"
+                    },
+                    {
+                      "$ref": "#/components/schemas/StagedUploadsOut"
+                    }
+                  ],
+                  "title": "Response Upload Files Review Uploads Post"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Upload Files",
+        "tags": [
+          "review"
         ]
       }
     },

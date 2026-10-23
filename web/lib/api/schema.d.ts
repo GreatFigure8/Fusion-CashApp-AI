@@ -687,6 +687,94 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/review/items/{item_id}/result": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Result */
+        get: operations["review_result_review_items__item_id__result_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/review/limits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Limits */
+        get: operations["review_limits_review_limits_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/review/queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Queue */
+        get: operations["review_queue_review_queue_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/review/quota": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Quota */
+        get: operations["review_quota_review_quota_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/review/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Files
+         * @description Submit files for in-depth review, or only stage them for a chat message (``stage_only``).
+         */
+        post: operations["upload_files_review_uploads_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/search": {
         parameters: {
             query?: never;
@@ -782,6 +870,20 @@ export interface components {
             amount: string;
             /** Currency */
             currency: string;
+        };
+        /** AppliedOut */
+        AppliedOut: {
+            /** Currency */
+            currency: string;
+            /** Lines */
+            lines: number;
+            /** Receipt Number */
+            receipt_number: string;
+            /**
+             * Residual
+             * @example 12480.00
+             */
+            residual: string;
         };
         /** AutofixAttemptOut */
         AutofixAttemptOut: {
@@ -1519,6 +1621,12 @@ export interface components {
             /** Path */
             path: string;
         };
+        /**
+         * FieldSource
+         * @description Where the adjudicated value of a field came from.
+         * @enum {string}
+         */
+        FieldSource: "A_EQ_B" | "A_B_DIFFERED" | "A_ONLY" | "B_ONLY";
         /** FlowKpisOut */
         FlowKpisOut: {
             /** Applied By Currency */
@@ -2024,6 +2132,19 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** PreviewOut */
+        PreviewOut: {
+            /** Artifact Key */
+            artifact_key: string;
+            kind: components["schemas"]["PartKind"];
+            /** Media Type */
+            media_type: string;
+            /** Page */
+            page: number;
+            /** Part No */
+            part_no: number;
+            region: components["schemas"]["RegionOut"] | null;
+        };
         /**
          * PromptKey
          * @enum {string}
@@ -2065,6 +2186,13 @@ export interface components {
             /** Dry Run */
             dry_run: boolean;
         };
+        /** QuotaOut */
+        QuotaOut: {
+            /** Limit */
+            limit: number;
+            /** Used */
+            used: number;
+        };
         /**
          * ReaderSlot
          * @enum {string}
@@ -2101,6 +2229,17 @@ export interface components {
             reservation_status: string | null;
             /** Score */
             score: number | null;
+        };
+        /** RegionOut */
+        RegionOut: {
+            /** H */
+            h: number;
+            /** W */
+            w: number;
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
         };
         /** RelationshipOut */
         RelationshipOut: {
@@ -2237,6 +2376,59 @@ export interface components {
              */
             status: "REVERSED";
         };
+        /** ReviewFieldOut */
+        ReviewFieldOut: {
+            /** Field */
+            field: string;
+            source: components["schemas"]["FieldSource"];
+            /** Value */
+            value: string | null;
+        };
+        /** ReviewQueuePage */
+        ReviewQueuePage: {
+            /** Items */
+            items: components["schemas"]["ReviewQueueRowOut"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /** ReviewQueueRowOut */
+        ReviewQueueRowOut: {
+            /** Age Seconds */
+            age_seconds: number;
+            /** Confidence */
+            confidence: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Filename */
+            filename: string | null;
+            /** Item Id */
+            item_id: number;
+            payment_status: components["schemas"]["PaymentStatus"] | null;
+            stage: components["schemas"]["Stage"];
+            status: components["schemas"]["ItemState"];
+        };
+        /** ReviewResultOut */
+        ReviewResultOut: {
+            /** Adjudication Note */
+            adjudication_note: string | null;
+            applied: components["schemas"]["AppliedOut"] | null;
+            /** Confidence */
+            confidence: number | null;
+            /** Fields */
+            fields: components["schemas"]["ReviewFieldOut"][];
+            /** Item Id */
+            item_id: number;
+            payment_status: components["schemas"]["PaymentStatus"] | null;
+            preview: components["schemas"]["PreviewOut"] | null;
+            status: components["schemas"]["ItemState"];
+        };
         /**
          * Role
          * @enum {string}
@@ -2286,6 +2478,14 @@ export interface components {
          * @enum {string}
          */
         Stage: "INTAKE" | "CLASSIFY" | "EXTRACT" | "ADJUDICATE" | "VALIDATE" | "RESOLVE_CUSTOMER" | "FAST_PATH" | "MATCH_RECEIPT" | "MATCH_LINES" | "APPLY" | "WRITE_BACK" | "DONE";
+        /** StagedUploadsOut */
+        StagedUploadsOut: {
+            /** Files */
+            files: components["schemas"]["UploadFileResultOut"][];
+            quota: components["schemas"]["QuotaOut"];
+            /** Upload Ids */
+            upload_ids: string[];
+        };
         /** StageItemOut */
         StageItemOut: {
             /** Amount */
@@ -2334,6 +2534,39 @@ export interface components {
             /** Text */
             text: string;
         };
+        /** UploadFileResultOut */
+        UploadFileResultOut: {
+            /** Filename */
+            filename: string;
+            /** Item Id */
+            item_id: number | null;
+            /** Message */
+            message: string;
+            status: components["schemas"]["UploadStatus"];
+        };
+        /**
+         * UploadLimitsOut
+         * @description The configured upload limits, so the page shows them instead of hard-coding them.
+         */
+        UploadLimitsOut: {
+            /** Allowed Types */
+            allowed_types: string[];
+            /** Max File Bytes */
+            max_file_bytes: number;
+            /** Max Files Per Request */
+            max_files_per_request: number;
+        };
+        /** UploadResultOut */
+        UploadResultOut: {
+            /** Files */
+            files: components["schemas"]["UploadFileResultOut"][];
+            quota: components["schemas"]["QuotaOut"];
+        };
+        /**
+         * UploadStatus
+         * @enum {string}
+         */
+        UploadStatus: "STORED" | "DUPLICATE" | "TOO_LARGE" | "NOT_ALLOWED" | "QUOTA";
         /** UsageCallOut */
         UsageCallOut: {
             /** Cost Usd */
@@ -4223,6 +4456,204 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PartiallyPaidResponse"];
+                };
+            };
+        };
+    };
+    review_result_review_items__item_id__result_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewResultOut"];
+                };
+            };
+        };
+    };
+    review_limits_review_limits_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadLimitsOut"];
+                };
+            };
+        };
+    };
+    review_queue_review_queue_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+                open_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewQueuePage"];
+                };
+            };
+        };
+    };
+    review_quota_review_quota_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuotaOut"];
+                };
+            };
+        };
+    };
+    upload_files_review_uploads_post: {
+        parameters: {
+            query?: {
+                stage_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadResultOut"] | components["schemas"]["StagedUploadsOut"];
                 };
             };
         };

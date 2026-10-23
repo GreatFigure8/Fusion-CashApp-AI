@@ -15,6 +15,7 @@ from cashapp.api.schemas.review import (
     ReviewQueueRowOut,
     ReviewResultOut,
     StagedUploadsOut,
+    UploadLimitsOut,
     UploadResultOut,
 )
 from cashapp.api.storage_deps import ObjectStoreDep
@@ -109,6 +110,16 @@ async def review_queue(
 @router.get("/quota", response_model=QuotaOut)
 async def review_quota(principal: ReaderDep, service: UploadServiceDep) -> QuotaOut:
     return QuotaOut.from_quota(await service.quota(principal))
+
+
+@router.get("/limits", response_model=UploadLimitsOut)
+async def review_limits(_: ReaderDep, runtime: RuntimeConfigDep) -> UploadLimitsOut:
+    cfg = await runtime.uploads()
+    return UploadLimitsOut(
+        max_file_bytes=cfg.max_file_bytes,
+        max_files_per_request=cfg.max_files_per_request,
+        allowed_types=list(cfg.allowed_types),
+    )
 
 
 @router.get("/items/{item_id}/result", response_model=ReviewResultOut)
