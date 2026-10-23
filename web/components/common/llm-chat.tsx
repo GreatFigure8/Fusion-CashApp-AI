@@ -1,146 +1,235 @@
 "use client";
 
-import { useEffect } from "react";
-import { MessageSquareIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { GlassPanel } from "@/components/common/glass-panel";
+import { StateCard } from "@/components/common/state-card";
 import { cn } from "@/lib/utils";
 
-import { ChatStatus } from "./llm-chat/chat-status";
+import { fetchChatTools } from "./llm-chat/chat-server-actions";
+import { ActionChips } from "./llm-chat/action-chips";
+import type { UploadLimits } from "./llm-chat/attach";
+import {
+  TOOL_GROUPS,
+  type ChatContextRef,
+  type ChatMessageOut,
+  type ChatToolsOut,
+  type PendingConfirm,
+  type PromptKey,
+  type ResultCard,
+  type ToolGroup,
+} from "./llm-chat/chat-schemas";
+import { ChatHeader, ChatStatus } from "./llm-chat/chat-status";
 import { Composer } from "./llm-chat/composer";
-import { DEFAULT_SUGGESTIONS, FOOTER_NOTE } from "./llm-chat/defaults";
+import {
+  COPY,
+  FULL_CHIPS,
+  PROMPT_CHIPS,
+  TOOL_GROUP_LABELS,
+  WELCOME_CHIPS,
+  modelLabel,
+} from "./llm-chat/defaults";
+import { LiveContext } from "./llm-chat/live-context";
 import { MessageList } from "./llm-chat/message-list";
 import { Suggestions } from "./llm-chat/suggestions";
-import { useChat, type UseChat } from "./llm-chat/use-chat";
-import type {
-  ChatActionHandler,
-  ChatActionSpec,
-  ChatContextRef,
-  PromptKey,
-} from "./llm-chat/chat-schemas";
+import { useChat } from "./llm-chat/use-chat";
 
-export type { ChatActionHandler, ChatActionSpec, ChatContextRef, PromptKey };
+export type { ChatContextRef, PromptKey, ResultCard, ToolGroup };
+export type LlmChatVariant = "dock" | "page" | "compact";
 
 export type LlmChatProps = {
   context: ChatContextRef;
   systemPromptKey: PromptKey;
-  actions?: readonly ChatActionSpec[];
-  /** Required when `actions` is non-empty: without it the chips are disabled. */
-  onAction?: ChatActionHandler;
-  variant: "panel" | "sheet";
-  suggestions?: readonly string[];
-  /** Sheet only; optional control. */
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  variant: LlmChatVariant;
+  /** Groups offered this chat; default = every group the person is allowed. */
+  tools?: readonly ToolGroup[];
+  /** Overrides the chips from defaults.ts. */
+  chips?: readonly string[];
+  /** Header label for compact and page, for example "Lab assistant". */
+  title?: string;
+  threadId?: number;
+  initialMessages?: readonly ChatMessageOut[];
+  /** A confirm that was still open when the thread was loaded. */
+  pending?: PendingConfirm | null;
+  /** GET /chat/tools; fetched client-side when absent. */
+  catalog?: ChatToolsOut;
+  /** "Acting as <name> · <role>" in the page header. */
+  actingAs?: string;
+  uploads?: UploadLimits;
+  /** Called once per `tool_finished` that carries a result card, in every variant. */
+  onToolResult?: (card: ResultCard) => void;
   className?: string;
 };
 
-const NO_ACTIONS: readonly ChatActionSpec[] = [];
+export const DOCK_INPUT_ID = "assistant-dock-input";
 
-type ChatBodyProps = {
-  chat: UseChat;
-  actions: readonly ChatActionSpec[];
-  onAction?: ChatActionHandler;
-  suggestions: readonly string[];
-  className?: string;
-};
-
-function ChatBody({ chat, actions, onAction, suggestions, className }: ChatBodyProps) {
-  const { state, send, stop, retry } = chat;
-  const streaming = state.phase === "streaming";
-
-  return (
-    <div className={cn("flex min-h-0 flex-1 flex-col gap-2", className)} data-slot="llm-chat">
-      <MessageList
-        messages={state.messages}
-        streaming={streaming}
-        actions={actions}
-        onAction={onAction}
-        empty={
-          <Suggestions suggestions={suggestions} disabled={streaming} onPick={(text) => send(text)} />
-        }
-      />
-      <div className="flex flex-col gap-2 px-3">
-        {state.phase === "error" && state.error ? (
-          <ChatStatus
-            kind="error"
-            code={state.error.code}
-            message={state.error.message}
-            onRetry={retry}
-          />
-        ) : null}
-        {state.phase === "disconnected" ? <ChatStatus kind="disconnected" onRetry={retry} /> : null}
-        <Composer streaming={streaming} onSend={send} onStop={stop} />
-        <p className="pb-3 text-xs text-muted-foreground">{FOOTER_NOTE}</p>
-      </div>
-    </div>
-  );
+function useCatalog(given: ChatToolsOut | undefined): ChatToolsOut | null {
+  const [fetched, setFetched] = useState<ChatToolsOut | null>(null);
+  useEffect(() => {
+    if (given !== undefined) return;
+    let current = true;
+    void fetchChatTools().then((r) => {
+      if (current && r.ok) setFetched(r.value);
+    });
+    return () => {
+      current = false;
+    };
+  }, [given]);
+  return given ?? fetched;
 }
 
 /** The one LLM chat in the app: every place a person talks to the model renders this. */
 export function LlmChat({
   context,
   systemPromptKey,
-  actions = NO_ACTIONS,
-  onAction,
   variant,
-  suggestions,
-  open,
-  onOpenChange,
+  tools,
+  chips,
+  title,
+  threadId,
+  initialMessages,
+  pending,
+  catalog: givenCatalog,
+  actingAs,
+  uploads,
+  onToolResult,
   className,
 }: LlmChatProps) {
-  const chat = useChat({ context, systemPromptKey, actions });
-  const shown = suggestions ?? DEFAULT_SUGGESTIONS[systemPromptKey];
-  const missingHandler = actions.length > 0 && onAction === undefined;
+  const catalog = useCatalog(givenCatalog);
+  const chat = useChat({
+    context,
+    systemPromptKey,
+    toolGroups: tools ?? null,
+    threadId,
+    initialMessages,
+    pending,
+    onToolResult,
+  });
+  const { state, send, confirm, cancel, stop, retry } = chat;
+  const streaming = state.phase === "streaming";
+  const [collapsed, setCollapsed] = useState(false);
 
-  useEffect(() => {
-    if (missingHandler) {
-      console.warn("LlmChat: `actions` were given without `onAction`; the chips are disabled.");
-    }
-  }, [missingHandler]);
+  const allowed = TOOL_GROUPS.filter((g) => catalog?.find((c) => c.group === g)?.allowed ?? false);
+  const offered = (tools ?? allowed).filter((g) => allowed.includes(g));
+  const toolLabels = offered.map((g) => TOOL_GROUP_LABELS[g]);
 
-  const body = (
-    <ChatBody
-      chat={chat}
-      actions={actions}
-      onAction={onAction}
-      suggestions={shown}
-      className={variant === "panel" ? className : undefined}
+  const shownChips = chips ?? (variant === "page" ? FULL_CHIPS : PROMPT_CHIPS[systemPromptKey]);
+  const connected = state.phase !== "disconnected";
+  const label = modelLabel(state.modelId);
+  const hasMessages = state.messages.length > 0;
+  const onSend = (text: string, uploadIds: readonly string[] = []) => send(text, uploadIds);
+  const fullScreenHref = state.threadId === null ? "/assistant" : `/assistant?thread=${state.threadId}`;
+
+  const banners = (
+    <>
+      {state.phase === "error" && state.error ? (
+        state.error.code === "FORBIDDEN" ? (
+          <StateCard
+            kind="denied"
+            headline={state.error.message}
+            body={COPY.deniedBody}
+            actions={null}
+          />
+        ) : (
+          <ChatStatus kind="error" code={state.error.code} message={state.error.message} onRetry={retry} />
+        )
+      ) : null}
+      {state.phase === "disconnected" ? <ChatStatus kind="disconnected" onRetry={retry} /> : null}
+    </>
+  );
+
+  const thread = (
+    <MessageList
+      messages={state.messages}
+      streaming={streaming}
+      onConfirm={confirm}
+      onCancel={(id) => void cancel(id)}
+      onDiscard={(id) => onSend(`Discard candidate ${id}`)}
+      empty={
+        <Suggestions
+          suggestions={variant === "page" ? WELCOME_CHIPS : shownChips}
+          disabled={streaming}
+          onPick={(t) => onSend(t)}
+        />
+      }
     />
   );
 
-  if (variant === "panel") {
-    return <div className={cn("flex h-full min-h-0 flex-col", className)}>{body}</div>;
+  if (variant === "dock") {
+    return (
+      <div className={cn("flex flex-col gap-2", className)} data-slot="llm-chat" data-variant="dock">
+        {hasMessages && !collapsed ? (
+          <GlassPanel className="flex max-h-[50vh] min-h-0 flex-col overflow-hidden">
+            <div className="flex min-h-0 flex-1 flex-col">{thread}</div>
+          </GlassPanel>
+        ) : null}
+        <div className="px-1">{banners}</div>
+        <ActionChips chips={shownChips} disabled={streaming} onPick={(t) => onSend(t)} scroll className="px-1" />
+        <Composer
+          form="dock"
+          streaming={streaming}
+          onSend={onSend}
+          onStop={stop}
+          fullScreenHref={fullScreenHref}
+          inputId={DOCK_INPUT_ID}
+        />
+        <div className="flex items-center justify-between px-2 text-[12px] text-soft">
+          <span>{COPY.dockHint}</span>
+          {hasMessages ? (
+            <button type="button" className="underline-offset-2 hover:underline" onClick={() => setCollapsed((c) => !c)}>
+              {collapsed ? "Show thread" : "Hide thread"}
+            </button>
+          ) : null}
+        </div>
+      </div>
+    );
   }
 
-  const control = open === undefined ? {} : { open, onOpenChange };
+  if (variant === "compact") {
+    return (
+      <div
+        className={cn("flex h-full min-h-0 flex-col gap-2", className)}
+        data-slot="llm-chat"
+        data-variant="compact"
+      >
+        <ChatHeader title={title ?? "Assistant"} connected={connected} modelLabel={label} />
+        {toolLabels[0] ? (
+          <p className="px-3">
+            <span className="rounded-full border border-line bg-surface-3 px-2 py-0.5 font-mono text-[11px] text-soft">
+              {toolLabels[0]}
+            </span>
+          </p>
+        ) : null}
+        {thread}
+        <div className="flex flex-col gap-2 px-3 pb-3">
+          {banners}
+          <Composer form="compact" streaming={streaming} onSend={onSend} onStop={stop} />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <Sheet {...control}>
-      <SheetTrigger
-        render={
-          <Button type="button" variant="outline" size="sm" className={className}>
-            <MessageSquareIcon data-icon="inline-start" />
-            Ask
-          </Button>
-        }
-      />
-      <SheetContent side="right" className="sm:max-w-md">
-        <SheetHeader>
-          <SheetTitle>Ask the assistant</SheetTitle>
-          <SheetDescription className="sr-only">
-            Ask a question about the current view.
-          </SheetDescription>
-        </SheetHeader>
-        {body}
-      </SheetContent>
-    </Sheet>
+    <div className={cn("flex h-full min-h-0 flex-col", className)} data-slot="llm-chat" data-variant="page">
+      <ChatHeader title={title ?? "Assistant"} connected={connected} modelLabel={label} actingAs={actingAs} />
+      <div className="flex min-h-0 flex-1 flex-wrap gap-4 overflow-y-auto p-4 lg:flex-nowrap">
+        <div className="flex min-h-[60vh] min-w-0 flex-[3_1_480px] flex-col gap-3 lg:min-h-0">
+          {thread}
+          <div className="mx-auto flex w-full max-w-[880px] flex-col gap-3 px-4">
+            {banners}
+            <ActionChips chips={shownChips} disabled={streaming} onPick={(t) => onSend(t)} />
+            <Composer
+              form="full"
+              streaming={streaming}
+              onSend={onSend}
+              onStop={stop}
+              toolLabels={toolLabels}
+              uploadLimits={uploads}
+            />
+          </div>
+        </div>
+        <LiveContext tools={catalog} className="flex-[1_1_280px]" />
+      </div>
+    </div>
   );
 }

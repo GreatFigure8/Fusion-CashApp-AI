@@ -1,14 +1,22 @@
 import { Suspense } from "react";
 
 import { ErrorAlert } from "@/components/common/error-alert";
+import { AssistantDock } from "@/components/common/llm-chat/dock";
 import { AppShell } from "@/components/shell/app-shell";
 import { ApiDownState, DeniedState, ShellSkeleton } from "@/components/shell/shell-states";
 import { StatusFooter } from "@/components/shell/status-footer";
 import { StatusFooterServer } from "@/components/shell/status-footer-server";
 import { requireSession } from "@/lib/auth/session";
+import { getChatTools } from "@/lib/chat";
 import { getMe } from "@/lib/me";
 
 const API_DOWN_STATUSES = new Set([0, 502, 503, 504]);
+
+/** The tool catalog loads in its own boundary: the dock shows at once and fills in. */
+async function DockWithTools() {
+  const tools = await getChatTools();
+  return <AssistantDock catalog={tools.ok ? tools.value : null} />;
+}
 
 async function ShellGate({ children }: { children: React.ReactNode }) {
   const me = await getMe();
@@ -35,6 +43,9 @@ async function ShellGate({ children }: { children: React.ReactNode }) {
       }
     >
       {children}
+      <Suspense fallback={<AssistantDock catalog={null} />}>
+        <DockWithTools />
+      </Suspense>
     </AppShell>
   );
 }
