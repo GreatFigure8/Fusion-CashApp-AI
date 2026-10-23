@@ -9,6 +9,7 @@ export function hasPermission(me: Me, permission: string): boolean {
 
 /** The permission each shell route needs, and the role named in the "ask an administrator" state. */
 export const ROUTE_PERMISSIONS = {
+  "/dashboard": { permission: "reports:read", role: "VIEWER" },
   "/flow": { permission: "items:read", role: "VIEWER" },
   "/exceptions": { permission: "items:read", role: "VIEWER" },
   "/reports": { permission: "reports:read", role: "VIEWER" },
