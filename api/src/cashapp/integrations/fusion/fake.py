@@ -21,6 +21,7 @@ from cashapp.domain.error_codes import ErrorCode
 from cashapp.domain.money import to_money
 from cashapp.integrations.fusion import bip, query, soap
 from cashapp.integrations.fusion.client import ReceiptDateBasis
+from cashapp.integrations.fusion.datamodels import RELATIONSHIPS_PATH
 from cashapp.integrations.fusion.errors import FusionError, FusionFault, fault_from_messages
 from cashapp.integrations.fusion.guard import WriteGuard
 from cashapp.integrations.fusion.models import (
@@ -78,7 +79,7 @@ class FakeFusionClient:
         reports: Mapping[str, bytes] | None = None,
         raw: Mapping[str, bytes] | None = None,
         guard: WriteGuard | None = None,
-        relationships_report_path: str = "/Custom/CashApp/Relationships.xdo",
+        relationships_report_path: str = RELATIONSHIPS_PATH,
         today: Callable[[], date] | None = None,
     ) -> None:
         self._transactions: dict[int, FusionTransaction] = {
@@ -744,13 +745,10 @@ _RECEIPT_DESCRIBE = json.dumps(
 
 
 def _default_raw() -> dict[str, bytes]:
-    """Minimal WSDL shapes for the two SOAP services and the receipt describe (UNVERIFIED)."""
+    """Minimal WSDL shape for the receipt SOAP service (UNVERIFIED)."""
     return {
         soap.SOAP_PATH_RECEIPTS: _WSDL_TEMPLATE.format(
             name="StandardReceiptService", operation="createApplyReceipt"
-        ).encode(),
-        bip.BIP_PATH: _WSDL_TEMPLATE.format(
-            name="ExternalReportWSSService", operation="runReport"
         ).encode(),
     }
 

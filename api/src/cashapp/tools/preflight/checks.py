@@ -1,4 +1,5 @@
-"""The preflight check list. Read-only: only `rest_get`, `get_raw` and `run_report` are called.
+"""The preflight check list. Read-only: only `rest_get`, `get_raw` and `run_report` are called,
+plus the MCP tool listing.
 
 Each check is isolated: a failure becomes a FAIL row and the rest still run. Failure text holds
 only the error code, HTTP status and Fusion code, never a body, query string or credential.
@@ -14,7 +15,9 @@ from typing import Any
 
 from cashapp.integrations.fusion import bip, query, soap
 from cashapp.integrations.fusion.client import FusionClient
+from cashapp.integrations.fusion.datamodels import RELATIONSHIPS_PATH
 from cashapp.integrations.fusion.errors import FusionError
+from cashapp.integrations.fusion.mcp_client import PROBE_VALUES
 from cashapp.integrations.fusion.xmlutil import (
     XmlParseError,
     first_local,
@@ -22,15 +25,14 @@ from cashapp.integrations.fusion.xmlutil import (
     local_name,
     safe_fromstring,
 )
+from cashapp.integrations.mcp.client import REQUIRED_TOOLS, McpClient
 from cashapp.services.runtime_settings import RuntimeSettings
 from cashapp.tools.preflight.report import CheckResult, CheckStatus, PreflightReport
 
 __all__ = ["CHECK_NAMES", "PROBE_VALUES", "PreflightContext", "run_preflight"]
 
-# Sentinels that cannot exist in a tenant: a correct `in (...)` query returns no rows.
-PROBE_VALUES: tuple[str, str] = ("CASHAPP-PREFLIGHT-0", "CASHAPP-PREFLIGHT-1")
-
 CHECK_NAMES: tuple[str, ...] = (
+    "mcp.tools",
     "auth",
     "rest.receivablesInvoices",
     "rest.receivablesCreditMemos",
@@ -38,8 +40,7 @@ CHECK_NAMES: tuple[str, ...] = (
     "rest.customerAccounts",
     "rest.pagination",
     "soap.StandardReceiptService.wsdl",
-    "bip.ExternalReportWSSService.wsdl",
-    "bip.relationships_report",
+    "datamodel.relationships",
     "rest.attachments",
     "config.write_enabled",
     "config.pod_is_production",
@@ -54,12 +55,17 @@ class PreflightContext:
     env: str
     is_production: bool
     write_enabled: bool
-    relationships_report_path: str
     check_timeout_s: float = 30.0
+    mcp: McpClient | None = None
 
     @classmethod
     async def from_runtime(
-        cls, runtime: RuntimeSettings, pod_name: str, *, check_timeout_s: float = 30.0
+        cls,
+        runtime: RuntimeSettings,
+        pod_name: str,
+        *,
+        check_timeout_s: float = 30.0,
+        mcp: McpClient | None = None,
     ) -> PreflightContext:
         pod = runtime.fusion().pods[pod_name]
         return cls(
@@ -67,8 +73,8 @@ class PreflightContext:
             env=runtime.env,
             is_production=pod.is_production,
             write_enabled=(await runtime.fusion_writes()).write_enabled,
-            relationships_report_path=await runtime.relationships_report_path(),
             check_timeout_s=check_timeout_s,
+            mcp=mcp,
         )
 
 
@@ -85,6 +91,16 @@ def _items(body: dict[str, Any]) -> list[Any]:
     if not isinstance(items, list):
         raise _CheckFailedError("response has no items list")
     return items  # pyright: ignore[reportUnknownVariableType]
+
+
+async def _mcp_tools(_client: FusionClient, ctx: PreflightContext) -> Outcome:
+    if ctx.mcp is None:
+        return CheckStatus.INFO, "MCP client not supplied"
+    tools = set(await ctx.mcp.list_tools())
+    missing = [tool for tool in REQUIRED_TOOLS if tool not in tools]
+    if missing:
+        raise _CheckFailedError(f"MCP server lacks: {', '.join(missing)}")
+    return CheckStatus.PASS, f"{len(REQUIRED_TOOLS)} required tools present"
 
 
 async def _auth(client: FusionClient, _ctx: PreflightContext) -> Outcome:
@@ -149,19 +165,19 @@ def _wsdl_check(path: str, operation: str) -> Check:
     return check
 
 
-async def _relationships_report(client: FusionClient, ctx: PreflightContext) -> Outcome:
+async def _relationships_report(client: FusionClient, _ctx: PreflightContext) -> Outcome:
     data = await client.run_report(
-        ctx.relationships_report_path, {bip.RELATIONSHIPS_PARAM: PROBE_VALUES[0]}, "xml"
+        RELATIONSHIPS_PATH, {bip.RELATIONSHIPS_PARAM: PROBE_VALUES[0]}, "xml"
     )
     try:
         root = safe_fromstring(data)
     except XmlParseError as exc:
-        raise _CheckFailedError("report did not return well-formed XML") from exc
+        raise _CheckFailedError("data model did not return well-formed XML") from exc
     if local_name(root.tag) != "DATA_DS":
-        raise _CheckFailedError("report root is not DATA_DS")
+        raise _CheckFailedError("data model root is not DATA_DS")
     if first_local(root, "G_1") is not None:
-        raise _CheckFailedError("report returned rows for a known-empty parameter")
-    return CheckStatus.PASS, "report present, XML, empty for sentinel account"
+        raise _CheckFailedError("data model returned rows for a known-empty parameter")
+    return CheckStatus.PASS, "data model runs, XML, empty for sentinel account"
 
 
 def _has_child(node: Any, name: str) -> bool:
@@ -192,6 +208,7 @@ async def _pod_is_production(_client: FusionClient, ctx: PreflightContext) -> Ou
 
 def _checks() -> tuple[tuple[str, Check], ...]:
     steps: tuple[Check, ...] = (
+        _mcp_tools,
         _auth,
         _empty_in_probe("receivablesInvoices", "TransactionNumber", "CustomerTransactionId"),
         _empty_in_probe("receivablesCreditMemos", "TransactionNumber", "CustomerTransactionId"),
@@ -201,7 +218,6 @@ def _checks() -> tuple[tuple[str, Check], ...]:
         _empty_in_probe(query.CUSTOMER_ACCOUNTS_PATH, "AccountNumber", "AccountNumber"),
         _pagination,
         _wsdl_check(soap.SOAP_PATH_RECEIPTS, "createApplyReceipt"),
-        _wsdl_check(bip.BIP_PATH, "runReport"),
         _relationships_report,
         _attachments,
         _write_enabled,

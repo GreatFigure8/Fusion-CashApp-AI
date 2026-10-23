@@ -9,7 +9,8 @@ from typing import Annotated
 
 import typer
 
-from cashapp.integrations.fusion import FusionClient, FusionClientFactory, FusionError
+from cashapp.integrations.fusion import FusionClient, FusionError
+from cashapp.integrations.fusion.factory import standalone_factory
 from cashapp.integrations.fusion.fake import FakeFusionClient
 from cashapp.services.runtime_settings import SettingsIncompleteError, start_runtime_settings
 from cashapp.settings import SettingsError, aload_settings
@@ -32,7 +33,7 @@ async def build_client(pod: str, prior_dir: Path | None) -> FusionClient:
             )
         return FakeFusionClient.from_json(prior_dir / "day" / "fusion.json")
     runtime = await start_runtime_settings(await aload_settings())
-    return FusionClientFactory(runtime).for_pod(pod)
+    return standalone_factory(runtime).for_pod(pod)
 
 
 @app.command()

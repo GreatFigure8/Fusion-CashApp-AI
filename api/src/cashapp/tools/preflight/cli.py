@@ -8,7 +8,7 @@ from typing import Annotated
 import typer
 
 from cashapp.integrations.fusion.client import FusionClient
-from cashapp.integrations.fusion.factory import FusionClientFactory
+from cashapp.integrations.fusion.factory import standalone_factory
 from cashapp.integrations.fusion.guard import read_only
 from cashapp.services.runtime_settings import (
     RuntimeSettings,
@@ -24,13 +24,15 @@ app = typer.Typer(help="Read-only Fusion tenant preflight.", add_completion=Fals
 
 def make_client(runtime: RuntimeSettings, pod: str) -> FusionClient:
     """Patch point for tests: the real client for `pod`."""
-    return FusionClientFactory(runtime).for_pod(pod)
+    return standalone_factory(runtime).for_pod(pod)
 
 
 async def _run(runtime: RuntimeSettings, pod: str, check_timeout_s: float) -> PreflightReport:
     client = read_only(make_client(runtime, pod))
     try:
-        ctx = await PreflightContext.from_runtime(runtime, pod, check_timeout_s=check_timeout_s)
+        ctx = await PreflightContext.from_runtime(
+            runtime, pod, check_timeout_s=check_timeout_s, mcp=getattr(client, "mcp", None)
+        )
         return await run_preflight(client, ctx)
     finally:
         await client.aclose()

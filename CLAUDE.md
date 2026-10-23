@@ -36,7 +36,7 @@ The repository is greenfield. Everything below is the design that all code must 
 6. **Layered architecture:** a data layer (models + generic repository over an ORM), a business layer (services/runners), and a transmission layer (JSON over HTTP, request/response or streaming). See *Architecture*.
 7. **Don't repeat yourself.** Each piece of behaviour and each shared UI component exists exactly once and is configured through props or parameters. One chat-with-the-LLM component serves every place a user can talk to the LLM. One pipeline-stage runner base serves every station. One status enum serves the matcher, the API, the UI and reporting. A second copy is a defect.
 8. **Hosted 100% in OCI, in Ashburn (`us-ashburn-1`).** That covers compute, ATP, Streaming, Object Storage, Vault and Generative AI. No Vercel, no Supabase, no other cloud or region for hosting. Calls out to the Claude API are fine.
-9. **Fusion is integrated directly.** Use the Fusion REST APIs, the SOAP services where REST has no equivalent (applying a receipt), and BI Publisher for reads REST can't do. **Never OIC.** This system contains all of the integration machinery itself.
+9. **Fusion reads and REST writes go through the fusion-sql-mcp (Greenlight) server, behind `FusionClient`.** The one direct call is the SOAP `createApplyReceipt` (and the unapply), made from the API with credentials from Vault. The server is an OAuth `client_credentials` client of the identity domain, and the app holds no Fusion REST credentials. Report-style reads (pay-on-behalf relationships, receipt signals) are ad-hoc SQL data models run through `run_query`, so no catalog report is created per tenant. **Never OIC.** Refined 2026-10-23 (bmn-ui-techy-redesign, fusion-mcp-transport); it was "integrated directly through Fusion REST, SOAP and BI Publisher".
 
 ## Architecture
 
@@ -233,27 +233,29 @@ The full rule set, with its sources, is in the reference doc §4. In short:
 
 ### Fusion integration
 
-All Fusion traffic goes through one `FusionClient`. It handles:
-- authentication, with credentials from OCI Vault
+All Fusion traffic goes through one `FusionClient` interface. Its implementation, `McpFusionClient`, composes two transports and handles:
+- reads and REST writes through the **fusion-sql-mcp (Greenlight) server**: one shared `McpClient` (official `mcp` SDK, streamable HTTP, OAuth `client_credentials` JWT, scope `greenlight/mcp`), configured by the `mcp.*` keys, with the client secret read from OCI Vault at use
+- the **direct SOAP** apply and unapply (`createApplyReceipt`), the one call that does not go through the server, with the pod credentials from OCI Vault
 - retries and backoff
-- `hasMore` pagination
+- `hasMore` pagination (one server call is one page)
 - escaping of `q=` values
 - a typed error mapping into the auto-fix error codes
+- the write rails: every write is refused unless `fusion.write_enabled` is true, the pod is not production outside `prod`, and the MCP source does not report itself as production outside `prod`
 
 Facts from the previous build (reference doc §3):
 
-- **REST**
-  - `/fscmRestApi/resources/11.13.18.05/…`. Always send `REST-Framework-Version: 4`; without it, `in (...)`, `AND` and `BETWEEN` return 400.
+- **REST** (through `fusion_rest_get` / `fusion_rest_write`)
+  - `/fscmRestApi/resources/11.13.18.05/…`. The server sends `REST-Framework-Version: 4`; without it, `in (...)`, `AND` and `BETWEEN` return 400. The worker start-up probe fails loudly on a 400.
   - Use `onlyData=true` and explicit `fields=`.
   - Batch invoice lookups into one `TransactionNumber in (...)` call. Query **both** `receivablesInvoices` and `receivablesCreditMemos`; credit memo balances are negative.
   - `standardReceipts` couldn't be filtered by `UnappliedAmount` or `Currency` on that tenant, so filter those in memory.
-- **Apply: SOAP `createApplyReceipt`** on `/fscmService/StandardReceiptService`. There is no REST apply.
+- **Apply: SOAP `createApplyReceipt`** on `/fscmService/StandardReceiptService`. There is no REST apply and the MCP server has no SOAP tool, so this stays direct.
   - Key on **IDs** (`ReceiptId`, `CustomerTrxId`), because numbers are not unique.
   - Amounts are signed.
   - Accounting date = the later of payment date and today.
   - **Parse fail-closed.** Faults also arrive inside HTTP 200 envelopes, and some codes are noise to ignore.
-- **Pay-on-behalf relationships** come from a custom BI Publisher report. It must be created in each tenant.
-- **Never guess an endpoint, payload or field name.** Confirm against a live non-production pod first. In this environment, the `aix-greenlight` MCP provides `fusion_rest_describe` / `fusion_rest_get` for REST, and `run_query` for read-only SQL through BIP.
+- **Pay-on-behalf relationships and receipt signals** are SQL data models (`api/src/cashapp/integrations/fusion/datamodels/`) run through `run_query` and rendered back as `DATA_DS/G_1` rows. Nothing is created in the BI Publisher catalog.
+- **Never guess an endpoint, payload or field name.** Confirm against a live non-production pod first. In this environment, the `aix-greenlight` MCP provides `fusion_rest_describe` / `fusion_rest_get` for REST, and `run_query` for read-only SQL.
 - **Applies are about 6 seconds per line.** Limit concurrency per receipt and apply back-pressure, so the pipeline never floods Fusion.
 
 ### Authentication and authorization

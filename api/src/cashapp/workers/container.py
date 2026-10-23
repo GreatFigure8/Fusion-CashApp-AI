@@ -28,13 +28,14 @@ T = TypeVar("T")
 log = logging.getLogger(__name__)
 
 LLM_CLIENTS_TYPE: Final = "cashapp.integrations.llm.base:LlmClients"
+FUSION_CLIENT_TYPE: Final = "cashapp.integrations.fusion.client:FusionClient"
+MCP_CLIENT_TYPE: Final = "cashapp.integrations.mcp.client:McpClient"
 FAILURE_HANDLER_FACTORY: Final = "cashapp.services.autofix.engine:build_failure_handler"
 
 # "module:Type" -> "module:factory". Types are matched by identity after a lazy import.
 _SERVICES: Final[dict[str, str]] = {
-    "cashapp.integrations.fusion.client:FusionClient": (
-        "cashapp.integrations.fusion.factory:build_fusion_client"
-    ),
+    FUSION_CLIENT_TYPE: "cashapp.integrations.fusion.factory:build_fusion_client",
+    MCP_CLIENT_TYPE: "cashapp.integrations.mcp.factory:build_mcp_client",
     "cashapp.integrations.llm.base:LlmClients": (
         "cashapp.integrations.llm.factory:build_llm_clients"
     ),
@@ -177,6 +178,12 @@ class WorkerContainer:
                 if type_path == LLM_CLIENTS_TYPE:
                     # Usage rows reuse this container's engine and follow its runtime config.
                     return factory(self.runtime, self.config, uow_factory=self.uow_factory)
+                if type_path == FUSION_CLIENT_TYPE:
+                    # One shared MCP client per process; the Fusion client composes it.
+                    mcp = self.resolve(cast("type[Any]", load_factory(MCP_CLIENT_TYPE)))
+                    return factory(self.runtime, uow_factory=self.uow_factory, mcp=mcp)
+                if type_path == MCP_CLIENT_TYPE:
+                    return factory(self.runtime, uow_factory=self.uow_factory)
                 return factory(self.runtime)
         registered = sorted([*_SERVICES, "ReceiptApplyGate", "BusHealth"])
         raise UnknownServiceError(

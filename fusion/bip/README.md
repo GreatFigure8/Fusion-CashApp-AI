@@ -1,12 +1,19 @@
 # BI Publisher data models and reports
 
+> **Superseded 2026-10-23 (fusion-mcp-transport).** The two SQL files moved to
+> `api/src/cashapp/integrations/fusion/datamodels/` (one packaged copy). The app now runs them as
+> ad-hoc SQL through the fusion-sql-mcp server's `run_query`, so **creating these catalog reports
+> is no longer required** and the deploy steps below are optional (kept for reference and for
+> checking the SQL by hand in the BI Publisher data model editor). The definitions in `*.report.md`
+> still describe the row shape.
+
 Two data-model-only reports live here as SQL plus a definition. A person creates them in each
 Fusion pod from these files (the system never uploads to a catalog).
 
 | Report | Required | Used by | SQL | Definition |
 |---|---|---|---|---|
-| `CashAppRelationships` | yes | customer resolution and receipt search (pay-on-behalf) | `relationships.sql` | `relationships.report.md` |
-| `CashAppReceiptSignals` | optional | receipt and bank-statement lookup | `receipt_signals.sql` | `receipt_signals.report.md` |
+| `CashAppRelationships` | yes | customer resolution and receipt search (pay-on-behalf) | `datamodels/relationships.sql` (in the API package) | `relationships.report.md` |
+| `CashAppReceiptSignals` | optional | receipt and bank-statement lookup | `datamodels/receipt_signals.sql` (in the API package) | `receipt_signals.report.md` |
 
 All table and column names in the SQL are from vendor knowledge and carry `UNVERIFIED` comments.
 Confirm them against the pod (the Data Model editor's schema browser, or a read-only

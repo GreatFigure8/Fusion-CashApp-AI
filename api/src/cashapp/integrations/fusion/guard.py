@@ -62,6 +62,16 @@ class WriteGuard:
             write_enabled=_always_enabled, env="local", pod_name="fake", pod_is_production=False
         )
 
+    def check_source(self, method: str, environment: str | None) -> None:
+        """Refuse when the MCP server says the Fusion source is production outside prod."""
+        if environment == "production" and self._env != "prod":
+            raise FusionError(
+                ErrorCode.FUSION_WRITE_DISABLED,
+                f"{method}: the MCP source is a production Fusion instance; writes are refused "
+                f"outside the prod environment",
+                retryable=False,
+            )
+
     async def check(self, method: str) -> None:
         if not await self._write_enabled():
             raise FusionError(

@@ -639,6 +639,7 @@ CONFIG_GROUPS: Mapping[str, GroupSpec] = MappingProxyType(
         "worker": GroupSpec("Workers", "Worker shutdown behaviour.", 240),
         "smtp": GroupSpec("Email (SMTP)", "Outgoing email; empty host turns it off.", 250),
         "chat": GroupSpec("Assistant", "Assistant tool calls and confirmations.", 260),
+        "mcp": GroupSpec("Fusion MCP", "Connection to the fusion-sql-mcp server.", 280),
         "engine": GroupSpec("Engine", "Paused and draining stations, engine status timing.", 270),
     }
 )
@@ -673,6 +674,52 @@ ENGINE_AUDIT_PAGE_SIZE = _key(
     "Default page size of the engine audit log.",
 )
 
+
+# --- mcp.* : the fusion-sql-mcp (Greenlight) connection (fusion-mcp-transport) ---------------
+# Hot: the client reconnects when the connection settings change, so none needs a restart.
+_HttpsUrl = Annotated[str, StringConstraints(pattern=r"^(https://\S+)?$")]
+
+MCP_SERVER_URL = _key(
+    "mcp.server_url",
+    _HttpsUrl,
+    "",
+    "Streamable HTTP endpoint of the fusion-sql-mcp server; empty means not configured.",
+)
+MCP_TOKEN_URL = _key(
+    "mcp.token_url",
+    _HttpsUrl,
+    "",
+    "OAuth token endpoint of the identity domain that issues the MCP client_credentials JWT.",
+)
+MCP_CLIENT_ID = _key(
+    "mcp.client_id", str, "", "OAuth client id the cash app uses for the MCP server."
+)
+MCP_CLIENT_SECRET_REF = _key(
+    "mcp.client_secret_ref",
+    _OptSecret,
+    None,
+    "OCI Vault secret (OCID) holding the MCP OAuth client secret; never the secret itself.",
+    secret_ref=True,
+)
+MCP_SCOPE = _key("mcp.scope", str, "greenlight/mcp", "OAuth scope requested for the MCP token.")
+MCP_FUSION_SOURCE = _key(
+    "mcp.fusion_source",
+    str,
+    "",
+    "The MCP server's Fusion source label used when a pod has no mcp_source of its own.",
+)
+MCP_TIMEOUT_SECONDS = _key(
+    "mcp.timeout_seconds",
+    Annotated[int, Field(ge=1, le=600)],
+    60,
+    "Seconds before one MCP tool call is abandoned.",
+)
+MCP_MAX_ROWS = _key(
+    "mcp.max_rows",
+    Annotated[int, Field(ge=1, le=50000)],
+    2000,
+    "Row cap of the assistant's Fusion query tool and the page size of run_query.",
+)
 
 _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     INTAKE_POLL_INTERVAL_SECONDS,
@@ -748,6 +795,14 @@ _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     ENGINE_STATUS_CACHE_SECONDS,
     ENGINE_STREAM_TICK_SECONDS,
     ENGINE_AUDIT_PAGE_SIZE,
+    MCP_SERVER_URL,
+    MCP_TOKEN_URL,
+    MCP_CLIENT_ID,
+    MCP_CLIENT_SECRET_REF,
+    MCP_SCOPE,
+    MCP_FUSION_SOURCE,
+    MCP_TIMEOUT_SECONDS,
+    MCP_MAX_ROWS,
 )
 
 
