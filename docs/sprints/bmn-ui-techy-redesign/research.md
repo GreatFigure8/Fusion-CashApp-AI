@@ -104,3 +104,7 @@ It's the natural follow-up story to a3.
 - A new `Permission.ENGINE_CONTROL` (admin by default) is preferred over reusing `CONFIG_WRITE`, so engine control can be granted separately. The group-to-role mapping stays in the database.
 - "Accuracy" per model is shown only where there's ground truth (human corrections); everywhere else the dashboard shows agreement and correction rates.
 - No override of the helper's winner: none of a1, a3 or a7 breaks a non-negotiable or a stated requirement.
+
+## Amendment after synthesis (orchestrator, from Jonathan's item 6)
+
+Chat scope grew beyond a3's "propose a matching.* change". It is the primary interface: a tool-using agent whose tools are the same service calls the UI uses (engine control, lab replay, settings, reports, receipt submission, exceptions), run as the user's Principal with confirm-before-mutate cards. a3's propose-and-confirm pattern is the model for every mutating tool. The splitter and planners must design one tool registry (single source of truth for tool schemas, permission, confirm-required flag, audit label) consumed by chat, not a second action path.

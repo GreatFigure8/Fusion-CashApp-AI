@@ -26,3 +26,9 @@ Treated as part of this story: an engine control panel in the UI (admin/operator
 
 Interpretation recorded as an assumption: "the lab" = the matching test console (issue #49: refine matching through chat, replay changed matching read-only against real past data, show before/after, promote only by permission-checked audited action). It is folded into this run (#48) instead of waiting. #49 stays open as a pointer until this run ships it.
 Plus: (3) every setting except database connection info lives in the database (config service, admin-editable in the UI); no new env/file settings. (4) real-time reporting on progress and status via SSE. (5) exportable, self-contained HTML progress reports for users.
+
+## Item 6 from Jonathan (the main one)
+
+"and 6.  and this is the main one, we need a chat process that can do all of the above through chat as well as have a conversation with the user about optimization of processing."
+
+Meaning: the one shared assistant chat is an agent, not just Q&A. Through chat a user can do everything above: monitor and control the engine (pause/resume/drain/throttle/DLQ replay), run the matching lab, change settings, view live progress and generate/export HTML reports, submit failed receipt images, work exceptions. It also holds an open conversation about optimizing processing (reading the stored metrics, suggesting changes, testing them in the lab). Constraints that stay: Haiku is the chat workhorse (CLAUDE.md), structured outputs, zero retention; every chat action is a tool call executed by the same services the UI uses, with the user's Principal (same permission checks and audit trail, no separate path); mutating actions show a confirm card (who/what/before-after) and are executed only on the user's confirmation; the chat can never exceed the user's own permissions.

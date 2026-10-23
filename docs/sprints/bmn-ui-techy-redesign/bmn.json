@@ -171,6 +171,11 @@
    "at": "2026-10-23",
    "step": "design",
    "text": "so in short, what we need are 1. control panel to monitor and manage the processor 2. the lab in 48 3. all settings other than database connection information stored in the database like we always do. 4. real-time reporting on progress and status 5. exportable html reports on progress to users"
+  },
+  {
+   "at": "2026-10-23",
+   "step": "design",
+   "text": "and 6.  and this is the main one, we need a chat process that can do all of the above through chat as well as have a conversation with the user about optimization of processing."
   }
  ],
  "assumptions": [
