@@ -32,6 +32,7 @@ class ErrorBody(BaseModel):
     request_id: str
     details: list[dict[str, Any]] = []
 
+
 class ErrorEnvelope(BaseModel):
     error: ErrorBody
 
