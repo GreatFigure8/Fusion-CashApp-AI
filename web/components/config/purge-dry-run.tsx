@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 
 import { runRetentionPurgeDryRun } from "@/app/(shell)/config/actions";
+import { GlassPanel } from "@/components/common/glass-panel";
 import { ErrorAlert } from "@/components/common/error-alert";
 import { Button } from "@/components/ui/button";
 import type { ApiError } from "@/lib/api/errors";
@@ -41,7 +42,7 @@ export function PurgeDryRun() {
   }
 
   return (
-    <section aria-labelledby="purge-heading" className="space-y-3 rounded-xl border bg-card p-4">
+    <GlassPanel as="section" aria-label="Purge preview" className="space-y-3 p-4">
       <div className="space-y-0.5">
         <h3 id="purge-heading" className="text-sm font-medium">
           Purge preview
@@ -70,6 +71,6 @@ export function PurgeDryRun() {
           </div>
         </dl>
       ) : null}
-    </section>
+    </GlassPanel>
   );
 }

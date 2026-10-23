@@ -1,38 +1,54 @@
+"use client";
+
+import type { ReactNode } from "react";
+
+import { GlassPanel, PanelBody, PanelHeader } from "@/components/common/glass-panel";
+import { Pill } from "@/components/common/pill";
 import type { Schemas } from "@/lib/api/types";
 
-import { CONFIG_TAB_NOTES, keysForTab, uiFor, type ConfigTabId } from "./config-registry";
+import { useStaging } from "./config-staging-provider";
+import { SaveFooter } from "./save-footer";
 import { SettingRow } from "./setting-row";
+import { stagedCount } from "./staging";
 
-/** Renders every registry row of a tab. One copy serves all the settings tabs. */
-export function SettingsPanel({
+/**
+ * One card for a group (or for search results): header with the unsaved-change pill, optional
+ * extra content above the rows, the rows, and the save footer. One copy serves every group.
+ */
+export function GroupCard({
+  title,
+  description,
   entries,
-  tab,
+  nextVersion,
+  extra,
 }: {
+  title: string;
+  description?: string;
   entries: readonly Schemas["ConfigEntry"][];
-  tab: ConfigTabId;
+  nextVersion: number;
+  extra?: ReactNode;
 }) {
-  const rows = keysForTab(entries, tab);
-  const main = rows.filter((e) => uiFor(e.key).section !== "other");
-  const other = rows.filter((e) => uiFor(e.key).section === "other");
-  const note = CONFIG_TAB_NOTES[tab];
+  const { state } = useStaging();
+  const count = stagedCount(state);
   return (
-    <div className="space-y-4">
-      {note ? (
-        <p className="rounded-lg border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-          {note}
-        </p>
+    <GlassPanel as="section" aria-label={title}>
+      <PanelHeader title={title}>
+        {count > 0 ? (
+          <Pill tone="warn">
+            {count} unsaved {count === 1 ? "change" : "changes"}
+          </Pill>
+        ) : null}
+      </PanelHeader>
+      {description ? (
+        <p className="px-4 pb-2 text-sm text-muted-foreground">{description}</p>
       ) : null}
-      {main.map((entry) => (
-        <SettingRow key={entry.key} entry={entry} />
-      ))}
-      {other.length > 0 ? (
-        <>
-          <h2 className="pt-2 text-sm font-semibold text-muted-foreground">Other settings</h2>
-          {other.map((entry) => (
-            <SettingRow key={entry.key} entry={entry} />
-          ))}
-        </>
-      ) : null}
-    </div>
+      {extra}
+      <PanelBody flush>
+        {entries.map((entry) => (
+          <SettingRow key={entry.key} entry={entry} />
+        ))}
+      </PanelBody>
+      <SaveFooter nextVersion={nextVersion} />
+    </GlassPanel>
   );
 }

@@ -24,7 +24,7 @@ export function AliasesPanel({
   return (
     <div className="space-y-4">
       <form method="get" role="search" className="flex gap-2">
-        <input type="hidden" name="tab" value="aliases" />
+        <input type="hidden" name="group" value="aliases" />
         <Input
           name="aq"
           defaultValue={q}

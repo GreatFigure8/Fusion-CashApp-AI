@@ -114,6 +114,11 @@ export function schemaForEditor(
       return opts.pattern
         ? z.string().regex(new RegExp(opts.pattern), "Use the format HH:MM.")
         : z.string();
+    case "secret-ref":
+      return z
+        .string()
+        .trim()
+        .regex(/^ocid1\.vaultsecret\.\S+$/, "Enter a Vault secret OCID (ocid1.vaultsecret.…).");
     case "decimal-nullable":
       return decimalString.nullable();
     case "json":

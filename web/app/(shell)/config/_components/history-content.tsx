@@ -10,7 +10,6 @@ export async function HistoryContent({ settingKey }: { settingKey: string }) {
   return (
     <HistorySheet title={`History: ${uiFor(settingKey).label}`}>
       <HistoryList
-        settingKey={settingKey}
         changes={result.ok ? result.value.items : null}
         error={result.ok ? null : result.error}
       />

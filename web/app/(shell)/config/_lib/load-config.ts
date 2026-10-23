@@ -18,6 +18,19 @@ export function loadConfigEntries(): Promise<Result<Schemas["ConfigEntry"][], Ap
   return api("get", "/config");
 }
 
+export function loadConfigGroups(): Promise<Result<Schemas["ConfigGroupOut"][], ApiError>> {
+  return api("get", "/config/groups");
+}
+
+/** The newest changes across every key; `total` is the global settings version. */
+export function loadRecentChanges(limit = 3): Promise<Result<Schemas["ConfigChangePage"], ApiError>> {
+  return api("get", "/config/history", { query: { limit } });
+}
+
+export function loadMcpStatus(): Promise<Result<Schemas["McpStatusOut"], ApiError>> {
+  return api("get", "/integrations/mcp/status");
+}
+
 export function loadGroupRoles(): Promise<Result<Schemas["GroupRolesResponse"], ApiError>> {
   return api("get", "/access/group-roles");
 }
