@@ -35,8 +35,8 @@ The repository is greenfield. Everything below is the design that all code must 
    Each runs every *N* minutes, with its own *N* configurable at runtime. Each is a long-running async loop inside a worker, not a scheduled job, and its only output is new events. Don't add a third without Jonathan.
 6. **Layered architecture:** a data layer (models + generic repository over an ORM), a business layer (services/runners), and a transmission layer (JSON over HTTP, request/response or streaming). See *Architecture*.
 7. **Don't repeat yourself.** Each piece of behaviour and each shared UI component exists exactly once and is configured through props or parameters. One chat-with-the-LLM component serves every place a user can talk to the LLM. One pipeline-stage runner base serves every station. One status enum serves the matcher, the API, the UI and reporting. A second copy is a defect.
-8. **Hosted 100% in OCI, in Ashburn (`us-ashburn-1`).** That covers compute, ATP, Streaming, Object Storage, Vault and Generative AI. No Vercel, no Supabase, no other cloud or region for hosting. Calls out to the Claude API are fine.
-9. **Fusion reads and REST writes go through the fusion-sql-mcp (Greenlight) server, behind `FusionClient`.** The one direct call is the SOAP `createApplyReceipt` (and the unapply), made from the API with credentials from Vault. The server is an OAuth `client_credentials` client of the identity domain, and the app holds no Fusion REST credentials. Report-style reads (pay-on-behalf relationships, receipt signals) are ad-hoc SQL data models run through `run_query`, so no catalog report is created per tenant. **Never OIC.** Refined 2026-10-23 (bmn-ui-techy-redesign, fusion-mcp-transport); it was "integrated directly through Fusion REST, SOAP and BI Publisher".
+8. **Hosted 100% in OCI, in Ashburn (`us-ashburn-1`).** That covers compute, ATP, Streaming, Object Storage and Generative AI. No Vercel, no Supabase, no other cloud or region for hosting. Calls out to the Claude API are fine.
+9. **Fusion reads and REST writes go through the fusion-sql-mcp (Greenlight) server, behind `FusionClient`.** The one direct call is the SOAP `createApplyReceipt` (and the unapply), made from the API with credentials stored encrypted in the database. The server is an OAuth `client_credentials` client of the identity domain, and the app holds no Fusion REST credentials. Report-style reads (pay-on-behalf relationships, receipt signals) are ad-hoc SQL data models run through `run_query`, so no catalog report is created per tenant. **Never OIC.** Refined 2026-10-23 (bmn-ui-techy-redesign, fusion-mcp-transport); it was "integrated directly through Fusion REST, SOAP and BI Publisher".
 
 ## Architecture
 
@@ -234,8 +234,8 @@ The full rule set, with its sources, is in the reference doc §4. In short:
 ### Fusion integration
 
 All Fusion traffic goes through one `FusionClient` interface. Its implementation, `McpFusionClient`, composes two transports and handles:
-- reads and REST writes through the **fusion-sql-mcp (Greenlight) server**: one shared `McpClient` (official `mcp` SDK, streamable HTTP, OAuth `client_credentials` JWT, scope `greenlight/mcp`), configured by the `mcp.*` keys, with the client secret read from OCI Vault at use
-- the **direct SOAP** apply and unapply (`createApplyReceipt`), the one call that does not go through the server, with the pod credentials from OCI Vault
+- reads and REST writes through the **fusion-sql-mcp (Greenlight) server**: one shared `McpClient` (official `mcp` SDK, streamable HTTP, OAuth `client_credentials` JWT, scope `greenlight/mcp`), configured by the `mcp.*` keys, with the client secret stored encrypted in the database and read at use
+- the **direct SOAP** apply and unapply (`createApplyReceipt`), the one call that does not go through the server, with the pod credentials stored encrypted in the database
 - retries and backoff
 - `hasMore` pagination (one server call is one page)
 - escaping of `q=` values
@@ -261,7 +261,7 @@ Facts from the previous build (reference doc §3):
 ### Authentication and authorization
 
 - **Sign-in uses OCI IAM Identity Domains** through a **confidential application**, with the standard OAuth 2.0 / OIDC authorization code flow (with PKCE).
-  - **Next.js is the confidential client.** Its server side does the code exchange and keeps the client secret, which comes from OCI Vault and is never in `NEXT_PUBLIC_*`.
+  - **Next.js is the confidential client.** Its server side does the code exchange and keeps the client secret, which comes from the environment and is never in `NEXT_PUBLIC_*`.
   - It holds the session in an encrypted, httpOnly cookie, and the browser never sees tokens.
   - It calls the Python API with the user's access token.
 - **The Python API validates every token itself**, using the identity domain's JWKS. It checks issuer, audience and expiry. The API never trusts Next.js to have checked.
@@ -273,7 +273,7 @@ Facts from the previous build (reference doc §3):
 - **Services receive the `Principal` as a plain argument,** not the request. Every human action is recorded on the item's history with who did it: dequeue, edit, requeue, configuration change.
 - **Machine identities are separate:**
   - Pipeline workers run services in-process and act as a system principal. They never borrow a user's token.
-  - Fusion calls use the integration's own credentials from OCI Vault.
+  - Fusion calls use the integration's own credentials stored encrypted in the database.
 
 ### UI (`web/`)
 

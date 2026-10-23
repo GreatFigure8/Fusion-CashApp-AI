@@ -144,7 +144,7 @@ function SettingRowInner({ entry }: { entry: RowEntry }) {
           <h3 id={`${id}-label`} className="flex flex-wrap items-center gap-2 font-mono text-[13px]">
             {entry.key}
             {entry.restart_required ? <Pill tone="muted">restart required</Pill> : null}
-            {secret ? <Pill tone="locked">Vault secret</Pill> : null}
+            {secret ? <Pill tone="locked">Stored secret</Pill> : null}
           </h3>
           <p className="text-sm text-muted-foreground">{entry.description}</p>
         </div>

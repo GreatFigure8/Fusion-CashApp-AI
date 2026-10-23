@@ -116,9 +116,10 @@ def _key[T](
     )
 
 
-VAULT_SECRET_OCID_PATTERN = r"^ocid1\.vaultsecret\.oc1\.[a-z0-9-]+\.[a-z0-9]{20,}$"  # noqa: S105
-SecretRef = Annotated[str, StringConstraints(pattern=VAULT_SECRET_OCID_PATTERN)]
-"""A Vault secret OCID. A secret key never holds the secret itself, only this reference."""
+SECRET_NAME_PATTERN = r"^[a-z0-9][a-z0-9._-]{0,119}$"  # noqa: S105
+SecretRef = Annotated[str, StringConstraints(pattern=SECRET_NAME_PATTERN)]
+"""The name of a secret stored encrypted in the database (set on the Settings page). A secret
+key never holds the secret itself, only this name. An OCI Vault secret OCID also matches."""
 
 
 class FusionTestData(BaseModel, frozen=True):
@@ -395,7 +396,7 @@ STREAMING_SASL_PASSWORD_REF: ConfigKey[str | None] = _key(
     "streaming.sasl_password_ref",
     _OptSecret,
     None,
-    "Vault secret OCID of the OCI Streaming auth token.",
+    "Name of the stored secret holding the OCI Streaming auth token.",
     restart_required=True,
     secret_ref=True,
 )
@@ -438,7 +439,7 @@ ANTHROPIC_API_KEY_REF: ConfigKey[str | None] = _key(
     "anthropic.api_key_ref",
     _OptSecret,
     None,
-    "Vault secret OCID of the Claude API key (zero-retention organisation).",
+    "Name of the stored secret holding the Claude API key (zero-retention organisation).",
     restart_required=True,
     secret_ref=True,
 )
@@ -597,7 +598,7 @@ SMTP_PASSWORD_REF: ConfigKey[str | None] = _key(
     "smtp.password_ref",
     _OptSecret,
     None,
-    "Vault secret OCID of the SMTP password.",
+    "Name of the stored secret holding the SMTP password.",
     restart_required=True,
     secret_ref=True,
 )
@@ -721,7 +722,7 @@ MCP_CLIENT_SECRET_REF = _key(
     "mcp.client_secret_ref",
     _OptSecret,
     None,
-    "OCI Vault secret (OCID) holding the MCP OAuth client secret; never the secret itself.",
+    "Name of the stored secret holding the MCP OAuth client secret; never the secret itself.",
     secret_ref=True,
 )
 MCP_SCOPE = _key("mcp.scope", str, "greenlight/mcp", "OAuth scope requested for the MCP token.")
@@ -937,7 +938,7 @@ def _check_flags(key: ConfigKey[Any]) -> None:
         raise RuntimeError(f"config key {key.name} is in group {key.group!r} with no GroupSpec")
     if key.secret_ref:
         try:
-            key.validate("not-a-vault-ocid")
+            key.validate("Not a secret name!")
         except ValueError:
             pass
         else:

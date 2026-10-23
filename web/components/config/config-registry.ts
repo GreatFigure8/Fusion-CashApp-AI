@@ -256,8 +256,8 @@ export function saveOrder(key: string): number {
   return uiFor(key).order;
 }
 
-/** A Vault secret OCID, the only thing a `secret_ref` setting may hold. */
-export const VAULT_SECRET_OCID_PREFIX = "ocid1.vaultsecret.";
+/** The name of a stored secret, the only thing a `secret_ref` setting may hold (matches the API). */
+export const SECRET_NAME_PATTERN = "^[a-z0-9][a-z0-9._-]{0,119}$";
 
 /** The API's error codes, for the max-attempts editor. The API rejects any code it doesn't know. */
 export const ERROR_CODES: readonly string[] = [

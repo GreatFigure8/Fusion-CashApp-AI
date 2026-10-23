@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { ROLES, type EditorKind, type ConfigUi } from "./config-registry";
+import { ROLES, SECRET_NAME_PATTERN, type EditorKind, type ConfigUi } from "./config-registry";
 
 /** Client-safe, fast-feedback mirrors of the API's validation. The API stays the authority. */
 
@@ -118,7 +118,10 @@ export function schemaForEditor(
       return z
         .string()
         .trim()
-        .regex(/^ocid1\.vaultsecret\.\S+$/, "Enter a Vault secret OCID (ocid1.vaultsecret.…).");
+        .regex(
+          new RegExp(SECRET_NAME_PATTERN),
+          "Use lower-case letters, digits, '.', '_' or '-' (up to 120 characters).",
+        );
     case "decimal-nullable":
       return decimalString.nullable();
     case "json":

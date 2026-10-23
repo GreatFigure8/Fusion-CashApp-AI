@@ -1,12 +1,14 @@
 """Secret resolution: a secret OCID becomes a value at the moment it is used.
 
-Exactly two `SecretSource` implementations exist: OCI Vault (deployed) and a value map (local and
-tests). `SecretResolver` caches resolved values for a short TTL and never logs them. Errors name
-the reference (an OCID, which is not secret), never a value.
+Three `SecretSource` implementations exist: the encrypted database store (the default, see
+`cashapp.services.app_secrets`), OCI Vault, and a value map (local and tests).
+`SecretResolver` caches resolved values for a short TTL and never logs them. Errors name the
+reference (a secret name or OCID, which is not secret), never a value.
 """
 
 import asyncio
 import base64
+import os
 import time
 from collections.abc import Callable, Mapping
 from typing import Any, Protocol
@@ -23,6 +25,39 @@ class SecretResolutionError(Exception):
     def __init__(self, ref: str, reason: str = "not found") -> None:
         super().__init__(f"Could not resolve secret reference {ref}: {reason}")
         self.ref = ref
+
+
+class SecretCipher:
+    """AES-256-GCM over a master key that lives outside the database (a bootstrap setting).
+
+    The secret's name is bound in as associated data, so a ciphertext copied onto another name
+    does not decrypt.
+    """
+
+    NONCE_BYTES = 12
+
+    def __init__(self, master_key: str) -> None:
+        try:
+            raw = base64.b64decode(master_key, validate=True)
+        except ValueError:
+            raise SecretResolutionError("secrets.master_key", "not base64") from None
+        if len(raw) != 32:
+            raise SecretResolutionError("secrets.master_key", "must decode to 32 bytes")
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
+        self._aead = AESGCM(raw)
+
+    def encrypt(self, name: str, value: str) -> bytes:
+        nonce = os.urandom(self.NONCE_BYTES)
+        return nonce + self._aead.encrypt(nonce, value.encode("utf-8"), name.encode("utf-8"))
+
+    def decrypt(self, name: str, blob: bytes) -> str:
+        nonce, body = blob[: self.NONCE_BYTES], blob[self.NONCE_BYTES :]
+        try:
+            return self._aead.decrypt(nonce, body, name.encode("utf-8")).decode("utf-8")
+        except Exception:
+            # Only the name is reported: a wrong master key and a damaged row look the same.
+            raise SecretResolutionError(name, "could not decrypt") from None
 
 
 class SecretsClientLike(Protocol):

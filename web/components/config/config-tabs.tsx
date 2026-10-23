@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 export const ALIASES_GROUP_ID = "aliases";
 
 const NOTE =
-  "Only the database connection lives outside the database, in Vault. Every other setting is here, versioned and audited.";
+  "Only the database connection and the secrets master key live outside the database. Every other setting is here, versioned and audited; secrets are stored encrypted.";
 
 /** The group nav: API groups in API order with counts, then the fixed Payer aliases link. */
 export function GroupNav({

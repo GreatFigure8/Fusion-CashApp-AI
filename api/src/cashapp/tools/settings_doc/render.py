@@ -78,7 +78,7 @@ def render_settings_doc() -> str:
         "DB config key. Keys are edited in Settings by an admin, with a reason, and each change",
         "is versioned and audited. A key marked *restart* is read once when a process starts;",
         "all others take effect on the next read (within the cache window, 15 seconds). A key",
-        "marked *secret* holds a Vault secret OCID, never the secret itself.",
+        "marked *secret* holds the name of a stored secret, never the secret itself.",
         "",
         "## Bootstrap environment",
         "",

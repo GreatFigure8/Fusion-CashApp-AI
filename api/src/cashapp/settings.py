@@ -7,7 +7,8 @@ here, and why:
 - `env`: picks the topic label and the local/deployed behaviour before any I/O.
 - `atp`: the database connection itself.
 - `worker.health_port`: bound before the database is reachable, pinned by the deployment manifest.
-- `secrets`: how to reach OCI Vault (the secret source), needed to open the connection.
+- `secrets`: the master key that decrypts the secrets stored in the database (which cannot be
+  stored in the database itself), and the optional switch to OCI Vault or a local value map.
 
 Every setting is an environment variable named `CASHAPP_<GROUP>__<FIELD>`; a string value of the
 form `vault:<secret-ocid>` is resolved from the secret source before the model is finally
@@ -25,7 +26,7 @@ from collections.abc import Callable, Coroutine, Mapping
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Final, Literal
+from typing import TYPE_CHECKING, Any, Final, Literal
 
 from dotenv import dotenv_values
 from pydantic import (
@@ -54,6 +55,9 @@ from cashapp.secrets import (
     collect_secret_refs,
     resolve_secret_refs,
 )
+
+if TYPE_CHECKING:
+    from cashapp.data.uow import UowFactory
 
 ENV_PREFIX = "CASHAPP_"
 NESTED_DELIMITER = "__"
@@ -111,9 +115,12 @@ class WorkerBootstrapSettings(_Group):
 class SecretSourceSettings(_Group):
     """How secrets are reached. `local_values` maps a secret OCID to its value, local env only."""
 
-    source: Literal["vault", "env"] | None = None
+    source: Literal["db", "vault", "env"] | None = None
     signer: Literal["resource_principal", "instance_principal"] | None = None
     local_values: dict[str, SecretStr] = {}
+    # Base64 of 32 random bytes. It encrypts the secrets stored in the database, so it cannot
+    # live there; it travels with the database connection.
+    master_key: SecretStr | None = None
 
 
 class Settings(BaseSettings):
@@ -172,6 +179,7 @@ BOOTSTRAP_ENV_NAMES: Final[frozenset[str]] = frozenset(
         "CASHAPP_SECRETS__SOURCE",
         "CASHAPP_SECRETS__SIGNER",
         "CASHAPP_SECRETS__LOCAL_VALUES",
+        "CASHAPP_SECRETS__MASTER_KEY",
     }
 )
 """Names the process reads; a name under `CASHAPP_SECRETS__LOCAL_VALUES__` is also accepted."""
@@ -417,13 +425,28 @@ def oci_signer(settings: Settings) -> Any | None:
         return None  # not on OCI compute
 
 
-def build_secret_source(settings: Settings) -> SecretSource:
-    """OCI Vault when deployed, the local value map under `env=local` (or `secrets.source`)."""
-    source = settings.secrets.source or ("env" if settings.env == "local" else "vault")
+def build_secret_source(
+    settings: Settings, uow_factory: "UowFactory | None" = None
+) -> SecretSource:
+    """The encrypted database store by default, the local value map under `env=local` when no
+    master key is set, OCI Vault only when `secrets.source` asks for it."""
+    default = "env" if settings.env == "local" and settings.secrets.master_key is None else "db"
+    source = settings.secrets.source or default
     if source == "env":
         return EnvSecretSource(
             {ref: value.get_secret_value() for ref, value in settings.secrets.local_values.items()}
         )
+    if source == "db":
+        if settings.secrets.master_key is None:
+            raise SettingsError(missing=("CASHAPP_SECRETS__MASTER_KEY",))
+        if uow_factory is None:
+            raise SettingsError(detail="stored secrets cannot be read before the database is open")
+        # Imported here: the services layer imports this module.
+        from cashapp.secrets import SecretCipher
+        from cashapp.services.app_secrets import DbSecretSource
+
+        cipher = SecretCipher(settings.secrets.master_key.get_secret_value())
+        return DbSecretSource(uow_factory, cipher)
     signer = oci_signer(settings)
     if signer is None:
         raise SettingsError(detail="no OCI signer is available to reach Vault")

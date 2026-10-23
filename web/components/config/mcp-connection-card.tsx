@@ -83,7 +83,7 @@ export function McpConnectionCard({
         {value ? (
           <>
             <div>OAuth client {value.client_id}</div>
-            {value.secret_in_vault ? <div>Secret in OCI Vault</div> : null}
+            {value.secret_in_vault ? <div>Secret stored encrypted</div> : null}
             <div>Source {value.source}</div>
           </>
         ) : null}

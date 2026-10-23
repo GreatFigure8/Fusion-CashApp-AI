@@ -341,7 +341,9 @@ def build_runtime_settings(
     """The process's settings reader over its DB-backed config and its secret source."""
     return RuntimeSettings(
         build_runtime_config(uow_factory, clock=clock),
-        resolver if resolver is not None else SecretResolver(build_secret_source(settings)),
+        resolver
+        if resolver is not None
+        else SecretResolver(build_secret_source(settings, uow_factory)),
         env=settings.env,
         settings=settings,
     )
