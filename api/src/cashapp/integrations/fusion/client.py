@@ -42,8 +42,6 @@ __all__ = ["FusionClient", "FusionClientOptions", "HttpFusionClient", "ReceiptDa
 
 ReceiptDateBasis = Literal["receipt_date", "creation_date"]
 
-CRM_BASE = "/crmRestApi/resources/11.13.18.05"  # UNVERIFIED
-
 
 class FusionClient(Protocol):
     pod_name: str
@@ -92,6 +90,8 @@ class FusionClient(Protocol):
     async def rest_get(
         self, path: str, params: Mapping[str, str] | None = None
     ) -> dict[str, Any]: ...
+
+    async def get_raw(self, path: str, params: Mapping[str, str] | None = None) -> bytes: ...
 
     async def rest_post(self, path: str, json: Mapping[str, Any]) -> dict[str, Any]: ...
 
@@ -360,7 +360,7 @@ class HttpFusionClient:
     async def get_customer_account(self, account_number: str) -> FusionCustomer:
         # UNVERIFIED: resource, filter and every field name.
         rows = await self._http.get_json_paged(
-            f"{CRM_BASE}/accounts",
+            query.CUSTOMER_ACCOUNTS_PATH,
             op="get_customer_account",
             fields=query.FIELDS_CUSTOMER_ACCOUNT,
             params={"q": f"AccountNumber={query.q_literal(account_number)}"},
@@ -415,6 +415,10 @@ class HttpFusionClient:
         return await self._http.get_json(
             self._url(path), op="rest_get", params=merged, fields=fields
         )
+
+    async def get_raw(self, path: str, params: Mapping[str, str] | None = None) -> bytes:
+        """Plain GET (read retry policy) returning the body bytes, e.g. a SOAP `?WSDL`."""
+        return await self._http.get_bytes(self._url(path), op="get_raw", params=params)
 
     # --- writes ----------------------------------------------------------------------------
 
