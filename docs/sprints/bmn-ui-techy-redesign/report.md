@@ -43,4 +43,10 @@ See `bmn.json`: lab = #49 folded in; MCP is the Fusion read/REST-write path; SOA
 Story, fix and harness branches were deleted as merged. The sprint branch `sprint/ui-techy-redesign` and the run worktree stay until PR #51 is merged.
 
 ## What I learned
-(see retro.md)
+- **One wave was wrong.** All 14 stories were coded in parallel because the splitter marked them "plannable", so two coders refused to start and a second wave was forced. Waves now follow the dependencies (L-comparison-wizard-from-fusion-2 and L-console-text-field-1, both revised).
+- **Shared files need an owner.** `config_keys.py`, `permissions.ts`, `stream-paths.ts`, the Alembic `down_revision` chain and two duplicate schema names all needed merge fixes. split.md will now map each shared file and name to one owner (L-ui-techy-redesign-1; L-pre-payroll-quality-checks-1 revised). The Alembic lesson was never served because no `alembic` tag was passed (L-ui-techy-redesign-2).
+- **Design hand-off gaps.** No judge vote was run at the pick, the boards were never rendered, and the Lab board was missing from a coder's checkout (F-guided-compare-flow-2 revised; L-ui-techy-redesign-3 and L-ui-techy-redesign-4).
+- **Tooling.** `uv` wasn't on the coders' PATH, so its absolute path now goes into stack.md (L-ui-techy-redesign-5).
+- **Your 8 instructions are now lessons** (F-ui-techy-redesign-0 to 7): `dev` changes only through a PR, the engine control panel, settings stored in the database, the chat agent as the main interface, and the fusion-sql-mcp split (MCP for reads and REST writes, SOAP apply direct). F-6, "all through MCP", is retired because F-7 replaced it.
+
+Details: [retro.md](retro.md).
