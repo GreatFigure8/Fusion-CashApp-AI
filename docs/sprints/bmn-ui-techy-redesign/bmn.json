@@ -1,7 +1,7 @@
 {
  "run": "bmn-ui-techy-redesign",
  "estimate": null,
- "phase": "research",
+ "phase": "split",
  "integration": "sprint/ui-techy-redesign",
  "worktree": "D:/Fusion-CashApp-AI-ui-techy-redesign",
  "live": "dev",
@@ -92,11 +92,24 @@
  },
  "design": {
   "needed": true,
-  "project_id": null,
-  "url": null,
-  "round": 0,
-  "options": [],
-  "picked": null,
+  "project_id": "NgfTaH1tfvxXVLaMVamDEc",
+  "url": "https://claude.ai/artifact/NgfTaH1tfvxXVLaMVamDEc",
+  "round": 1,
+  "options": [
+   {
+    "key": "A",
+    "name": "Phosphor Console"
+   },
+   {
+    "key": "B",
+    "name": "Glass Orbit"
+   },
+   {
+    "key": "C",
+    "name": "Instrument Deck"
+   }
+  ],
+  "picked": "B",
   "feedback": []
  },
  "release": {
