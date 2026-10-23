@@ -122,9 +122,9 @@ export function ExceptionsFilterBar({
   ];
 
   return (
-    <div className="flex flex-wrap items-end gap-3" role="search" aria-label="Filter exceptions">
+    <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-line-strong bg-surface-1/70 p-3 backdrop-blur-[14px]" role="search" aria-label="Filter exceptions">
       <div className="grid gap-1">
-        <Label htmlFor={`${ids}-q`} className="text-xs text-muted-foreground">
+        <Label htmlFor={`${ids}-q`} className="font-mono text-label uppercase tracking-[0.06em] text-muted-foreground">
           Search
         </Label>
         <Input
@@ -138,7 +138,7 @@ export function ExceptionsFilterBar({
       </div>
 
       <div className="grid gap-1">
-        <Label htmlFor={`${ids}-min`} className="text-xs text-muted-foreground">
+        <Label htmlFor={`${ids}-min`} className="font-mono text-label uppercase tracking-[0.06em] text-muted-foreground">
           Amount
         </Label>
         <div className="flex items-center gap-1">
@@ -166,7 +166,7 @@ export function ExceptionsFilterBar({
       </div>
 
       <div className="grid gap-1">
-        <span className="text-xs text-muted-foreground">Date range</span>
+        <span className="font-mono text-label uppercase tracking-[0.06em] text-muted-foreground">Date range</span>
         <Popover>
           <PopoverTrigger render={<Button variant="outline" className="justify-start" />}>
             <CalendarIcon />
@@ -188,7 +188,7 @@ export function ExceptionsFilterBar({
       </div>
 
       <div className="grid gap-1">
-        <span className="text-xs text-muted-foreground">Error code</span>
+        <span className="font-mono text-label uppercase tracking-[0.06em] text-muted-foreground">Error code</span>
         <Popover>
           <PopoverTrigger render={<Button variant="outline" className="w-48 justify-between" />}>
             <span className="truncate">
@@ -223,7 +223,7 @@ export function ExceptionsFilterBar({
       </div>
 
       <div className="grid gap-1">
-        <span className="text-xs text-muted-foreground">Stage</span>
+        <span className="font-mono text-label uppercase tracking-[0.06em] text-muted-foreground">Stage</span>
         <Select
           items={stageItems}
           value={filters.stage ?? ALL_STAGES}
@@ -245,20 +245,6 @@ export function ExceptionsFilterBar({
       </div>
 
       <div className="flex flex-wrap items-center gap-4 pb-1.5">
-        <Label className="gap-2 font-normal">
-          <Switch
-            checked={filters.lockedByMe}
-            onCheckedChange={(checked) => update({ lockedByMe: checked })}
-          />
-          Locked by me
-        </Label>
-        <Label className="gap-2 font-normal">
-          <Switch
-            checked={filters.includeAutoApplied}
-            onCheckedChange={(checked) => update({ includeAutoApplied: checked })}
-          />
-          Show auto-applied
-        </Label>
         {canSeeArchived ? (
           <Label className="gap-2 font-normal">
             <Switch

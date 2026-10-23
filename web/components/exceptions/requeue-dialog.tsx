@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type { Schemas } from "@/lib/api/types";
 import { formatWorkItemId } from "@/lib/format";
 
 import {
@@ -30,9 +31,12 @@ import {
 import { lockErrorToast } from "./lock-messages";
 import { useSheet } from "./sheet-context";
 
-type Props = Readonly<{ final: RemittanceExtraction | null }>;
+type Props = Readonly<{
+  final: RemittanceExtraction | null;
+  errorCode?: Schemas["ErrorCode"] | null;
+}>;
 
-export function RequeueDialog({ final }: Props): React.JSX.Element {
+export function RequeueDialog({ final, errorCode = null }: Props): React.JSX.Element {
   const sheet = useSheet();
   const router = useRouter();
   const pathname = usePathname();
@@ -42,6 +46,7 @@ export function RequeueDialog({ final }: Props): React.JSX.Element {
   const [pending, startTransition] = useTransition();
 
   const { draft } = sheet;
+  const toReceipt = draft.receipt !== undefined || errorCode === "RECEIPT_AMBIGUOUS";
   const summary = diffSummary(draft.before ?? EMPTY_FORM_VALUES, draft.after ?? EMPTY_FORM_VALUES, {
     receipt: draft.receipt?.number,
     customer: draft.customer,
@@ -83,7 +88,11 @@ export function RequeueDialog({ final }: Props): React.JSX.Element {
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogTrigger render={<Button size="sm" />}>Requeue</AlertDialogTrigger>
+      <AlertDialogTrigger
+        render={<Button size="sm" className="shadow-[0_0_18px_-4px_var(--acc-hi)]" />}
+      >
+        {toReceipt ? "Requeue to match receipt" : "Requeue"}
+      </AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-md">
         <AlertDialogHeader>
           <AlertDialogTitle>Requeue {formatWorkItemId(sheet.itemId)}</AlertDialogTitle>

@@ -3,6 +3,7 @@
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { MonoLabel } from "@/components/common/mono-label";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -66,9 +67,9 @@ export function CustomerPicker({ customer, invoices }: Props): React.JSX.Element
 
   return (
     <section className="grid gap-2" aria-labelledby="customer-picker-title">
-      <h4 id="customer-picker-title" className="text-sm font-medium">
-        Which customer account?
-      </h4>
+      <MonoLabel as="h3">
+        <span id="customer-picker-title">Which customer account?</span>
+      </MonoLabel>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           render={

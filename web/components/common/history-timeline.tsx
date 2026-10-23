@@ -25,12 +25,12 @@ const ACTION_LABEL: Record<Schemas["HistoryRowOut"]["action"], string> = {
 };
 
 const ACTION_DOT: Record<Schemas["HistoryRowOut"]["action"], string> = {
-  STAGE_TRANSITION: "bg-status-progress",
-  AUTOFIX_ATTEMPT: "bg-status-attention",
-  HUMAN_ACTION: "bg-status-locked",
-  FUSION_WRITE: "bg-status-success",
+  STAGE_TRANSITION: "bg-brand-hi",
+  AUTOFIX_ATTEMPT: "bg-warn",
+  HUMAN_ACTION: "bg-locked",
+  FUSION_WRITE: "bg-ok",
   DECISION: "bg-muted-foreground",
-  LOCK: "bg-status-locked",
+  LOCK: "bg-locked",
 };
 
 function summary(entry: HistoryEntryView): string {
@@ -68,10 +68,10 @@ function Entry({ entry, defaultOpen }: { entry: HistoryEntryView; defaultOpen: b
         {ACTION_LABEL[entry.action]}
         {detail ? <span className="font-normal text-muted-foreground">{detail}</span> : null}
         {entry.error_code ? (
-          <span className="font-mono text-xs text-status-error">{entry.error_code}</span>
+          <span className="font-mono text-xs text-err-ink">{entry.error_code}</span>
         ) : null}
       </span>
-      <span className="text-xs text-muted-foreground">
+      <span className="font-mono text-xs text-muted-foreground">
         {entry.actor_name} ·{" "}
         <time dateTime={entry.at} title={formatDateTime(entry.at)}>
           {formatRelative(entry.at)}
@@ -81,10 +81,10 @@ function Entry({ entry, defaultOpen }: { entry: HistoryEntryView; defaultOpen: b
   );
 
   return (
-    <li className="relative pl-5" data-history-id={entry.id}>
+    <li className="relative pl-6" data-history-id={entry.id}>
       <span
         aria-hidden
-        className={cn("absolute top-1.5 left-0 size-2 rounded-full", ACTION_DOT[entry.action])}
+        className={cn("absolute top-1 left-0 size-2.5 rounded-full", ACTION_DOT[entry.action])}
       />
       {hasPayload ? (
         <Collapsible defaultOpen={defaultOpen}>
@@ -94,7 +94,7 @@ function Entry({ entry, defaultOpen }: { entry: HistoryEntryView; defaultOpen: b
           </CollapsibleTrigger>
           {entry.reasoning ? <p className="mt-1 text-xs">{entry.reasoning}</p> : null}
           <CollapsibleContent>
-            <div className="relative mt-2 rounded-md border bg-muted/40">
+            <div className="relative mt-2 rounded-xl border border-line-strong bg-surface-3">
               <Button
                 variant="ghost"
                 size="icon-xs"
@@ -139,7 +139,7 @@ export function HistoryTimeline({
     return <p className="text-sm text-muted-foreground">{emptyLabel}</p>;
   }
   return (
-    <ol data-slot="history-timeline" className="relative flex flex-col gap-4 border-l pl-1">
+    <ol data-slot="history-timeline" className="relative flex flex-col gap-4 border-l border-line-strong pl-1">
       {entries.map((entry) => (
         <Entry key={entry.id} entry={entry} defaultOpen={entry.id === defaultExpandedId} />
       ))}

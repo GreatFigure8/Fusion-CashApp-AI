@@ -1,69 +1,52 @@
-import {
-  ArrowUpCircle,
-  Circle,
-  Clock,
-  CornerUpRight,
-  Minus,
-  RotateCw,
-  type LucideIcon,
-} from "lucide-react";
-
+import { MonoLabel } from "@/components/common/mono-label";
 import type { Schemas } from "@/lib/api/types";
+import { formatRelative } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
-const DECISION_ICONS: Readonly<Record<string, { icon: LucideIcon; label: string }>> = {
-  retry: { icon: RotateCw, label: "Retried" },
-  reroute: { icon: CornerUpRight, label: "Rerouted" },
-  park: { icon: Clock, label: "Parked" },
-  escalate: { icon: ArrowUpCircle, label: "Escalated" },
-  noop: { icon: Minus, label: "No action" },
-  noop_locked: { icon: Minus, label: "Skipped (locked)" },
-};
+import { buildAutofixTimeline } from "./autofix-timeline";
 
-type Props = Readonly<{ attempts: readonly Schemas["AutofixAttemptOut"][] }>;
+type Props = Readonly<{
+  attempts: readonly Schemas["AutofixAttemptOut"][];
+  itemState?: string | null;
+}>;
 
-/** The auto-fixes the system tried, oldest first, each with its reasoning. */
-export function AutofixList({ attempts }: Props): React.JSX.Element {
+/** The auto-fixes the system tried, oldest first, as a vertical timeline. */
+export function AutofixList({ attempts, itemState = null }: Props): React.JSX.Element {
+  const timeline = buildAutofixTimeline(attempts, itemState);
   return (
     <section className="grid gap-2" aria-labelledby="autofix-title">
-      <h3 id="autofix-title" className="text-sm font-medium">
-        Auto-fixes tried
-      </h3>
-      {attempts.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
+      <MonoLabel as="h3">
+        <span id="autofix-title">
+          Auto-fixes tried · {timeline.tried} of {timeline.limit}
+        </span>
+      </MonoLabel>
+      {timeline.steps.length === 0 ? (
+        <p className="text-[13px] text-muted-foreground">
           No automatic fix has been tried for this item.
         </p>
       ) : (
-        <ol className="grid gap-3">
-          {attempts.map((attempt, index) => {
-            const meta = (attempt.decision ? DECISION_ICONS[attempt.decision] : undefined) ?? {
-              icon: Circle,
-              label: attempt.decision ?? "Attempted",
-            };
-            const Icon = meta.icon;
-            return (
-              <li key={`${attempt.at}-${index}`} className="flex gap-3 text-sm">
-                <Icon aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                <div className="grid gap-0.5">
-                  <p className="flex flex-wrap items-center gap-x-2">
-                    <span className="font-medium">{meta.label}</span>
-                    {attempt.code ? (
-                      <span className="font-mono text-xs text-muted-foreground">
-                        {attempt.code}
-                      </span>
-                    ) : null}
-                    {attempt.attempt !== null && attempt.limit !== null ? (
-                      <span className="text-xs text-muted-foreground">
-                        attempt {attempt.attempt} / {attempt.limit}
-                      </span>
-                    ) : null}
-                  </p>
-                  {attempt.reasoning ? (
-                    <p className="text-muted-foreground">{attempt.reasoning}</p>
-                  ) : null}
-                </div>
-              </li>
-            );
-          })}
+        <ol className="grid gap-3 border-l border-line-strong pl-1">
+          {timeline.steps.map((step, index) => (
+            <li key={`${step.at}-${index}`} data-step className="relative pl-6 text-[13px]">
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute top-1 left-0 size-2.5 rounded-full",
+                  step.tone === "err" ? "bg-err" : "bg-warn",
+                )}
+              />
+              <p>{step.text}</p>
+              <p className="text-xs text-muted-foreground">
+                {step.detail}
+                {step.detail && step.at ? " · " : ""}
+                {step.at ? (
+                  <time dateTime={step.at} className="font-mono">
+                    {formatRelative(step.at)}
+                  </time>
+                ) : null}
+              </p>
+            </li>
+          ))}
         </ol>
       )}
     </section>

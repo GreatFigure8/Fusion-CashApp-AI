@@ -8,19 +8,18 @@ import { dequeueAction, releaseLockAction } from "@/app/(shell)/exceptions/_lib/
 import { LockBanner } from "@/components/common/lock-banner";
 import { Button } from "@/components/ui/button";
 import type { ApiError } from "@/lib/api/errors";
+import type { Schemas } from "@/lib/api/types";
 
 import type { RemittanceExtraction } from "./edit-model";
 import { lockErrorToast } from "./lock-messages";
 import { RequeueDialog } from "./requeue-dialog";
 import { useSheet } from "./sheet-context";
 
-type Props = Readonly<{ final: RemittanceExtraction | null }>;
-
-export function LockControls({ final }: Props): React.JSX.Element | null {
+/** Shared lock handlers: dequeue and unlock, with the same toasts and refresh. */
+function useLockHandlers() {
   const sheet = useSheet();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const { lock } = sheet.sheet;
 
   const fail = (error: ApiError) => {
     if (error.code === "lock_not_held") sheet.lockExpired();
@@ -43,6 +42,14 @@ export function LockControls({ final }: Props): React.JSX.Element | null {
       router.refresh();
     });
 
+  return { sheet, pending, dequeue, release };
+}
+
+/** The lock banner, or the Dequeue button when nobody holds the item. */
+export function LockStatus(): React.JSX.Element | null {
+  const { sheet, pending, dequeue } = useLockHandlers();
+  const { lock } = sheet.sheet;
+
   const dequeueButton = sheet.canWork ? (
     <Button size="sm" onClick={dequeue} disabled={pending}>
       Dequeue
@@ -53,20 +60,7 @@ export function LockControls({ final }: Props): React.JSX.Element | null {
     case "none":
       return dequeueButton;
     case "mine":
-      return (
-        <LockBanner
-          variant="mine"
-          since={lock.since}
-          actions={
-            <>
-              <RequeueDialog final={final} />
-              <Button size="sm" variant="outline" onClick={release} disabled={pending}>
-                Release lock
-              </Button>
-            </>
-          }
-        />
-      );
+      return <LockBanner variant="mine" since={lock.since} />;
     case "other":
       return <LockBanner variant="other" ownerName={lock.ownerName} since={lock.since} />;
     case "expired":
@@ -74,4 +68,24 @@ export function LockControls({ final }: Props): React.JSX.Element | null {
     case "taken_over":
       return <LockBanner variant="taken_over" ownerName={lock.ownerName} />;
   }
+}
+
+/** Requeue and Unlock, shown only while I hold the lock. */
+export function LockActions({
+  final,
+  errorCode = null,
+}: Readonly<{
+  final: RemittanceExtraction | null;
+  errorCode?: Schemas["ErrorCode"] | null;
+}>): React.JSX.Element | null {
+  const { sheet, pending, release } = useLockHandlers();
+  if (sheet.sheet.lock.kind !== "mine") return null;
+  return (
+    <>
+      <RequeueDialog final={final} errorCode={errorCode} />
+      <Button size="sm" variant="outline" onClick={release} disabled={pending}>
+        Unlock
+      </Button>
+    </>
+  );
 }

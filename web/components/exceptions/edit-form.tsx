@@ -5,6 +5,9 @@ import { Plus, Trash2 } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 
+import { MonoLabel } from "@/components/common/mono-label";
+import { Pill } from "@/components/common/pill";
+import { SOURCE_TAG, sourceTone } from "@/components/items/source-tag";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +21,11 @@ import {
 } from "./edit-model";
 import { useSheet } from "./sheet-context";
 
-type Props = Readonly<{ final: RemittanceExtraction }>;
+type Props = Readonly<{
+  final: RemittanceExtraction;
+  /** Provenance tag per `line_no` ("A", "B", "both", "human"); absent for lines added by hand. */
+  lineSources?: Readonly<Record<number, string>>;
+}>;
 
 const HEADER_FIELDS = [
   ["payer_name", "Payer"],
@@ -28,7 +35,7 @@ const HEADER_FIELDS = [
   ["payment_date", "Payment date"],
 ] as const;
 
-export function EditForm({ final }: Props): React.JSX.Element {
+export function EditForm({ final, lineSources = {} }: Props): React.JSX.Element {
   const sheet = useSheet();
   const editable = sheet.canWork && sheet.sheet.editable;
   // A server refresh hands over a new object each time; only a changed extraction resets the form.
@@ -64,7 +71,9 @@ export function EditForm({ final }: Props): React.JSX.Element {
         <div className="grid gap-3 sm:grid-cols-2">
           {HEADER_FIELDS.map(([name, label]) => (
             <div key={name} className="grid gap-1">
-              <Label htmlFor={`edit-${name}`}>{label}</Label>
+              <Label htmlFor={`edit-${name}`} className="font-mono text-label font-normal uppercase tracking-[0.08em] text-muted-foreground">
+                {label}
+              </Label>
               <Input
                 id={`edit-${name}`}
                 aria-invalid={errors[name] ? true : undefined}
@@ -72,7 +81,7 @@ export function EditForm({ final }: Props): React.JSX.Element {
                 {...form.register(name)}
               />
               {errors[name] ? (
-                <p className="text-xs text-destructive">{errors[name]?.message}</p>
+                <p className="text-xs text-err-ink">{errors[name]?.message}</p>
               ) : null}
             </div>
           ))}
@@ -80,7 +89,7 @@ export function EditForm({ final }: Props): React.JSX.Element {
 
         <div className="grid gap-2">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium">Lines</h4>
+            <MonoLabel as="h3">Lines</MonoLabel>
             {editable ? (
               <Button
                 type="button"
@@ -102,13 +111,14 @@ export function EditForm({ final }: Props): React.JSX.Element {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[34rem] text-sm">
-              <thead className="text-left text-xs text-muted-foreground">
+              <thead className="text-left font-mono text-label uppercase tracking-[0.06em] text-muted-foreground">
                 <tr>
                   <th className="w-10 pb-1 font-normal">#</th>
                   <th className="w-32 pb-1 font-normal">Kind</th>
                   <th className="pb-1 font-normal">Invoice / credit memo</th>
                   <th className="w-28 pb-1 font-normal">Amount paid</th>
                   <th className="w-24 pb-1 font-normal">Discount</th>
+                  <th className="w-16 pb-1 font-mono font-normal uppercase">Source</th>
                   <th className="w-8" />
                 </tr>
               </thead>
@@ -121,7 +131,7 @@ export function EditForm({ final }: Props): React.JSX.Element {
                       <td className="py-1 pr-2">
                         <select
                           aria-label={`Line ${field.line_no} kind`}
-                          className="h-8 w-full rounded-lg border border-input bg-transparent px-2 text-sm disabled:opacity-50"
+                          className="h-8 w-full rounded-lg border border-line-strong bg-surface-2 px-2 font-mono text-sm disabled:opacity-50"
                           {...form.register(`lines.${index}.kind`)}
                         >
                           {LINE_KINDS.map((kind) => (
@@ -139,7 +149,7 @@ export function EditForm({ final }: Props): React.JSX.Element {
                           {...form.register(`lines.${index}.transaction_number`)}
                         />
                         {lineErrors?.transaction_number ? (
-                          <p className="text-xs text-destructive">
+                          <p className="text-xs text-err-ink">
                             {lineErrors.transaction_number.message}
                           </p>
                         ) : null}
@@ -159,6 +169,13 @@ export function EditForm({ final }: Props): React.JSX.Element {
                           className="text-right font-mono"
                           {...form.register(`lines.${index}.discount_claimed`)}
                         />
+                      </td>
+                      <td className="py-1 pr-2">
+                        {lineSources[field.line_no] ? (
+                          <Pill tone={sourceTone(lineSources[field.line_no] ?? "")} mono>
+                            {SOURCE_TAG[lineSources[field.line_no] ?? ""] ?? lineSources[field.line_no]}
+                          </Pill>
+                        ) : null}
                       </td>
                       <td className="py-1">
                         {editable ? (
