@@ -6,11 +6,13 @@ from cashapp import __version__
 from cashapp.api.discovery import discover_routers
 from cashapp.api.errors import ERROR_RESPONSES, install_error_handlers
 from cashapp.api.middleware import RequestIdMiddleware
+from cashapp.observability import configure_observability
 from cashapp.settings import get_settings
 
 
 def create_app() -> FastAPI:
-    get_settings()  # a bad configuration fails here, before the app is built
+    settings = get_settings()  # a bad configuration fails here, before the app is built
+    configure_observability(settings, service_name="cashapp-api")
     app = FastAPI(title="Fusion CashApp API", version=__version__, responses=ERROR_RESPONSES)
     app.add_middleware(RequestIdMiddleware)
     install_error_handlers(app)

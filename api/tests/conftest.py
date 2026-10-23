@@ -1,1 +1,1 @@
-pytest_plugins = ("tests.support.db",)
+pytest_plugins = ("tests.support.db", "tests.support.telemetry")
