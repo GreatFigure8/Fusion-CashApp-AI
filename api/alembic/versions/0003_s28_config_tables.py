@@ -1,16 +1,17 @@
 """s28: CONFIG_SETTING and CONFIG_CHANGE (runtime configuration store and audit log).
 
 Revision ID: 0003_config
-Revises: 0002_group_role
+Revises: 0002_group_role_mapping
 """
 
 import sqlalchemy as sa
 from alembic import op
+
 from cashapp.data.types import JsonDoc
 
 revision = "0003_config"
 # s04's head; the merger re-points this if the spine merges in a different order.
-down_revision = "0002_group_role"
+down_revision = "0002_group_role_mapping"
 branch_labels = None
 depends_on = None
 

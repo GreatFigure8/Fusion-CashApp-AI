@@ -5,7 +5,6 @@ from collections.abc import Mapping
 from typing import Any
 
 from cashapp.domain.clock import Clock, SystemClock
-
 from cashapp.services.config import (
     ConfigSnapshot,
     RuntimeConfig,
