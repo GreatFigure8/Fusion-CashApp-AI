@@ -31,6 +31,8 @@ next-env.d.ts
 *.tfstate.*
 .terraform/
 *.tfplan
+*.tfvars
+!*.tfvars.example
 
 # Local tooling
 .claude/worktrees/
