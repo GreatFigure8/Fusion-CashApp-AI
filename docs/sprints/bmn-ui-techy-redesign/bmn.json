@@ -1,7 +1,7 @@
 {
  "run": "bmn-ui-techy-redesign",
  "estimate": "~2-3 h to code (14 stories, 1 wave)",
- "phase": "code",
+ "phase": "testask",
  "integration": "sprint/ui-techy-redesign",
  "worktree": "D:/Fusion-CashApp-AI-ui-techy-redesign",
  "live": "dev",
@@ -100,7 +100,7 @@
     "glass-theme-shell"
    ],
    "interfaces": [],
-   "status": "planned",
+   "status": "merged",
    "branch": "wip/ui-techy-redesign/exceptions-workbench-restyle",
    "merges": [],
    "detail": "partial (helpers only); re-dispatch after wave-1 merge"
@@ -203,28 +203,13 @@
     "live-progress-dashboard"
    ],
    "interfaces": [],
-   "status": "planned",
+   "status": "merged",
    "branch": "wip/ui-techy-redesign/matching-lab-ui",
    "merges": [],
    "detail": "coder blocked on unmerged deps; re-dispatch after wave-1 merge"
   }
  ],
- "temp_refs": [
-  {
-   "branch": "wip/ui-techy-redesign/matching-lab-ui",
-   "kind": "wip",
-   "base": "2653009",
-   "worktree": null,
-   "pushed": true
-  },
-  {
-   "branch": "worktree-agent-ae0191c047dfced35",
-   "kind": "harness",
-   "base": "2653009",
-   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-ae0191c047dfced35",
-   "pushed": false
-  }
- ],
+ "temp_refs": [],
  "integration_pushed": false,
  "cleanup": {
   "deleted": [],
