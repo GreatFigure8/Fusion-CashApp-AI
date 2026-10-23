@@ -76,6 +76,8 @@ export type ChatState = {
   error: { code: string; message: string } | null;
   /** From the last `done`; shown in the header. */
   modelId: string | null;
+  /** Prompt tokens of the last turn, shown beside the composer. Null before the first answer. */
+  inputTokens: number | null;
   nextId: number;
 };
 
@@ -86,6 +88,7 @@ export const initialChatState: ChatState = {
   request: null,
   error: null,
   modelId: null,
+  inputTokens: null,
   nextId: 1,
 };
 
@@ -328,6 +331,7 @@ export function chatReducer(state: ChatState, action: ChatReducerAction): ChatSt
         phase: action.event.stop === "awaiting_confirmation" ? "awaiting_confirm" : "done",
         threadId: action.event.thread_id,
         modelId: action.event.usage.model_id,
+        inputTokens: action.event.usage.input_tokens,
       };
     }
     case "error": {

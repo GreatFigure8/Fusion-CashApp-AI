@@ -3,10 +3,12 @@
 import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import type { Route } from "next";
 import Link from "next/link";
-import { ArrowUpIcon, SquareIcon } from "lucide-react";
+import { ArrowUpIcon, GitBranchIcon, PaperclipIcon, SquareIcon } from "lucide-react";
 
+import { MonoLabel } from "@/components/common/mono-label";
 import { Pill } from "@/components/common/pill";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +30,17 @@ type ComposerProps = {
   fullScreenHref?: string;
   inputId?: string;
   uploadLimits?: UploadLimits;
+  /** Dock only: prompt tokens of the last turn, shown as a usage pill when known. */
+  inputTokens?: number | null;
 };
+
+const CONTEXT_WINDOW_TOKENS = 200_000;
+const chipClass =
+  "flex h-8 items-center gap-1.5 rounded-full px-3 font-mono text-[12.5px] text-muted-foreground transition-colors hover:text-foreground";
+
+function compactTokens(n: number): string {
+  return n >= 1000 ? `${Math.round(n / 1000)}k` : String(n);
+}
 
 function Kbd({ children }: { children: string }) {
   return (
@@ -69,6 +81,7 @@ export function Composer({
   fullScreenHref,
   inputId,
   uploadLimits,
+  inputTokens = null,
 }: ComposerProps) {
   const [text, setText] = useState("");
   const [staged, setStaged] = useState<readonly StagedUpload[]>([]);
@@ -113,7 +126,7 @@ export function Composer({
       size="icon"
       aria-label="Send"
       disabled={text.trim().length === 0 || showPrompts}
-      className={form === "dock" ? "size-9 rounded-xl bg-[#d97757] text-white hover:bg-[#c96442] disabled:bg-[#d97757] disabled:opacity-40" : undefined}
+      className={form === "dock" ? "size-9 rounded-lg bg-white/15 text-foreground hover:bg-white/25 disabled:bg-white/10 disabled:opacity-100" : undefined}
     >
       <ArrowUpIcon />
     </Button>
@@ -151,7 +164,7 @@ export function Composer({
     return (
       <form
         onSubmit={onSubmit}
-        className="relative flex flex-col gap-2 rounded-[24px] border border-white/10 bg-[#2b2b2d] px-3.5 pb-3 pt-3.5 shadow-[0_4px_24px_rgba(0,0,0,0.35)] transition-colors focus-within:border-white/20"
+        className="relative flex flex-col gap-2 rounded-2xl border border-white/10 bg-[#141416] px-4 pb-3 pt-4 transition-colors focus-within:border-white/20"
       >
         {showPrompts ? <PromptList query={text.slice(1)} onPick={pickPrompt} /> : null}
         {input}
@@ -163,12 +176,38 @@ export function Composer({
             limits={uploadLimits}
             disabled={streaming}
           />
-          {toolLabels.length > 0 ? (
-            <Pill tone="muted" mono title="Tool groups you may use">
-              {toolLabels.join(" · ")}
-            </Pill>
+          {form === "dock" ? (
+            <Popover>
+              <PopoverTrigger
+                render={
+                  <button type="button" className={cn(chipClass, "bg-white/[0.07]")} aria-label="What the assistant can use">
+                    <PaperclipIcon className="size-3.5" />
+                    Context
+                  </button>
+                }
+              />
+              <PopoverContent side="top" align="start" className="w-64">
+                <MonoLabel>Can use</MonoLabel>
+                <ul className="mt-2 flex flex-col gap-1 text-sm">
+                  {toolLabels.length > 0 ? (
+                    toolLabels.map((label) => <li key={label}>{label}</li>)
+                  ) : (
+                    <li className="text-muted-foreground">Nothing loaded yet.</li>
+                  )}
+                </ul>
+              </PopoverContent>
+            </Popover>
           ) : null}
+          <Link href={"/config" as Route} className={chipClass} title="Fusion connection settings">
+            <GitBranchIcon className="size-3.5" />
+            Fusion
+          </Link>
           <span className="ml-auto flex items-center gap-2">
+            {inputTokens !== null ? (
+              <span className={cn(chipClass, "cursor-default bg-white/[0.07] hover:text-muted-foreground")}>
+                {compactTokens(inputTokens)} / {compactTokens(CONTEXT_WINDOW_TOKENS)}
+              </span>
+            ) : null}
             {fullScreenHref ? (
               <Link href={fullScreenHref as Route} className="shrink-0 text-[12px] text-soft hover:text-foreground">
                 {COPY.fullScreen}

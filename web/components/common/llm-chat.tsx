@@ -172,6 +172,8 @@ export function LlmChat({
           onStop={stop}
           fullScreenHref={fullScreenHref}
           inputId={DOCK_INPUT_ID}
+          toolLabels={toolLabels}
+          inputTokens={state.inputTokens}
         />
         <div className="flex items-center justify-between px-2 text-[12px] text-soft">
           <span>{COPY.dockHint}</span>
