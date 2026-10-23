@@ -16,6 +16,7 @@ from typing import Any, Literal, Protocol, cast
 
 import httpx
 
+from cashapp.domain.config_keys import FusionPod
 from cashapp.domain.error_codes import ErrorCode
 from cashapp.domain.money import to_money
 from cashapp.integrations.fusion import bip, query, soap
@@ -37,8 +38,11 @@ from cashapp.integrations.fusion.models import (
     UnapplyRequest,
     UnapplyResult,
 )
-from cashapp.integrations.fusion.transport import FusionClientOptions, FusionTransport
-from cashapp.settings import FusionPodSettings
+from cashapp.integrations.fusion.transport import (
+    FusionClientOptions,
+    FusionTransport,
+    PasswordProvider,
+)
 
 __all__ = ["FusionClient", "FusionClientOptions", "HttpFusionClient", "ReceiptDateBasis"]
 
@@ -261,9 +265,10 @@ class HttpFusionClient:
         self,
         *,
         pod_name: str,
-        pod: FusionPodSettings,
+        pod: FusionPod,
+        password: PasswordProvider,
         guard: WriteGuard,
-        relationships_report_path: str,
+        relationships_report_path: Callable[[], Awaitable[str]],
         options: FusionClientOptions = FusionClientOptions(),  # noqa: B008 - frozen value object
         transport: httpx.AsyncBaseTransport | None = None,
         sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
@@ -273,7 +278,12 @@ class HttpFusionClient:
         self._relationships_report_path = relationships_report_path
         self._options = options
         self._http = FusionTransport(
-            pod_name=pod_name, pod=pod, options=options, transport=transport, sleep=sleep
+            pod_name=pod_name,
+            pod=pod,
+            password=password,
+            options=options,
+            transport=transport,
+            sleep=sleep,
         )
 
     async def __aenter__(self) -> HttpFusionClient:
@@ -472,7 +482,8 @@ class HttpFusionClient:
         found: list[CustomerRelationship] = []
         for chunk in query.chunked(account_numbers, self._options.chunk_size):
             data = await self.run_report(
-                self._relationships_report_path, {bip.RELATIONSHIPS_PARAM: ",".join(chunk)}
+                await self._relationships_report_path(),
+                {bip.RELATIONSHIPS_PARAM: ",".join(chunk)},
             )
             found.extend(bip.parse_relationships_xml(data))
         return found
@@ -498,7 +509,7 @@ class HttpFusionClient:
     # --- writes ----------------------------------------------------------------------------
 
     async def apply_receipt(self, request: ApplyRequest) -> ApplyResult:
-        self._guard.check("apply_receipt")
+        await self._guard.check("apply_receipt")
         raw = await self._http.post_soap(
             soap.SOAP_PATH_RECEIPTS,
             soap.build_apply_envelope(request),
@@ -509,7 +520,7 @@ class HttpFusionClient:
         return soap.parse_apply_response(raw, receipt_id=request.receipt_id)
 
     async def unapply_receipt(self, request: UnapplyRequest) -> UnapplyResult:
-        self._guard.check("unapply_receipt")
+        await self._guard.check("unapply_receipt")
         raw = await self._http.post_soap(
             soap.SOAP_PATH_RECEIPTS,
             soap.build_unapply_envelope(request),
@@ -520,7 +531,7 @@ class HttpFusionClient:
         return soap.parse_unapply_response(raw)
 
     async def set_receipt_comment(self, receipt_id: int, text: str) -> None:
-        self._guard.check("set_receipt_comment")
+        await self._guard.check("set_receipt_comment")
         # UNVERIFIED (s17): the Comments field and its size limit.
         await self._http.send_json(
             "PATCH",
@@ -532,7 +543,7 @@ class HttpFusionClient:
     async def attach_to_receipt(
         self, receipt_id: int, filename: str, content: bytes, content_type: str, title: str
     ) -> AttachmentRef:
-        self._guard.check("attach_to_receipt")
+        await self._guard.check("attach_to_receipt")
         # UNVERIFIED (s17): child resource and body fields.
         body = await self._http.send_json(
             "POST",
@@ -554,5 +565,5 @@ class HttpFusionClient:
         )
 
     async def rest_post(self, path: str, json: Mapping[str, Any]) -> dict[str, Any]:
-        self._guard.check("rest_post")
+        await self._guard.check("rest_post")
         return await self._http.send_json("POST", self._url(path), json, op="rest_post")

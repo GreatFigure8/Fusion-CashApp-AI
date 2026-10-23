@@ -28,7 +28,9 @@ class DailySummaryCycleHook:
         config = await container.config.snapshot()
         if utc_now.time() < config.reports().daily_summary_cutover:
             return
-        service = self._service or ReportService(clock=container.clock)
+        service = self._service or ReportService(
+            clock=container.clock, runtime_settings=container.runtime
+        )
         generated = await service.run_cutover(container.uow_factory, utc_now, config)
         # Any failure above propagated, leaving the gate open so the next cycle retries.
         self._done_for = today

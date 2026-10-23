@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Literal, Protocol, TypeVar
 from cashapp.data.uow import UowFactory
 from cashapp.domain.clock import Clock
 from cashapp.services.config import RuntimeConfig
+from cashapp.services.runtime_settings import RuntimeSettings
 from cashapp.settings import Settings
 
 if TYPE_CHECKING:
@@ -44,6 +45,9 @@ class Runnable(Protocol):
 class Container(Protocol):
     @property
     def settings(self) -> Settings: ...
+
+    @property
+    def runtime(self) -> RuntimeSettings: ...
 
     @property
     def uow_factory(self) -> UowFactory: ...

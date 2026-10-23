@@ -1,20 +1,19 @@
 """LLM usage and cost endpoints: daily totals, one item's calls, Cohere utilisation."""
 
 from datetime import UTC, date, datetime, timedelta
-from functools import lru_cache
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
 from cashapp.api.deps import UowFactoryDep
 from cashapp.api.errors import ERROR_RESPONSES, ApiError
+from cashapp.api.runtime_deps import RuntimeSettingsDep
 from cashapp.api.schemas.llm_usage import CohereUtilisationOut, DailyUsageOut, UsageCallOut
 from cashapp.auth.deps import require_permission
 from cashapp.domain.llm_usage import UsageGroupBy
 from cashapp.domain.principal import Permission, Principal
 from cashapp.integrations.llm.cluster_metrics import ClusterMetrics, build_cluster_metrics
 from cashapp.services.llm_usage.reporting import cohere_utilisation, daily_usage, item_usage
-from cashapp.settings import get_settings
 
 router = APIRouter(prefix="/llm-usage", tags=["llm-usage"], responses=ERROR_RESPONSES)
 
@@ -25,10 +24,9 @@ _DEFAULT_DAYS = 7
 _MAX_RANGE_DAYS = 366
 
 
-@lru_cache
-def get_cluster_metrics() -> ClusterMetrics | None:
-    """The process-wide cluster metrics source; tests override this dependency."""
-    return build_cluster_metrics(get_settings())
+async def get_cluster_metrics(runtime: RuntimeSettingsDep) -> ClusterMetrics | None:
+    """The cluster metrics source (its keys are hot); tests override this dependency."""
+    return await build_cluster_metrics(runtime)
 
 
 ClusterDep = Annotated[ClusterMetrics | None, Depends(get_cluster_metrics)]

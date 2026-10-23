@@ -18,6 +18,7 @@ from sse_starlette import EventSourceResponse
 from cashapp.api.config_deps import RuntimeConfigDep
 from cashapp.api.deps import UowFactoryDep
 from cashapp.api.errors import ERROR_RESPONSES
+from cashapp.api.runtime_deps import RuntimeSettingsDep
 from cashapp.api.schemas.flow import (
     FlowStreamFrameOut,
     FlowSummaryOut,
@@ -44,7 +45,6 @@ from cashapp.services.flow_query import (
     items_changed_since,
     stage_items,
 )
-from cashapp.settings import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -67,9 +67,8 @@ def get_flow_summary_cache() -> FlowSummaryCache:
     return FlowSummaryCache()
 
 
-@lru_cache
-def get_cohere_source() -> CohereUtilisationSource:
-    return default_cohere_source(build_cluster_metrics(get_settings()))
+async def get_cohere_source(runtime: RuntimeSettingsDep) -> CohereUtilisationSource:
+    return default_cohere_source(await build_cluster_metrics(runtime))
 
 
 def get_backlog_source(config: RuntimeConfigDep) -> BacklogProgressSource:

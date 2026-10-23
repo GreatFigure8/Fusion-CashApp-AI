@@ -180,7 +180,8 @@ class WorkerHost:
 
     async def _wait_for_grace(self) -> None:
         loop = asyncio.get_running_loop()
-        deadline = loop.time() + self._container.settings.worker.shutdown_grace_seconds
+        grace = await self._container.runtime.shutdown_grace_seconds()
+        deadline = loop.time() + grace
         pending: set[asyncio.Task[None]] = {t for t in self._tasks.values() if not t.done()}
         while pending:
             remaining = deadline - loop.time()

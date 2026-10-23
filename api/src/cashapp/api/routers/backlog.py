@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from cashapp.api.config_deps import RuntimeConfigDep
 from cashapp.api.deps import UowFactoryDep
 from cashapp.api.errors import ERROR_RESPONSES
+from cashapp.api.runtime_deps import RuntimeSettingsDep
 from cashapp.api.storage_deps import ObjectStoreDep
 from cashapp.auth.deps import require_permission
 from cashapp.data.uow import UowFactory
@@ -30,7 +31,7 @@ from cashapp.services.backlog.service import (
     backlog_error_to_api,
 )
 from cashapp.services.backlog.sources import resolve_backlog_folder, resolve_stored_folder
-from cashapp.settings import get_settings
+from cashapp.services.runtime_settings import RuntimeSettings
 
 logger = logging.getLogger(__name__)
 
@@ -137,9 +138,10 @@ async def create_batch(
     principal: RunnerDep,
     service: ServiceDep,
     uow_factory: UowFactoryDep,
+    runtime: RuntimeSettingsDep,
 ) -> BacklogBatchOut:
     try:
-        folder = resolve_backlog_folder(get_settings(), body.folder)
+        folder = resolve_backlog_folder(runtime, body.folder)
         batch = await service.create_batch(
             uow_factory,
             name=body.name,
@@ -196,6 +198,7 @@ async def resume_batch(
     principal: RunnerDep,
     service: ServiceDep,
     uow_factory: UowFactoryDep,
+    runtime: RuntimeSettingsDep,
 ) -> BacklogBatchOut:
     try:
         await service.resume(uow_factory, batch_id, principal=principal, can_import_mailbox=False)
@@ -203,16 +206,18 @@ async def resume_batch(
         if progress.status == BacklogStatus.IMPORTING:
             if progress.source_kind != BacklogSourceKind.FOLDER:
                 raise BacklogResumeViaCli(batch_id)
-            folder = await _stored_folder(service, uow_factory, batch_id)
+            folder = await _stored_folder(service, uow_factory, batch_id, runtime)
             background.add_task(_import_in_background, service, uow_factory, batch_id, folder)
         return progress
     except BacklogError as exc:
         raise backlog_error_to_api(exc) from exc
 
 
-async def _stored_folder(service: BacklogService, uow_factory: UowFactory, batch_id: int) -> Path:
+async def _stored_folder(
+    service: BacklogService, uow_factory: UowFactory, batch_id: int, runtime: RuntimeSettings
+) -> Path:
     source_ref = await service.source_ref(uow_factory, batch_id)
-    return resolve_stored_folder(get_settings(), source_ref)
+    return resolve_stored_folder(runtime, source_ref)
 
 
 @router.post("/batches/{batch_id}/cancel", response_model=BacklogBatchOut)

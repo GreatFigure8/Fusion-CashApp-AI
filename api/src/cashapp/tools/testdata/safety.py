@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from urllib.parse import urlsplit
 
-from cashapp.settings import FusionPodSettings
+from cashapp.domain.config_keys import FusionPod
 
 
 class ProductionPodRefused(Exception):  # noqa: N818 - name pinned by the plan
@@ -30,7 +30,7 @@ def _host(value: str) -> str | None:
 
 
 def production_hosts(
-    all_pods: Mapping[str, FusionPodSettings], extra: Iterable[str] = ()
+    all_pods: Mapping[str, FusionPod], extra: Iterable[str] = ()
 ) -> frozenset[str]:
     """Hosts of every configured production pod plus the extra hosts given on the command line."""
     hosts: set[str] = set()
@@ -48,9 +48,9 @@ def production_hosts(
 
 def assert_non_production(
     pod_name: str,
-    pod: FusionPodSettings,
+    pod: FusionPod,
     *,
-    all_pods: Mapping[str, FusionPodSettings],
+    all_pods: Mapping[str, FusionPod],
     extra_production_hosts: Iterable[str] = (),
     require_testdata: bool = True,
 ) -> None:

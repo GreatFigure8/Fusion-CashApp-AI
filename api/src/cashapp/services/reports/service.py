@@ -26,6 +26,7 @@ from cashapp.services.notifications.reports import send_report_email
 from cashapp.services.reports.daily_summary import daily_summary
 from cashapp.services.reports.export import daily_summary_file
 from cashapp.services.reports.models import DailySummary, ReportRunInfo
+from cashapp.services.runtime_settings import RuntimeSettings
 
 logger = logging.getLogger(__name__)
 
@@ -109,10 +110,15 @@ def _body(summary: DailySummary) -> str:
 
 class ReportService:
     def __init__(
-        self, *, clock: Clock | None = None, sender: ReportSender = send_report_email
+        self,
+        *,
+        clock: Clock | None = None,
+        sender: ReportSender = send_report_email,
+        runtime_settings: RuntimeSettings | None = None,
     ) -> None:
         self._clock: Clock = clock or SystemClock()
         self._sender = sender
+        self._runtime_settings = runtime_settings
 
     def _check_not_future(self, day: date) -> None:
         if day > self._clock.now().date():
@@ -225,6 +231,7 @@ class ReportService:
                 uow=uow,
                 kind=EMAIL_KIND,
                 clock=self._clock,
+                runtime=self._runtime_settings,
             )
         except ChannelSendError as exc:
             # Keep the failed NOTIFICATION_LOG row (and a freshly stored report) for the audit.

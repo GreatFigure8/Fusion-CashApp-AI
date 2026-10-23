@@ -10,22 +10,27 @@ import typer
 from cashapp.integrations.fusion.client import FusionClient
 from cashapp.integrations.fusion.factory import FusionClientFactory
 from cashapp.integrations.fusion.guard import read_only
-from cashapp.settings import Settings, SettingsError, load_settings
+from cashapp.services.runtime_settings import (
+    RuntimeSettings,
+    SettingsIncompleteError,
+    load_runtime_settings,
+)
+from cashapp.settings import SettingsError, load_settings
 from cashapp.tools.preflight.checks import PreflightContext, run_preflight
 from cashapp.tools.preflight.report import PreflightReport, render_table
 
 app = typer.Typer(help="Read-only Fusion tenant preflight.", add_completion=False)
 
 
-def make_client(settings: Settings, pod: str) -> FusionClient:
+def make_client(runtime: RuntimeSettings, pod: str) -> FusionClient:
     """Patch point for tests: the real client for `pod`."""
-    return FusionClientFactory(settings).for_pod(pod)
+    return FusionClientFactory(runtime).for_pod(pod)
 
 
-async def _run(settings: Settings, pod: str, check_timeout_s: float) -> PreflightReport:
-    client = read_only(make_client(settings, pod))
+async def _run(runtime: RuntimeSettings, pod: str, check_timeout_s: float) -> PreflightReport:
+    client = read_only(make_client(runtime, pod))
     try:
-        ctx = PreflightContext.from_settings(settings, pod, check_timeout_s=check_timeout_s)
+        ctx = await PreflightContext.from_runtime(runtime, pod, check_timeout_s=check_timeout_s)
         return await run_preflight(client, ctx)
     finally:
         await client.aclose()
@@ -38,17 +43,15 @@ def main(
 ) -> None:
     """Run the preflight against POD and exit 0 (pass), 1 (any failure) or 2 (usage/config)."""
     try:
-        settings = load_settings()
-    except SettingsError as exc:
+        runtime = load_runtime_settings(load_settings())
+    except (SettingsError, SettingsIncompleteError) as exc:
         typer.echo(f"settings error: {exc}", err=True)
         raise typer.Exit(2) from exc
     key = pod.lower()
-    if key not in settings.fusion.pods:
-        typer.echo(
-            f"unknown pod '{key}'; known pods: {', '.join(sorted(settings.fusion.pods))}",
-            err=True,
-        )
+    pods = runtime.fusion().pods
+    if key not in pods:
+        typer.echo(f"unknown pod '{key}'; known pods: {', '.join(sorted(pods))}", err=True)
         raise typer.Exit(2)
-    report = asyncio.run(_run(settings, key, timeout))
+    report = asyncio.run(_run(runtime, key, timeout))
     typer.echo(render_table(report))
     raise typer.Exit(0 if report.ok else 1)

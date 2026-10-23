@@ -10,7 +10,7 @@ from collections.abc import Sequence
 import sqlalchemy as sa
 from alembic import op
 
-from cashapp.settings import get_settings
+from cashapp.auth.bootstrap import BOOTSTRAP_ADMIN_GROUP
 
 revision: str = "0002_group_role_mapping"
 down_revision: str | None = "0001_base"
@@ -40,12 +40,11 @@ def upgrade() -> None:
             name="CK_GROUP_ROLE_MAPPING_ROLE",
         ),
     )
-    bootstrap_group = get_settings().identity.bootstrap_admin_group
     op.execute(
         sa.text(
             "INSERT INTO GROUP_ROLE_MAPPING (GROUP_NAME, ROLE, CREATED_BY) "
             "VALUES (:group_name, 'ADMIN', 'system:bootstrap')"
-        ).bindparams(group_name=bootstrap_group)
+        ).bindparams(group_name=BOOTSTRAP_ADMIN_GROUP)
     )
 
 

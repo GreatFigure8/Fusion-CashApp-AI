@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, Query
 from cashapp.api.config_deps import RuntimeConfigDep
 from cashapp.api.deps import UowFactoryDep
 from cashapp.api.errors import ERROR_RESPONSES, ApiError
+from cashapp.api.runtime_deps import RuntimeSettingsDep
 from cashapp.api.schemas.exceptions import (
     ExceptionListOut,
     ExceptionListQuery,
@@ -21,7 +22,7 @@ from cashapp.integrations.fusion.guard import read_only
 from cashapp.services.exceptions_query import ExceptionsQueryService
 from cashapp.services.fusion_context import FusionContextCache, FusionContextService
 from cashapp.services.locking import ItemNotFound
-from cashapp.settings import get_settings
+from cashapp.services.runtime_settings import RuntimeSettings
 
 router = APIRouter(tags=["exceptions"], responses=ERROR_RESPONSES)
 
@@ -32,9 +33,13 @@ _context_cache = FusionContextCache()
 
 
 @lru_cache
-def get_fusion_reader() -> FusionClient:
+def _reader_for(runtime: RuntimeSettings) -> FusionClient:
+    return read_only(build_fusion_client(runtime))
+
+
+def get_fusion_reader(runtime: RuntimeSettingsDep) -> FusionClient:
     """A read-only Fusion client, built on first use. These endpoints never write to Fusion."""
-    return read_only(build_fusion_client(get_settings()))
+    return _reader_for(runtime)
 
 
 def get_exceptions_service(runtime: RuntimeConfigDep) -> ExceptionsQueryService:

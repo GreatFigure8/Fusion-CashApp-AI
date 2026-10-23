@@ -17,7 +17,8 @@ from cashapp.pipeline.bus import EventBus, build_event_bus
 from cashapp.pipeline.events import TopicNamer
 from cashapp.pipeline.failures import EscalateAllHandler, FailureHandler
 from cashapp.pipeline.health import BusHealth
-from cashapp.services.config import RuntimeConfig, build_runtime_config
+from cashapp.services.config import RuntimeConfig
+from cashapp.services.runtime_settings import RuntimeSettings, build_runtime_settings
 from cashapp.settings import Settings
 from cashapp.workers.apply_gate import ReceiptApplyGate
 from cashapp.workers.inflight import InFlightTrackingBus, StageLimiter
@@ -69,6 +70,7 @@ class WorkerContainer:
         self,
         settings: Settings,
         *,
+        runtime: RuntimeSettings | None = None,
         overrides: Mapping[type[Any], object] | None = None,
         bus: EventBus | None = None,
         uow_factory: UowFactory | None = None,
@@ -80,6 +82,7 @@ class WorkerContainer:
         self._given_bus = bus
         self._given_uow_factory = uow_factory
         self._given_config = config
+        self._given_runtime = runtime
         self._given_clock = clock
         self._resolved: dict[type[Any], object] = {}
         self._engine: Any = None
@@ -102,10 +105,18 @@ class WorkerContainer:
         return make_uow_factory(self._engine)
 
     @cached_property
+    def runtime(self) -> RuntimeSettings:
+        """The DB-stored settings. The caller starts them (`await runtime.start()`) before any
+        role is built; a restart-required key is read once there."""
+        if self._given_runtime is not None:
+            return self._given_runtime
+        return build_runtime_settings(self.settings, self.uow_factory, clock=self._given_clock)
+
+    @cached_property
     def config(self) -> RuntimeConfig:
         if self._given_config is not None:
             return self._given_config
-        return build_runtime_config(self.uow_factory)
+        return self.runtime.config
 
     @cached_property
     def limiter(self) -> StageLimiter:
@@ -113,7 +124,7 @@ class WorkerContainer:
 
     @cached_property
     def tracking_bus(self) -> InFlightTrackingBus:
-        inner = self._given_bus if self._given_bus is not None else build_event_bus(self.settings)
+        inner = self._given_bus if self._given_bus is not None else build_event_bus(self.runtime)
         return InFlightTrackingBus(inner, self.limiter, self._notify_processed)
 
     @property
@@ -156,14 +167,17 @@ class WorkerContainer:
         if key is ReceiptApplyGate:
             return ReceiptApplyGate(self.config)
         if key is BusHealth:
-            return BusHealth(self.bus, TopicNamer.from_settings(self.settings.streaming))
+            return BusHealth(
+                self.bus,
+                TopicNamer.from_config(self.runtime.streaming(), self.runtime.env),
+            )
         for type_path, factory_path in _SERVICES.items():
             if load_factory(type_path) is key:
                 factory = load_factory(factory_path)
                 if type_path == LLM_CLIENTS_TYPE:
                     # Usage rows reuse this container's engine and follow its runtime config.
-                    return factory(self.settings, self.config, uow_factory=self.uow_factory)
-                return factory(self.settings)
+                    return factory(self.runtime, self.config, uow_factory=self.uow_factory)
+                return factory(self.runtime)
         registered = sorted([*_SERVICES, "ReceiptApplyGate", "BusHealth"])
         raise UnknownServiceError(
             f"No service registered for {key.__name__}. Registered: {', '.join(registered)}"

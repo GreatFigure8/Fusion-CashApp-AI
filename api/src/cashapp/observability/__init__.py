@@ -1,5 +1,7 @@
 """Structured logs, traces and metrics per work item, with remittance content redacted."""
 
+from typing import TYPE_CHECKING
+
 from cashapp.observability.context import (
     ItemContext,
     bind_item_context,
@@ -11,6 +13,7 @@ from cashapp.observability.logging import (
     ContextFilter,
     build_json_handler,
     configure_logging,
+    configure_logging_bootstrap,
     get_logger,
 )
 from cashapp.observability.metrics import (
@@ -44,13 +47,21 @@ from cashapp.observability.tracing import (
     station_span,
     use_tracer_provider,
 )
-from cashapp.settings import Settings
+
+if TYPE_CHECKING:
+    from cashapp.services.runtime_settings import RuntimeSettings
 
 
-def configure_observability(settings: Settings, *, service_name: str) -> None:
-    """Logging and tracing for one process."""
-    configure_logging(settings, service_name=service_name)
-    configure_tracing(settings, service_name=service_name)
+def configure_observability_bootstrap(*, service_name: str) -> None:
+    """Logging at INFO to stderr before the database is reachable."""
+    configure_logging_bootstrap(service_name=service_name)
+
+
+def reconfigure_observability(runtime: "RuntimeSettings", *, service_name: str) -> None:
+    """Apply the DB-stored level and trace endpoint once `RuntimeSettings.start()` has run."""
+    config = runtime.observability()
+    configure_logging(config.log_level, service_name=service_name)
+    configure_tracing(config.otlp_endpoint, service_name=service_name)
 
 
 __all__ = [
@@ -76,7 +87,8 @@ __all__ = [
     "build_metrics",
     "collect_queue_stats",
     "configure_logging",
-    "configure_observability",
+    "configure_logging_bootstrap",
+    "configure_observability_bootstrap",
     "configure_tracing",
     "current_item_context",
     "current_trace_id",
@@ -84,6 +96,7 @@ __all__ = [
     "get_logger",
     "is_denied_key",
     "llm_span",
+    "reconfigure_observability",
     "sanitize_mapping",
     "sanitize_value",
     "span",

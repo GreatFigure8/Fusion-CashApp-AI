@@ -1,4 +1,5 @@
-"""Builds `HttpFusionClient`s from `Settings`. The only module in the package that reads them."""
+"""Builds `HttpFusionClient`s from `RuntimeSettings`. The only module in the package that reads
+them. A pod password is resolved from Vault on each request, never held."""
 
 from __future__ import annotations
 
@@ -7,23 +8,23 @@ import httpx
 from cashapp.integrations.fusion.client import FusionClient, HttpFusionClient
 from cashapp.integrations.fusion.guard import WriteGuard
 from cashapp.integrations.fusion.transport import FusionClientOptions
-from cashapp.settings import Settings
+from cashapp.services.runtime_settings import RuntimeSettings
 
 
 class FusionClientFactory:
     def __init__(
         self,
-        settings: Settings,
+        runtime: RuntimeSettings,
         *,
         options: FusionClientOptions = FusionClientOptions(),  # noqa: B008 - frozen value object
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
-        self._settings = settings
+        self._runtime = runtime
         self._options = options
         self._transport = transport
 
     def for_pod(self, name: str | None = None) -> HttpFusionClient:
-        fusion = self._settings.fusion
+        fusion = self._runtime.fusion()
         key = (name or fusion.default_pod).lower()
         pod = fusion.pods.get(key)
         if pod is None:
@@ -33,13 +34,14 @@ class FusionClientFactory:
         return HttpFusionClient(
             pod_name=key,
             pod=pod,
-            guard=WriteGuard.from_settings(self._settings, key),
-            relationships_report_path=fusion.relationships_report_path,
+            password=lambda: self._runtime.secret(pod.password_ref),
+            guard=WriteGuard.from_runtime(self._runtime, key),
+            relationships_report_path=self._runtime.relationships_report_path,
             options=self._options,
             transport=self._transport,
         )
 
 
-def build_fusion_client(settings: Settings) -> FusionClient:
+def build_fusion_client(runtime: RuntimeSettings) -> FusionClient:
     """The default-pod client for the worker/API container (the caller awaits `aclose()`)."""
-    return FusionClientFactory(settings).for_pod()
+    return FusionClientFactory(runtime).for_pod()

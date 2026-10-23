@@ -6,6 +6,7 @@ from fastapi import Depends
 
 from cashapp.api.deps import get_uow_factory
 from cashapp.api.errors import ApiError
+from cashapp.api.runtime_deps import peek_runtime_settings
 from cashapp.api.schemas.config import ConfigChangeOut, ConfigChangePage
 from cashapp.data.models.config import ConfigChange
 from cashapp.domain.paging import Page
@@ -26,6 +27,10 @@ _runtime: RuntimeConfig | None = None
 async def get_runtime_config() -> RuntimeConfig:
     """The process-wide RuntimeConfig, built on first use. Override in tests."""
     global _runtime
+    shared = peek_runtime_settings()
+    if shared is not None:
+        # One cache for config reads and for settings, so a PUT /config invalidates both.
+        return shared.config
     if _runtime is None:
         _runtime = build_runtime_config(get_uow_factory())
     return _runtime

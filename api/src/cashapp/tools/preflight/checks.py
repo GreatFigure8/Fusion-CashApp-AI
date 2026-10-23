@@ -22,7 +22,7 @@ from cashapp.integrations.fusion.xmlutil import (
     local_name,
     safe_fromstring,
 )
-from cashapp.settings import Settings
+from cashapp.services.runtime_settings import RuntimeSettings
 from cashapp.tools.preflight.report import CheckResult, CheckStatus, PreflightReport
 
 __all__ = ["CHECK_NAMES", "PROBE_VALUES", "PreflightContext", "run_preflight"]
@@ -58,16 +58,16 @@ class PreflightContext:
     check_timeout_s: float = 30.0
 
     @classmethod
-    def from_settings(
-        cls, settings: Settings, pod_name: str, *, check_timeout_s: float = 30.0
+    async def from_runtime(
+        cls, runtime: RuntimeSettings, pod_name: str, *, check_timeout_s: float = 30.0
     ) -> PreflightContext:
-        pod = settings.fusion.pods[pod_name]
+        pod = runtime.fusion().pods[pod_name]
         return cls(
             pod_name=pod_name,
-            env=str(settings.env),
+            env=runtime.env,
             is_production=pod.is_production,
-            write_enabled=settings.fusion.write_enabled,
-            relationships_report_path=settings.fusion.relationships_report_path,
+            write_enabled=(await runtime.fusion_writes()).write_enabled,
+            relationships_report_path=await runtime.relationships_report_path(),
             check_timeout_s=check_timeout_s,
         )
 

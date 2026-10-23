@@ -10,7 +10,6 @@ is marked unverified until the live probe has passed against the dedicated endpo
 import asyncio
 import base64
 import json
-import os
 import time
 from collections.abc import AsyncIterator
 from pathlib import Path
@@ -46,30 +45,26 @@ class CohereChatTransport(Protocol):
     def chat(self, details: Any, *, timeout_s: float) -> Any: ...
 
 
-def _signer_config() -> tuple[dict[str, Any], Any]:
-    """Resource principal when deployed as a function, instance principal on compute, else a
-    local ``~/.oci/config`` profile for development."""
-    if os.environ.get("OCI_RESOURCE_PRINCIPAL_VERSION"):
-        return {}, oci.auth.signers.get_resource_principals_signer()
-    try:
-        return {}, oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
-    except Exception:
-        # Not on OCI compute: fall back to the developer's config file.
-        return oci.config.from_file(str(_OCI_CONFIG_PATH)), None
+def _signer_config(signer: Any | None) -> tuple[dict[str, Any], Any]:
+    """The signer from `settings.oci_signer`, else a local ``~/.oci/config`` profile."""
+    if signer is not None:
+        return {}, signer
+    return oci.config.from_file(str(_OCI_CONFIG_PATH)), None
 
 
 class OciGenAiTransport:
     """The real transport. One SDK client per distinct read timeout, created on first use."""
 
-    def __init__(self, service_endpoint: str) -> None:
+    def __init__(self, service_endpoint: str, signer: Any | None = None) -> None:
         self._endpoint = service_endpoint
+        self._signer = signer
         self._clients: dict[float, Any] = {}
 
     def _client(self, timeout_s: float) -> Any:
         existing = self._clients.get(timeout_s)
         if existing is not None:
             return existing
-        config, signer = _signer_config()
+        config, signer = _signer_config(self._signer)
         kwargs: dict[str, Any] = {
             "service_endpoint": self._endpoint,
             "timeout": (_CONNECT_TIMEOUT_S, timeout_s),
