@@ -1,56 +1,82 @@
 import { Suspense } from "react";
-import { z } from "zod";
 
 import { ErrorAlert } from "@/components/common/error-alert";
+import { Pill } from "@/components/common/pill";
 import { ForbiddenState } from "@/components/common/require-permission";
-import { CONFIG_TABS, type ConfigTabId } from "@/components/config/config-registry";
+import { ChangeHistoryCard } from "@/components/config/change-history-card";
 import { ConfigStagingProvider } from "@/components/config/config-staging-provider";
 import { ConfigTabSkeleton } from "@/components/config/config-tab-skeleton";
-import { ConfigTabs } from "@/components/config/config-tabs";
-import { SaveFooter } from "@/components/config/save-footer";
+import { GroupNav } from "@/components/config/config-tabs";
+import { KeySearch } from "@/components/config/key-search";
 import { TopBar } from "@/components/shell/top-bar";
 import { hasPermission } from "@/lib/me";
 
+import { GroupBody } from "./_components/group-body";
 import { HistoryContent } from "./_components/history-content";
-import { TabPanel } from "./_components/tab-panel";
-import { loadMe } from "./_lib/load-config";
-
-const tabIds = CONFIG_TABS.map((t) => t.id) as [ConfigTabId, ...ConfigTabId[]];
-
-/** First value of a search param; an unknown or malformed value falls back to the default. */
-const first = (v: unknown): unknown => (Array.isArray(v) ? v[0] : v);
-
-const searchSchema = z.object({
-  tab: z.preprocess(first, z.enum(tabIds).catch("access")),
-  history: z.preprocess(first, z.string().regex(/^[a-z0-9_.]{1,100}$/).optional().catch(undefined)),
-  aq: z.preprocess(first, z.string().trim().max(200).catch("")).default(""),
-  apage: z.preprocess(first, z.coerce.number().int().min(1).catch(1)).default(1),
-});
+import {
+  loadConfigEntries,
+  loadConfigGroups,
+  loadMe,
+  loadRecentChanges,
+} from "./_lib/load-config";
+import { resolveGroup, searchSchema } from "./_lib/search-params";
 
 export default async function ConfigPage(props: PageProps<"/config">) {
   const params = searchSchema.parse(await props.searchParams);
 
-  const me = await loadMe();
+  // Independent reads start together (DF-4); the API enforces config:read on each.
+  const [me, entries, groups, recent] = await Promise.all([
+    loadMe(),
+    loadConfigEntries(),
+    loadConfigGroups(),
+    loadRecentChanges(3),
+  ]);
   if (!me.ok) return <ErrorAlert error={me.error} title="Couldn't load your profile" />;
   if (!hasPermission(me.value, "config:read")) return <ForbiddenState role="ADMIN" />;
   const canEdit = hasPermission(me.value, "config:write");
 
+  if (!groups.ok) {
+    return (
+      <>
+        <TopBar title="Settings" search={false} />
+        <ErrorAlert error={groups.error} title="Couldn't load the setting groups" />
+      </>
+    );
+  }
+
+  const active = resolveGroup(params.group, groups.value);
+  const total = recent.ok ? recent.value.total : 0;
+  const nextVersion = total + 1;
+
   return (
     <div className="space-y-4">
-      <TopBar title="Settings" />
+      <TopBar
+        title="Settings"
+        search={false}
+        pills={<Pill tone="accent">Stored in the database · v{total}</Pill>}
+      >
+        <KeySearch initial={params.q} />
+      </TopBar>
       <ConfigStagingProvider canEdit={canEdit}>
         <div className="flex flex-col gap-4 lg:flex-row">
-          <ConfigTabs active={params.tab} />
-          <div className="min-w-0 flex-1">
-            <Suspense key={params.tab} fallback={<ConfigTabSkeleton tab={params.tab} />}>
-              <TabPanel
-                tab={params.tab}
+          <GroupNav groups={groups.value} active={active} />
+          <div className="min-w-0 flex-1 space-y-4">
+            <Suspense
+              key={`${active}:${params.q}:${params.aq}:${params.apage}`}
+              fallback={<ConfigTabSkeleton />}
+            >
+              <GroupBody
+                group={active}
+                groups={groups.value}
+                entries={entries}
+                q={params.q}
                 canEdit={canEdit}
                 aliasQuery={params.aq}
                 aliasPage={params.apage}
+                nextVersion={nextVersion}
               />
             </Suspense>
-            <SaveFooter />
+            <ChangeHistoryCard result={recent} />
           </div>
         </div>
       </ConfigStagingProvider>

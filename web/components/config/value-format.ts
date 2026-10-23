@@ -1,7 +1,23 @@
 import type { EditorKind } from "./config-registry";
 import type { JsonValue } from "./config-schemas";
 
-type Obj = Record<string, JsonValue>;
+/** "2 Oct · J. Stevenson", "seed" for an untouched default, or "unsaved" while staged. */
+export function lastChangedLabel(args: {
+  staged: boolean;
+  at: string | null | undefined;
+  by: string | null | undefined;
+}): string {
+  if (args.staged) return "unsaved";
+  if (!args.at) return "seed";
+  const day = new Date(args.at).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+  return args.by ? `${day} · ${args.by}` : day;
+}
+
+type Obj =Record<string, JsonValue>;
 
 function isObj(v: unknown): v is Obj {
   return typeof v === "object" && v !== null && !Array.isArray(v);
@@ -59,6 +75,8 @@ export function formatConfigValue(
         .join(", ");
     case "switch":
       return value === true ? "On" : "Off";
+    case "secret-ref":
+      return typeof value === "string" && value !== "" ? value : "Not set";
     case "text":
       return typeof value === "string" ? value : JSON.stringify(value);
     case "json":

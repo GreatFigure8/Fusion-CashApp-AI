@@ -7,6 +7,7 @@ import { apiAction } from "@/lib/api/actions";
 import { reasonSchema } from "@/components/config/config-schemas";
 import { ok } from "@/lib/result";
 
+import { runMcpTest } from "./_lib/mcp-test";
 import {
   purgeDryRunCall,
   retireAliasCall,
@@ -32,6 +33,9 @@ const retire = apiAction(
 
 const purge = apiAction(z.object({}), async () => purgeDryRunCall());
 
+// A connection test changes no setting, so there is nothing to refresh.
+const mcpTest = apiAction(z.object({}), async () => runMcpTest());
+
 /** Saves the staged changes, one PUT per key. Every key's outcome comes back; the call itself succeeds. */
 export async function saveConfigChanges(input: unknown) {
   return save(input);
@@ -43,4 +47,8 @@ export async function retireAlias(input: unknown) {
 
 export async function runRetentionPurgeDryRun(input: unknown) {
   return purge(input);
+}
+
+export async function testMcpConnection(input: unknown) {
+  return mcpTest(input);
 }

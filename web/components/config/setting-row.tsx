@@ -3,12 +3,13 @@
 import type { ComponentType } from "react";
 import { useState } from "react";
 
+import { Pill } from "@/components/common/pill";
 import { cn } from "@/lib/utils";
 import type { Schemas } from "@/lib/api/types";
 
 import { ChangedByLink } from "./changed-by-link";
 import { useStaging } from "./config-staging-provider";
-import { uiFor, type EditorKind } from "./config-registry";
+import { uiForEntry, type EditorKind } from "./config-registry";
 import { jsonValueSchema, schemaForEditor, type JsonValue } from "./config-schemas";
 import { BackoffListEditor } from "./editors/backoff-list-editor";
 import { BankFeeBandsEditor } from "./editors/bank-fee-bands-editor";
@@ -20,10 +21,12 @@ import { MaxAttemptsEditor } from "./editors/max-attempts-editor";
 import { ModelRoleEditor } from "./editors/model-role-editor";
 import { NullableDaysEditor } from "./editors/nullable-days-editor";
 import { NumberEditor } from "./editors/number-editor";
+import { SecretRefEditor } from "./editors/secret-ref-editor";
 import { SwitchEditor } from "./editors/switch-editor";
 import { TextEditor } from "./editors/text-editor";
 import { ToleranceTable } from "./editors/tolerance-table";
 import type { FieldError } from "./staging";
+import { lastChangedLabel } from "./value-format";
 
 const EDITORS: Record<EditorKind, ComponentType<EditorProps>> = {
   number: NumberEditor,
@@ -35,6 +38,7 @@ const EDITORS: Record<EditorKind, ComponentType<EditorProps>> = {
   "model-role": ModelRoleEditor,
   "group-roles": GroupRoleEditor,
   switch: SwitchEditor,
+  "secret-ref": SecretRefEditor,
   text: TextEditor,
   "decimal-nullable": DecimalNullableEditor,
   json: JsonEditor,
@@ -54,8 +58,14 @@ const EDITOR_INVALID = "Fix the highlighted fields.";
 
 type RowEntry = Pick<
   Schemas["ConfigEntry"],
-  "key" | "value" | "version" | "description" | "updated_by_name" | "updated_at"
->;
+  "key" | "value" | "version" | "description"
+> &
+  Partial<
+    Pick<
+      Schemas["ConfigEntry"],
+      "restart_required" | "secret_ref" | "last_changed_at" | "last_changed_by"
+    >
+  >;
 
 /** One setting: label, description, editor, unit, "Modified" dot, errors and the changed-by link. */
 export function SettingRow({ entry }: { entry: RowEntry }) {
@@ -71,7 +81,7 @@ export function SettingRow({ entry }: { entry: RowEntry }) {
 
 function SettingRowInner({ entry }: { entry: RowEntry }) {
   const { state, dispatch, canEdit } = useStaging();
-  const ui = uiFor(entry.key);
+  const ui = uiForEntry(entry);
   const base = jsonValueSchema.safeParse(entry.value);
   const baseValue: JsonValue = base.success ? base.data : null;
   const [draft, setDraft] = useState<unknown>(state.staged[entry.key] ?? baseValue);
@@ -113,52 +123,59 @@ function SettingRowInner({ entry }: { entry: RowEntry }) {
     });
   }
 
+  const secret = entry.secret_ref === true;
+  const label = lastChangedLabel({
+    staged,
+    at: entry.last_changed_at,
+    by: entry.last_changed_by,
+  });
+
   return (
     <section
       aria-labelledby={`${id}-label`}
-      className={cn("space-y-2 rounded-xl border bg-card p-4", !canEdit && "opacity-70")}
+      data-dirty={staged ? "true" : undefined}
+      className={cn(
+        "space-y-2 border-t border-line px-4 py-3 first:border-t-0",
+        !canEdit && "opacity-80",
+      )}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-0.5">
-          <h3 id={`${id}-label`} className="flex items-center gap-2 text-sm font-medium">
-            {ui.label}
-            {staged ? (
-              <span
-                role="img"
-                aria-label="Modified"
-                title="Modified"
-                className="size-2 rounded-full bg-status-attention"
-              />
-            ) : null}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 space-y-0.5">
+          <h3 id={`${id}-label`} className="flex flex-wrap items-center gap-2 font-mono text-[13px]">
+            {entry.key}
+            {entry.restart_required ? <Pill tone="muted">restart required</Pill> : null}
+            {secret ? <Pill tone="locked">Vault secret</Pill> : null}
           </h3>
           <p className="text-sm text-muted-foreground">{entry.description}</p>
         </div>
-        <ChangedByLink
-          settingKey={entry.key}
-          name={entry.updated_by_name}
-          at={entry.updated_at}
-          version={entry.version}
+        <ChangedByLink settingKey={entry.key} label={label} />
+      </div>
+      <div
+        className={cn(
+          "rounded-lg border border-transparent p-1",
+          staged && "border-brand-hi shadow-[0_0_0_3px_var(--halo)]",
+        )}
+      >
+        <Editor
+          id={id}
+          label={ui.label}
+          value={draft}
+          onChange={handleChange}
+          disabled={!canEdit}
+          errors={errors}
+          describedBy={rowErrors.length > 0 ? errorId : undefined}
+          unit={ui.unit}
         />
       </div>
-      <Editor
-        id={id}
-        label={ui.label}
-        value={draft}
-        onChange={handleChange}
-        disabled={!canEdit}
-        errors={errors}
-        describedBy={rowErrors.length > 0 ? errorId : undefined}
-        unit={ui.unit}
-      />
       {rowErrors.length > 0 ? (
-        <ul id={errorId} role="alert" className="space-y-0.5 text-sm text-destructive">
+        <ul id={errorId} role="alert" className="space-y-0.5 text-sm text-err-ink">
           {rowErrors.map((e, i) => (
             <li key={i}>{e.path && !NESTED.has(ui.editor) ? `${e.path}: ${e.message}` : e.message}</li>
           ))}
         </ul>
       ) : null}
       {conflict ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-sm text-err-ink">
           This setting was changed by someone else since you opened it.
         </p>
       ) : null}
