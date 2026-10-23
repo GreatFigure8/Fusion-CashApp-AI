@@ -29,3 +29,10 @@ async def run_cycle_hooks(hooks: Sequence[CycleHook], container: Container, now:
                 type(hook).__name__,
                 type(exc).__name__,
             )
+
+
+# s45: the retention purge runs from the intake cycle, at most once an hour.
+from cashapp.services.retention.hook import RetentionCycleHook  # noqa: E402
+
+if not any(isinstance(hook, RetentionCycleHook) for hook in CYCLE_HOOKS):
+    CYCLE_HOOKS.append(RetentionCycleHook())
