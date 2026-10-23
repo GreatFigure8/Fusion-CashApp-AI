@@ -9,7 +9,7 @@ from alembic import op
 
 revision = "s06_artifact_part"
 # Written against s28's head; the merger re-points this and checks for a single head.
-down_revision = "0003_config"
+down_revision = "0004_s08_extraction_reading"
 branch_labels = None
 depends_on = None
 
