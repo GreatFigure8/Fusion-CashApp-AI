@@ -42,6 +42,7 @@ class PurgeReportResponse(BaseModel):
     objects_kept_shared: int
     resumed: int
     skipped: int
+    lab_replay_items: int
 
 
 @router.post("/purge", response_model=PurgeReportResponse)
@@ -74,4 +75,5 @@ async def purge(
         objects_kept_shared=report.objects_kept_shared,
         resumed=report.resumed,
         skipped=report.skipped,
+        lab_replay_items=report.lab_replay_items,
     )

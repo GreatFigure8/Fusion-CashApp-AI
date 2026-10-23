@@ -659,6 +659,7 @@ CONFIG_GROUPS: Mapping[str, GroupSpec] = MappingProxyType(
         "chat": GroupSpec("Assistant", "Assistant tool calls and confirmations.", 260),
         "mcp": GroupSpec("Fusion MCP", "Connection to the fusion-sql-mcp server.", 280),
         "ui": GroupSpec("User interface", "Sample-data pill and the access request link.", 290),
+        "lab": GroupSpec("Matching lab", "Replay limits and windows of the matching lab.", 310),
         "uploads": GroupSpec(
             "Uploads and review", "Failed-receipt upload limits and review effort.", 300
         ),
@@ -797,6 +798,37 @@ REVIEW_EFFORT = ConfigKey(
     description="Reader A and adjudicator effort for items uploaded for in-depth review.",
 )
 
+LAB_MAX_ITEMS = _key(
+    "lab.max_items",
+    Annotated[int, Field(ge=1, le=20000)],
+    2000,
+    "Most past items one matching-lab replay evaluates.",
+)
+LAB_MAX_CONCURRENCY = _key(
+    "lab.max_concurrency",
+    Annotated[int, Field(ge=1, le=16)],
+    4,
+    "Items a matching-lab replay evaluates at once (each does Fusion reads).",
+)
+LAB_DEFAULT_WINDOW_DAYS = _key(
+    "lab.default_window_days",
+    Annotated[int, Field(ge=1, le=365)],
+    30,
+    "Days of past items a replay covers when the request gives no window.",
+)
+LAB_MAX_WINDOW_DAYS = _key(
+    "lab.max_window_days",
+    Annotated[int, Field(ge=1, le=365)],
+    90,
+    "Longest replay window a request may ask for.",
+)
+LAB_CHAT_WAIT_SECONDS = _key(
+    "lab.chat_wait_seconds",
+    Annotated[int, Field(ge=0, le=600)],
+    120,
+    "Seconds the chat lab.replay tool waits before returning a still-running card.",
+)
+
 _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     INTAKE_POLL_INTERVAL_SECONDS,
     RECEIPT_WATCHER_POLL_INTERVAL_SECONDS,
@@ -889,6 +921,11 @@ _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     UPLOADS_MAX_PDF_PAGES,
     UPLOADS_STAGE_TTL_SECONDS,
     REVIEW_EFFORT,
+    LAB_MAX_ITEMS,
+    LAB_MAX_CONCURRENCY,
+    LAB_DEFAULT_WINDOW_DAYS,
+    LAB_MAX_WINDOW_DAYS,
+    LAB_CHAT_WAIT_SECONDS,
 )
 
 

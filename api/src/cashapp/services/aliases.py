@@ -260,6 +260,18 @@ class AliasService:
     async def lookup(
         self, payer_name: str | None, bank_account: str | None, references: Sequence[str]
     ) -> AliasMatch:
+        """Match the keys and count the use of every alias that matched."""
+        match = await self.peek(payer_name, bank_account, references)
+        if not match.is_empty:
+            await self._uow.repo(PayerAliasRepository).mark_used(
+                match.alias_ids, at=self._clock.now()
+            )
+        return match
+
+    async def peek(
+        self, payer_name: str | None, bank_account: str | None, references: Sequence[str]
+    ) -> AliasMatch:
+        """The same match as ``lookup`` with no write (the matching lab must stay read-only)."""
         name_norm = normalise_payer_name(payer_name)
         bank_norm = normalise_bank_account(bank_account)
         refs = [ref.strip()[:MAX_REFERENCE_LENGTH] for ref in references if ref and ref.strip()]
@@ -283,7 +295,6 @@ class AliasService:
             return AliasMatch()
 
         ids = tuple(sorted(found))
-        await repo.mark_used(ids, at=self._clock.now())
         customers = tuple(sorted({row.customer_account_number for row in found.values()}))
         return AliasMatch(customer_numbers=customers, alias_ids=ids)
 

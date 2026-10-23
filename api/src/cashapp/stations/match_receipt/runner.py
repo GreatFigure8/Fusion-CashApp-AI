@@ -18,7 +18,7 @@ from cashapp.data.repositories.reservations import ReservationRepository
 from cashapp.data.uow import UnitOfWork
 from cashapp.domain.customer import CustomerResolution
 from cashapp.domain.error_codes import ErrorCode
-from cashapp.domain.extraction import LineKind, RemittanceExtraction
+from cashapp.domain.extraction import RemittanceExtraction
 from cashapp.domain.money import to_money
 from cashapp.domain.receipt_matching import DecidedBy
 from cashapp.domain.stages import Stage
@@ -32,12 +32,15 @@ from cashapp.pipeline.roles import Container
 from cashapp.pipeline.runner import RunnerDeps, StageContext, StageRunner, consumer_role
 from cashapp.services.aliases import AliasLookup, AliasMatch
 from cashapp.services.history import HistoryEntry, record_history
+from cashapp.services.matching.decision import (
+    ReceiptMatchInputs,
+    decide_receipt,
+    extraction_inputs,
+)
 from cashapp.services.matching.evidence import fetch_receipt_evidence
 from cashapp.services.matching.receipts import (
     Candidate,
-    MatchContext,
     ScoredCandidates,
-    score_candidates,
     variance_candidate,
 )
 from cashapp.services.matching.reservations import ReservationService
@@ -45,36 +48,7 @@ from cashapp.stations.resolve_customer.runner import default_alias_lookup
 
 AliasFactory = Callable[[UnitOfWork], AliasLookup]
 
-_CENT_FLOOR = Decimal("0.005")
 _APPLICATION_REVERSED = "REVERSED"
-
-
-def _text(value: str | None) -> str | None:
-    stripped = value.strip() if value else ""
-    return stripped or None
-
-
-def _extraction_inputs(
-    extraction: RemittanceExtraction | None,
-) -> tuple[tuple[str, ...], tuple[str, ...], str | None, str | None]:
-    """References, invoice/credit-memo numbers, payer name and payer bank account."""
-    if extraction is None:
-        return (), (), None, None
-    reference = _text(extraction.remittance_reference.value)
-    numbers = tuple(
-        dict.fromkeys(
-            line.transaction_number.strip()
-            for line in extraction.lines
-            if line.kind in (LineKind.INVOICE, LineKind.CREDIT_MEMO)
-            and line.transaction_number.strip()
-        )
-    )
-    return (
-        (reference,) if reference else (),
-        numbers,
-        _text(extraction.payer_name.value),
-        _text(extraction.payer_bank_account.value),
-    )
 
 
 class MatchReceiptRunner(StageRunner):
@@ -218,7 +192,7 @@ class MatchReceiptRunner(StageRunner):
             if adjudication is not None and adjudication.final is not None
             else None
         )
-        references, invoice_numbers, payer_name, bank_account = _extraction_inputs(extraction)
+        references, invoice_numbers, payer_name, bank_account = extraction_inputs(extraction)
 
         matching = ctx.config.matching()
         hints: dict[str, Any] = dict(item.fix_hints or {})
@@ -234,33 +208,27 @@ class MatchReceiptRunner(StageRunner):
 
         aliases = await self._aliases(ctx, payer_name, bank_account, references)
         evidence = await fetch_receipt_evidence(self._fusion, list(pool.values()), log=ctx.log)
-        match_ctx = MatchContext(
-            payment_amount=item.payment_amount,
-            currency=currency,
-            payment_date=item.payment_date,
-            anchor=resolution.anchor_customer_number,
-            related=resolution.related_customer_numbers,
-            references=references,
-            invoice_numbers=invoice_numbers,
-            payer_bank_account=bank_account,
-            fix_hints=hints,
-            resume_applied=resume_applied,
+        decision = decide_receipt(
+            ReceiptMatchInputs(
+                payment_amount=item.payment_amount,
+                currency=currency,
+                payment_date=item.payment_date,
+                anchor=resolution.anchor_customer_number,
+                related=resolution.related_customer_numbers,
+                references=references,
+                invoice_numbers=invoice_numbers,
+                payer_bank_account=bank_account,
+                fix_hints=hints,
+                resume_applied=resume_applied,
+                human_receipt_id=human_id,
+            ),
+            list(pool.values()),
+            matching,
+            aliases=aliases,
+            evidence=evidence,
         )
-        scored = score_candidates(
-            match_ctx, list(pool.values()), matching, aliases, evidence=evidence
-        )
-
-        winner, decided_by, rule = scored.winner, DecidedBy.SYSTEM, scored.rule
-        human_problem: str | None = None
-        if human_id is not None:
-            winner = next((c for c in scored.candidates if c.receipt.receipt_id == human_id), None)
-            decided_by, rule = DecidedBy.HUMAN, "human"
-            if winner is None:
-                human_problem = "not_found"
-            elif winner.receipt.currency.upper() != currency.upper():
-                human_problem = "currency_mismatch"
-            elif winner.receipt.unapplied_amount <= _CENT_FLOOR:
-                human_problem = "no_unapplied"
+        scored, winner = decision.scored, decision.winner
+        decided_by, rule, human_problem = decision.decided_by, decision.rule, decision.human_problem
 
         # The audit trail is committed first, so it survives the StageError raised below.
         repo = uow.repo(MatchCandidateRepository)

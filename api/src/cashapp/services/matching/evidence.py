@@ -5,10 +5,9 @@ nothing here is persisted.
 """
 
 import logging
-from collections.abc import Sequence
-from typing import Final
+from collections.abc import Mapping, Sequence
+from typing import Final, Protocol
 
-from cashapp.integrations.fusion.client import FusionClient
 from cashapp.integrations.fusion.datamodels import RECEIPT_SIGNALS_PATH
 from cashapp.integrations.fusion.errors import FusionError
 from cashapp.integrations.fusion.models import FusionReceipt
@@ -44,8 +43,14 @@ def _parse(xml: bytes, wanted: set[int]) -> dict[int, ReceiptEvidence]:
     return found
 
 
+class ReportRunner(Protocol):
+    """All the evidence fetch needs from Fusion; the read-only lab wrapper satisfies it too."""
+
+    async def run_report(self, path: str, params: Mapping[str, str], fmt: str = "xml") -> bytes: ...
+
+
 async def fetch_receipt_evidence(
-    fusion: FusionClient,
+    fusion: ReportRunner,
     receipts: Sequence[FusionReceipt],
     *,
     log: logging.Logger | logging.LoggerAdapter[logging.Logger],

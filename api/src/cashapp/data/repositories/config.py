@@ -31,6 +31,13 @@ class ConfigSettingRepository(BaseRepository[ConfigSetting]):
         )
         return (await self.session.execute(stmt)).scalar_one_or_none()
 
+    async def versions(self, keys: Sequence[str]) -> dict[str, int]:
+        """Stored version of each of `keys` that has a row; a missing key is at version 0."""
+        if not keys:
+            return {}
+        stmt = select(ConfigSetting).where(ConfigSetting.key.in_(list(keys)))
+        return {row.key: row.version for row in (await self.session.scalars(stmt)).all()}
+
     async def insert_new(self, setting: ConfigSetting) -> ConfigSetting:
         """Insert a first-time key; a primary-key clash raises DuplicateConfigKeyError.
 
@@ -56,6 +63,14 @@ class ConfigChangeRepository(BaseRepository[ConfigChange]):
             offset=offset,
             limit=limit,
         )
+
+    async def lab_version(self, keys: Sequence[str]) -> int:
+        """Distinct change sets on `keys`: a promote of several keys counts once."""
+        if not keys:
+            return 0
+        change_set = func.coalesce(ConfigChange.change_set_id, -ConfigChange.id)
+        stmt = select(func.count(func.distinct(change_set))).where(ConfigChange.key.in_(list(keys)))
+        return int((await self.session.execute(stmt)).scalar_one())
 
     async def latest_by_key(self, keys: Sequence[str]) -> dict[str, ConfigChange]:
         """The most recent change row for each of `keys` that has one."""

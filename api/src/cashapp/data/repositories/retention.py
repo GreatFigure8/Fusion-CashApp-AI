@@ -4,15 +4,17 @@ from collections.abc import Collection, Sequence
 from datetime import datetime
 from typing import Any, cast
 
-from sqlalchemy import ColumnElement, and_, exists, func, or_, select, update
+from sqlalchemy import ColumnElement, and_, delete, exists, func, or_, select, update
 from sqlalchemy.engine import CursorResult
 
 from cashapp.data.models.adjudication import Adjudication
 from cashapp.data.models.artifacts import ArtifactPart
 from cashapp.data.models.extraction_reading import ExtractionReading
+from cashapp.data.models.lab import LabReplay, LabReplayItem
 from cashapp.data.models.retention import RetentionPurge
 from cashapp.data.models.work_item import WorkItem, WorkItemHistory
 from cashapp.data.repository import BaseRepository
+from cashapp.domain.lab import ReplayStatus
 from cashapp.domain.retention import PurgeKind, PurgeStatus
 from cashapp.domain.stages import TERMINAL_STATES
 
@@ -83,6 +85,49 @@ class RetentionRepository(BaseRepository[RetentionPurge]):
             .limit(limit)
         )
         return [*(await self.session.scalars(stmt)).all()]
+
+    async def lab_item_candidates(self, cutoff: datetime, *, limit: int) -> list[int]:
+        """Finished (DONE or FAILED) replays older than the cutoff that still hold items."""
+        has_items = exists().where(LabReplayItem.replay_id == LabReplay.id)
+        stmt = (
+            select(LabReplay.id)
+            .where(
+                LabReplay.status.in_([ReplayStatus.DONE, ReplayStatus.FAILED]),
+                LabReplay.finished_at.is_not(None),
+                LabReplay.finished_at < cutoff,
+                has_items,
+            )
+            .order_by(LabReplay.id)
+            .limit(limit)
+        )
+        return [*(await self.session.scalars(stmt)).all()]
+
+    async def count_lab_items(self, replay_ids: Sequence[int]) -> int:
+        """How many replay item rows a purge of ``replay_ids`` would delete (dry run)."""
+        total = 0
+        for chunk in _chunks(list(replay_ids)):
+            stmt = select(func.count()).where(LabReplayItem.replay_id.in_(list(chunk)))
+            total += int((await self.session.execute(stmt)).scalar_one())
+        return total
+
+    async def purge_lab_items(self, replay_ids: Sequence[int], cutoff: datetime) -> int:
+        """Delete the items of finished replays; status and age are re-checked in the DELETE."""
+        purged = 0
+        for chunk in _chunks(list(replay_ids)):
+            still_finished = (
+                select(LabReplay.id)
+                .where(
+                    LabReplay.id.in_(list(chunk)),
+                    LabReplay.status.in_([ReplayStatus.DONE, ReplayStatus.FAILED]),
+                    LabReplay.finished_at.is_not(None),
+                    LabReplay.finished_at < cutoff,
+                )
+                .scalar_subquery()
+            )
+            stmt = delete(LabReplayItem).where(LabReplayItem.replay_id.in_(still_finished))
+            result = cast("CursorResult[Any]", await self.session.execute(stmt))
+            purged += int(result.rowcount)
+        return purged
 
     async def keys_still_referenced(
         self, keys: Collection[str], *, excluding_item_ids: Collection[int]
