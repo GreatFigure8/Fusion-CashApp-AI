@@ -1,0 +1,10 @@
+PAYMENT ADVICE
+Payer: Example Payer Four
+Reference: REF-G04
+Invoice date: 2026-02-20
+Value date: 2026-03-02
+Deposit date: 2026-03-03
+Currency: GBP
+Amount: 760.00
+
+INV-40010    760.00

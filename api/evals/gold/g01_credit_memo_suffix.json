@@ -1,0 +1,34 @@
+{
+  "case_id": "g01_credit_memo_suffix",
+  "synthetic": true,
+  "artifact": "g01_credit_memo_suffix.txt",
+  "tags": [
+    "suffix",
+    "credit-memo"
+  ],
+  "expected": {
+    "payer_name": "Example Payer One",
+    "remittance_reference": "REF-G01",
+    "payment_amount": "2350.00",
+    "currency": "USD",
+    "currency_ambiguous": false,
+    "payment_date": "2026-03-05",
+    "lines": [
+      {
+        "kind": "INVOICE",
+        "transaction_number": "INV-10021",
+        "amount_paid": "1500.00"
+      },
+      {
+        "kind": "INVOICE",
+        "transaction_number": "2598014",
+        "amount_paid": "1200.00"
+      },
+      {
+        "kind": "CREDIT_MEMO",
+        "transaction_number": "2598014-1",
+        "amount_paid": "-350.00"
+      }
+    ]
+  }
+}

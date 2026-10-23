@@ -1,0 +1,148 @@
+{
+  "parts_sha256": "dbf6619ad183859ee6569d774c1493e5b8d576db3549fac8952874ad49db1833",
+  "purpose": "extract.reader_a",
+  "result": {
+    "output": {
+      "bank_fees": [],
+      "currency": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "INR"
+      },
+      "currency_ambiguous": false,
+      "currency_raw": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "INR"
+      },
+      "dates": [
+        {
+          "confidence": 0.95,
+          "kind": "payment",
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "value": "2026-03-25"
+        }
+      ],
+      "ers_refs": [],
+      "lines": [
+        {
+          "amount_paid": "75000.00",
+          "confidence": 0.95,
+          "deduction": null,
+          "discount_claimed": null,
+          "ers_reference": null,
+          "gross_amount": null,
+          "kind": "INVOICE",
+          "line_no": 1,
+          "po_number": null,
+          "sales_order": null,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "transaction_number": "INV-60001"
+        },
+        {
+          "amount_paid": "50000.00",
+          "confidence": 0.95,
+          "deduction": null,
+          "discount_claimed": null,
+          "ers_reference": null,
+          "gross_amount": null,
+          "kind": "INVOICE",
+          "line_no": 2,
+          "po_number": null,
+          "sales_order": null,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "transaction_number": "INV-60002"
+        }
+      ],
+      "notes": null,
+      "payer_bank_account": {
+        "confidence": 0.9,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": null
+      },
+      "payer_name": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "Example Payer Six"
+      },
+      "payment_amount": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "125000.00"
+      },
+      "payment_date": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "2026-03-25"
+      },
+      "po_refs": [],
+      "remittance_reference": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "REF-G06"
+      },
+      "sales_order_refs": []
+    },
+    "refused": false,
+    "response_id": null,
+    "stop_reason": "end_turn",
+    "usage": {
+      "input_tokens": 1800,
+      "latency_ms": 1500,
+      "model_id": "claude-opus-5-5",
+      "output_tokens": 900
+    }
+  },
+  "schema": "RemittanceExtraction@1",
+  "verified_against_live": false
+}

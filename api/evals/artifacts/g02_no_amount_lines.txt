@@ -1,0 +1,11 @@
+PAYMENT NOTICE
+Payer: Example Payer Two
+Remittance no.: REF-G02
+Value date: 2026-03-12
+Currency: EUR
+Amount remitted: 4,120.50
+
+Invoices settled by this payment (amounts not itemised):
+INV-20001
+INV-20002
+INV-20003

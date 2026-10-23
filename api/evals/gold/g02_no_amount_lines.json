@@ -1,0 +1,30 @@
+{
+  "case_id": "g02_no_amount_lines",
+  "synthetic": true,
+  "artifact": "g02_no_amount_lines.txt",
+  "tags": [
+    "no-amount"
+  ],
+  "expected": {
+    "payer_name": "Example Payer Two",
+    "remittance_reference": "REF-G02",
+    "payment_amount": "4120.50",
+    "currency": "EUR",
+    "currency_ambiguous": false,
+    "payment_date": "2026-03-12",
+    "lines": [
+      {
+        "kind": "INVOICE",
+        "transaction_number": "INV-20001"
+      },
+      {
+        "kind": "INVOICE",
+        "transaction_number": "INV-20002"
+      },
+      {
+        "kind": "INVOICE",
+        "transaction_number": "INV-20003"
+      }
+    ]
+  }
+}

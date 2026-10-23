@@ -1,0 +1,148 @@
+{
+  "parts_sha256": "78fc7e2a41fef942578adb044f51b50387f046a98c45e4368634153032ddab3e",
+  "purpose": "extract.reader_b",
+  "result": {
+    "output": {
+      "bank_fees": [],
+      "currency": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "EUR"
+      },
+      "currency_ambiguous": false,
+      "currency_raw": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "EUR"
+      },
+      "dates": [
+        {
+          "confidence": 0.95,
+          "kind": "payment",
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "value": "2026-03-12"
+        }
+      ],
+      "ers_refs": [],
+      "lines": [
+        {
+          "amount_paid": null,
+          "confidence": 0.95,
+          "deduction": null,
+          "discount_claimed": null,
+          "ers_reference": null,
+          "gross_amount": null,
+          "kind": "INVOICE",
+          "line_no": 1,
+          "po_number": null,
+          "sales_order": null,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "transaction_number": "INV-20001"
+        },
+        {
+          "amount_paid": null,
+          "confidence": 0.95,
+          "deduction": null,
+          "discount_claimed": null,
+          "ers_reference": null,
+          "gross_amount": null,
+          "kind": "INVOICE",
+          "line_no": 2,
+          "po_number": null,
+          "sales_order": null,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "transaction_number": "INV-20002"
+        }
+      ],
+      "notes": null,
+      "payer_bank_account": {
+        "confidence": 0.9,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": null
+      },
+      "payer_name": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "Example Payer Two"
+      },
+      "payment_amount": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "4120.50"
+      },
+      "payment_date": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "2026-03-12"
+      },
+      "po_refs": [],
+      "remittance_reference": {
+        "confidence": 0.95,
+        "source": {
+          "bbox": null,
+          "page": null,
+          "part_no": 1,
+          "quote": null
+        },
+        "value": "REF-G02"
+      },
+      "sales_order_refs": []
+    },
+    "refused": false,
+    "response_id": null,
+    "stop_reason": "end_turn",
+    "usage": {
+      "input_tokens": 1700,
+      "latency_ms": 1500,
+      "model_id": "cohere.command-a-vision",
+      "output_tokens": 850
+    }
+  },
+  "schema": "RemittanceExtraction@1",
+  "verified_against_live": false
+}

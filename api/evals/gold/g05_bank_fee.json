@@ -1,0 +1,36 @@
+{
+  "case_id": "g05_bank_fee",
+  "synthetic": true,
+  "artifact": "g05_bank_fee.txt",
+  "tags": [
+    "bank-fee"
+  ],
+  "expected": {
+    "payer_name": "Example Payer Five",
+    "remittance_reference": "REF-G05",
+    "payment_amount": "3985.00",
+    "currency": "USD",
+    "currency_ambiguous": false,
+    "payment_date": "2026-03-20",
+    "bank_fees": [
+      "15.00"
+    ],
+    "lines": [
+      {
+        "kind": "INVOICE",
+        "transaction_number": "INV-50001",
+        "amount_paid": "2000.00"
+      },
+      {
+        "kind": "INVOICE",
+        "transaction_number": "INV-50002",
+        "amount_paid": "2000.00"
+      },
+      {
+        "kind": "BANK_FEE",
+        "transaction_number": "",
+        "amount_paid": "15.00"
+      }
+    ]
+  }
+}
