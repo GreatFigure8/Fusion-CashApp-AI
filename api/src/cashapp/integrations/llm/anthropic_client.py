@@ -9,7 +9,7 @@ attempt is recorded. Model ids containing "fable" are refused (zero data retenti
 
 import base64
 import time
-from collections.abc import AsyncIterator, Sequence
+from collections.abc import AsyncIterator, Callable, Sequence
 from typing import Any, Self
 
 import anthropic
@@ -28,6 +28,10 @@ from cashapp.integrations.llm.base import (
 )
 
 PROVIDER = "anthropic"
+
+
+def _ignore_usage(usage: LlmUsage) -> None:
+    """The no-op callback ``stream_text`` passes when nobody meters the stream."""
 
 
 def refuse_fable(model_id: str) -> None:
@@ -170,7 +174,14 @@ class AnthropicLlmClient:
             response_id=getattr(response, "id", None),
         )
 
-    async def stream_text(self, request: LlmRequest) -> AsyncIterator[str]:
+    def stream_text(self, request: LlmRequest) -> AsyncIterator[str]:
+        return self.stream_text_metered(request, _ignore_usage)
+
+    async def stream_text_metered(
+        self, request: LlmRequest, on_usage: Callable[[LlmUsage], None]
+    ) -> AsyncIterator[str]:
+        """Text deltas of a plain-text reply; the final usage goes to ``on_usage``."""
+        started = time.perf_counter()
         client = self._client.with_options(timeout=request.timeout_s)
         try:
             async with client.messages.stream(**self._call_kwargs(request)) as stream:
@@ -179,5 +190,6 @@ class AnthropicLlmClient:
                 final: Any = await stream.get_final_message()
         except Exception as exc:
             raise self._map(exc) from exc
+        on_usage(self._usage(final, started))
         if str(final.stop_reason) == "refusal":
             raise self._error(LlmErrorCode.LLM_REFUSAL, "model refused")

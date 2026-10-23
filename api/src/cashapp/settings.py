@@ -113,6 +113,12 @@ class OciGenAiSettings(_Group):
     endpoint: str = "https://inference.generativeai.us-ashburn-1.oci.oraclecloud.com"
     compartment_ocid: str
     dedicated_endpoint_ocid: str
+    # Cluster utilisation from OCI Monitoring (s36). The namespace, metric name and dimension key
+    # are UNVERIFIED against a live tenancy, so the metric stays off until a query is set. The
+    # query is a template with a `{cluster_ocid}` placeholder.
+    dedicated_cluster_ocid: str | None = None
+    cluster_metric_namespace: str = "oci_generativeai"
+    cluster_metric_query: str | None = None
 
 
 class IdentitySettings(_Group):
