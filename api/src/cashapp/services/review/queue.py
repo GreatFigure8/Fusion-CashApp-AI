@@ -6,6 +6,7 @@ from decimal import Decimal
 from typing import Any
 
 from cashapp.data.models.adjudication import AdjudicationPurged
+from cashapp.data.models.artifacts import ArtifactPart
 from cashapp.data.repositories.adjudication import AdjudicationRepository
 from cashapp.data.repositories.applications import (
     ApplicationLedgerRepository,
@@ -15,6 +16,7 @@ from cashapp.data.repositories.artifacts import ArtifactPartRepository
 from cashapp.data.repositories.review import ReviewQueueRecord, ReviewQueueRepository
 from cashapp.data.uow import UnitOfWork
 from cashapp.domain.adjudication import AdjudicationResult
+from cashapp.domain.artifacts import PartKind
 from cashapp.domain.clock import Clock, SystemClock
 from cashapp.domain.extraction import RemittanceExtraction
 from cashapp.domain.paging import Page
@@ -67,6 +69,8 @@ class ReviewRegion:
 class ReviewPreview:
     artifact_key: str
     part_no: int
+    kind: PartKind
+    media_type: str
     page: int
     region: ReviewRegion | None
 
@@ -129,19 +133,21 @@ def _note(result: AdjudicationResult, missing_reader: str | None) -> str:
     return text[:_NOTE_MAX]
 
 
-def _preview(
-    final: RemittanceExtraction | None, parts: list[tuple[int, str]]
-) -> ReviewPreview | None:
+def _preview(final: RemittanceExtraction | None, parts: list[ArtifactPart]) -> ReviewPreview | None:
     if not parts:
         return None
     source = final.payment_amount.source if final is not None else None
-    by_no = dict(parts)
-    if source is not None and source.part_no in by_no:
+    by_no = {part.part_no: part for part in parts}
+    chosen = by_no.get(source.part_no) if source is not None else None
+    if source is not None and chosen is not None:
         box = source.bbox
         region = ReviewRegion(box.x, box.y, box.w, box.h) if box is not None else None
-        return ReviewPreview(by_no[source.part_no], source.part_no, source.page or 1, region)
-    first_no, first_key = parts[0]
-    return ReviewPreview(first_key, first_no, 1, None)
+        page = source.page or 1
+        return ReviewPreview(
+            chosen.object_key, chosen.part_no, chosen.kind, chosen.media_type, page, region
+        )
+    first = parts[0]
+    return ReviewPreview(first.object_key, first.part_no, first.kind, first.media_type, 1, None)
 
 
 class ReviewResultService:
@@ -177,10 +183,7 @@ class ReviewResultService:
                 missing = adjudication.missing_reader
                 note = _note(result, missing.value if missing is not None else None)
 
-        parts = [
-            (part.part_no, part.object_key)
-            for part in await uow.repo(ArtifactPartRepository).for_item(item_id)
-        ]
+        parts = await uow.repo(ArtifactPartRepository).for_item(item_id)
         return ReviewResult(
             item_id=item.id,
             status=item.state,

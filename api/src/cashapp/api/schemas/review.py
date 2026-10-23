@@ -5,6 +5,7 @@ from typing import Self
 
 from pydantic import BaseModel, Field
 
+from cashapp.domain.artifacts import PartKind
 from cashapp.domain.money import MoneyStr
 from cashapp.domain.review import FieldSource, UploadStatus
 from cashapp.domain.stages import ItemState, Stage
@@ -124,6 +125,8 @@ class RegionOut(BaseModel):
 class PreviewOut(BaseModel):
     artifact_key: str
     part_no: int
+    kind: PartKind
+    media_type: str
     page: int
     region: RegionOut | None
 
@@ -162,6 +165,8 @@ class ReviewResultOut(BaseModel):
             preview=PreviewOut(
                 artifact_key=preview.artifact_key,
                 part_no=preview.part_no,
+                kind=preview.kind,
+                media_type=preview.media_type,
                 page=preview.page,
                 region=RegionOut(
                     x=preview.region.x, y=preview.region.y, w=preview.region.w, h=preview.region.h
