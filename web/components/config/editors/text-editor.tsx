@@ -13,7 +13,7 @@ export function TextEditor({ id, label, value, onChange, disabled, errors, descr
       aria-describedby={describedBy}
       disabled={disabled}
       value={typeof value === "string" ? value : ""}
-      className="w-40 font-mono"
+      className="h-10 w-full max-w-lg px-3 font-mono text-sm"
       onChange={(e) => onChange(e.target.value)}
     />
   );

@@ -17,7 +17,7 @@ export function SecretRefEditor({ id, label, value, onChange, disabled, errors, 
       autoComplete="off"
       spellCheck={false}
       value={typeof value === "string" ? value : ""}
-      className="w-full min-w-0 font-mono text-[13px] sm:w-[420px]"
+      className="h-10 w-full min-w-0 px-3 font-mono text-sm sm:w-[480px]"
       onChange={(e) => onChange(e.target.value)}
     />
   );
