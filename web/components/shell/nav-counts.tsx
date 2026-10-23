@@ -1,5 +1,6 @@
 "use client";
 
+import { useLabOpenCount } from "@/components/lab/nav-count";
 import { useReviewOpenCount } from "@/components/review/nav-count";
 import { useFlowStream } from "@/components/shell/flow-stream";
 import type { NavCountSource } from "@/components/shell/nav";
@@ -17,17 +18,12 @@ function useOpenExceptions(): number | null {
   return summary?.kpis.needs_person ?? null;
 }
 
-/** Placeholder for counts whose owning story has not landed; renders nothing. */
-function useNoCount(): number | null {
-  return null;
-}
-
-/** One hook per count source; `lab.candidates` stays empty until the matching lab UI lands. */
+/** One hook per count source; `lab.candidates` is the open Matching Lab candidates. */
 export const NAV_COUNT_SOURCES: Readonly<Record<NavCountSource, NavCountHook>> = {
   "flow.in_flight": useInFlight,
   "exceptions.open": useOpenExceptions,
   "review.queue": useReviewOpenCount,
-  "lab.candidates": useNoCount,
+  "lab.candidates": useLabOpenCount,
 };
 
 /** The right-aligned mono count of a nav item, or nothing while the source has no value. */
