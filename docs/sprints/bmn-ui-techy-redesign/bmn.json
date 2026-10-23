@@ -176,12 +176,18 @@
    "at": "2026-10-23",
    "step": "design",
    "text": "and 6.  and this is the main one, we need a chat process that can do all of the above through chat as well as have a conversation with the user about optimization of processing."
+  },
+  {
+   "at": "2026-10-23",
+   "step": "design",
+   "text": "and 7.  We need to be able to connect to the fusion-sql-mcp server"
   }
  ],
  "assumptions": [
   "Merges to dev go through a PR from the sprint branch (gh pr create --base dev; gh pr merge --merge), because dev is protected in this repo.",
   "Repo is not Vercel/Supabase; deploys are OCI and happen only at release.",
-  "'the lab in 48' = the matching test console from issue #49, folded into this run."
+  "'the lab in 48' = the matching test console from issue #49, folded into this run.",
+  "Item 7: fusion-sql-mcp (AIX Greenlight MCP) is consumed as an MCP client from the API; read-only tools for chat/lab; Fusion writes stay on FusionClient."
  ],
  "blocker": null,
  "updated": "2026-10-23T00:00:00Z"
