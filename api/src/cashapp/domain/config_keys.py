@@ -280,6 +280,19 @@ FUSION_RECEIPT_NOTE_MAX_CHARS = _key(
     "Maximum characters of the note written to a Fusion receipt's Comments field.",
 )
 
+CHAT_CONFIRM_TTL_SECONDS = _key(
+    "chat.confirm_ttl_seconds",
+    Annotated[int, Field(ge=60, le=3600)],
+    600,
+    "Seconds a proposed assistant change stays open for the person to confirm.",
+)
+CHAT_MAX_TOOL_CALLS_PER_TURN = _key(
+    "chat.max_tool_calls_per_turn",
+    Annotated[int, Field(ge=1, le=20)],
+    8,
+    "Most tool calls the assistant may make in one reply.",
+)
+
 _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     INTAKE_POLL_INTERVAL_SECONDS,
     RECEIPT_WATCHER_POLL_INTERVAL_SECONDS,
@@ -313,6 +326,8 @@ _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     REPORTS_DAILY_SUMMARY_CUTOVER,
     DISCOUNT_ENABLED,
     FUSION_RECEIPT_NOTE_MAX_CHARS,
+    CHAT_CONFIRM_TTL_SECONDS,
+    CHAT_MAX_TOOL_CALLS_PER_TURN,
 )
 
 

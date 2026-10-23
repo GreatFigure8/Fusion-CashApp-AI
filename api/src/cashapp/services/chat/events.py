@@ -1,50 +1,82 @@
 """The chat stream's event and input shapes (plain dataclasses, no web types)."""
 
-from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Literal
+from datetime import datetime
+from typing import Any, Literal
 
-from cashapp.services.chat.prompts import PromptKey
+from cashapp.services.chat.tools.registry import ConfirmPreview, ToolGroup
 
-ActionArgValue = str | int | bool | None
+ContextKind = Literal["none", "item", "flow"]
+StopReason = Literal["end_turn", "awaiting_confirmation", "tool_limit"]
 
 
 @dataclass(frozen=True, slots=True)
 class ChatContextRef:
-    kind: PromptKey
+    kind: ContextKind = "none"
     item_id: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
-class ChatTurnIn:
-    role: Literal["user", "assistant"]
-    content: str
-
-
-@dataclass(frozen=True, slots=True)
-class TokenEvent:
+class TextDelta:
     text: str
 
 
 @dataclass(frozen=True, slots=True)
-class ActionEvent:
-    id: str
-    label: str
-    args: Mapping[str, ActionArgValue]
+class ToolStarted:
+    call_id: str
+    tool: str
+    group: ToolGroup
+    summary: str
+    mutating: bool
 
 
 @dataclass(frozen=True, slots=True)
-class DoneEvent:
+class ToolProgress:
+    call_id: str
+    done: int
+    total: int
+
+
+@dataclass(frozen=True, slots=True)
+class ToolFinished:
+    call_id: str
+    tool: str
+    duration_ms: int
+    ok: bool
+    summary: str | None = None
+    result_card: dict[str, Any] | None = None  # a dumped ResultCard
+    error_code: str | None = None
+    error_message: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ConfirmRequired:
+    call_id: str
+    tool: str
+    preview: ConfirmPreview
+    expires_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class StreamError:
+    code: str
+    message: str
+    thread_id: int
+    call_id: str | None = None
+    fatal: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class Done:
+    thread_id: int
+    message_id: int
+    stop: StopReason
     model_id: str
     latency_ms: int
     input_tokens: int | None = None
     output_tokens: int | None = None
 
 
-@dataclass(frozen=True, slots=True)
-class StreamErrorEvent:
-    code: str
-    message: str
-
-
-ChatEvent = TokenEvent | ActionEvent | DoneEvent | StreamErrorEvent
+ChatEvent = (
+    TextDelta | ToolStarted | ToolProgress | ToolFinished | ConfirmRequired | StreamError | Done
+)

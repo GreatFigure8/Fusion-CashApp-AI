@@ -1,46 +1,6 @@
 {
   "components": {
     "schemas": {
-      "ActionData": {
-        "properties": {
-          "args": {
-            "additionalProperties": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "title": "Args",
-            "type": "object"
-          },
-          "id": {
-            "title": "Id",
-            "type": "string"
-          },
-          "label": {
-            "maxLength": 80,
-            "title": "Label",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "label",
-          "args"
-        ],
-        "title": "ActionData",
-        "type": "object"
-      },
       "ActorKind": {
         "enum": [
           "SYSTEM",
@@ -622,6 +582,25 @@
         "title": "BacklogStatus",
         "type": "string"
       },
+      "CancelOut": {
+        "properties": {
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "status": {
+            "const": "CANCELLED",
+            "default": "CANCELLED",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "call_id"
+        ],
+        "title": "CancelOut",
+        "type": "object"
+      },
       "CandidateReceiptOut": {
         "properties": {
           "amount": {
@@ -729,6 +708,50 @@
         "title": "CandidateReceiptOut",
         "type": "object"
       },
+      "CardStat": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "CardStat",
+        "type": "object"
+      },
+      "CardStatus": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "tone": {
+            "enum": [
+              "ok",
+              "accent",
+              "warn",
+              "err",
+              "locked",
+              "muted"
+            ],
+            "title": "Tone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "tone"
+        ],
+        "title": "CardStatus",
+        "type": "object"
+      },
       "ChatContextIn": {
         "properties": {
           "id": {
@@ -744,46 +767,26 @@
             "title": "Id"
           },
           "kind": {
-            "$ref": "#/components/schemas/PromptKey"
+            "default": "none",
+            "enum": [
+              "none",
+              "item",
+              "flow"
+            ],
+            "title": "Kind",
+            "type": "string"
           }
         },
-        "required": [
-          "kind"
-        ],
         "title": "ChatContextIn",
         "type": "object"
       },
-      "ChatMessageIn": {
-        "properties": {
-          "content": {
-            "maxLength": 4000,
-            "minLength": 1,
-            "title": "Content",
-            "type": "string"
-          },
-          "role": {
-            "enum": [
-              "user",
-              "assistant"
-            ],
-            "title": "Role",
-            "type": "string"
-          }
-        },
-        "required": [
-          "role",
-          "content"
-        ],
-        "title": "ChatMessageIn",
-        "type": "object"
-      },
       "ChatStreamEventsDoc": {
-        "description": "Documents the SSE wire format. Each frame is exactly one of these payloads, named by its\n``event:`` field (``token``, ``action``, ``done``, ``stream-error``) with the payload as\n``data:``. It carries the payload models into the OpenAPI schema.",
+        "description": "Documents the SSE wire format. Each frame is exactly one of these payloads, named by its\n``event:`` field with the payload as ``data:``. It carries the payload models into the\nOpenAPI schema.",
         "properties": {
-          "action": {
+          "confirm_required": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ActionData"
+                "$ref": "#/components/schemas/ConfirmRequiredData"
               },
               {
                 "type": "null"
@@ -800,7 +803,7 @@
               }
             ]
           },
-          "stream-error": {
+          "error": {
             "anyOf": [
               {
                 "$ref": "#/components/schemas/StreamErrorData"
@@ -810,10 +813,40 @@
               }
             ]
           },
-          "token": {
+          "text_delta": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/TokenData"
+                "$ref": "#/components/schemas/TextDeltaData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tool_finished": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolFinishedData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tool_progress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolProgressData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tool_started": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolStartedData"
               },
               {
                 "type": "null"
@@ -826,37 +859,105 @@
       },
       "ChatStreamIn": {
         "properties": {
-          "allowed_actions": {
-            "items": {
-              "pattern": "^[a-z][a-z0-9_]{0,39}$",
-              "type": "string"
-            },
-            "maxItems": 10,
-            "title": "Allowed Actions",
-            "type": "array"
-          },
           "context": {
             "$ref": "#/components/schemas/ChatContextIn"
           },
-          "messages": {
-            "items": {
-              "$ref": "#/components/schemas/ChatMessageIn"
-            },
-            "maxItems": 20,
-            "minItems": 1,
-            "title": "Messages",
-            "type": "array"
+          "message": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
           },
           "system_prompt_key": {
-            "$ref": "#/components/schemas/PromptKey"
+            "$ref": "#/components/schemas/PromptKey",
+            "default": "assistant"
+          },
+          "thread_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thread Id"
+          },
+          "tool_groups": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ToolGroup"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Groups"
           }
         },
         "required": [
-          "context",
-          "system_prompt_key",
-          "messages"
+          "message"
         ],
         "title": "ChatStreamIn",
+        "type": "object"
+      },
+      "ChatThreadOut": {
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ThreadContextOut"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/ThreadMessageItemOut"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "pending": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PendingOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "prompt_key": {
+            "$ref": "#/components/schemas/PromptKey"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "prompt_key",
+          "context",
+          "title",
+          "created_at",
+          "updated_at",
+          "messages"
+        ],
+        "title": "ChatThreadOut",
         "type": "object"
       },
       "ClassificationOrigin": {
@@ -1210,6 +1311,120 @@
           "expected_version"
         ],
         "title": "ConfigUpdate",
+        "type": "object"
+      },
+      "ConfirmIn": {
+        "properties": {
+          "expected_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Version"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "ConfirmIn",
+        "type": "object"
+      },
+      "ConfirmPreview": {
+        "properties": {
+          "after": {
+            "title": "After",
+            "type": "string"
+          },
+          "before": {
+            "title": "Before",
+            "type": "string"
+          },
+          "details": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PreviewField"
+            },
+            "title": "Details",
+            "type": "array"
+          },
+          "diff": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/DiffLine"
+            },
+            "title": "Diff",
+            "type": "array"
+          },
+          "expected_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Version"
+          },
+          "reason_prompt": {
+            "default": "Why are you making this change?",
+            "title": "Reason Prompt",
+            "type": "string"
+          },
+          "what": {
+            "title": "What",
+            "type": "string"
+          },
+          "who": {
+            "title": "Who",
+            "type": "string"
+          }
+        },
+        "required": [
+          "what",
+          "before",
+          "after",
+          "who"
+        ],
+        "title": "ConfirmPreview",
+        "type": "object"
+      },
+      "ConfirmRequiredData": {
+        "properties": {
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "preview": {
+            "$ref": "#/components/schemas/ConfirmPreview"
+          },
+          "tool": {
+            "title": "Tool",
+            "type": "string"
+          }
+        },
+        "required": [
+          "call_id",
+          "tool",
+          "preview",
+          "expires_at"
+        ],
+        "title": "ConfirmRequiredData",
         "type": "object"
       },
       "ContextWarningOut": {
@@ -1690,6 +1905,29 @@
         "title": "DateKind",
         "type": "string"
       },
+      "DiffLine": {
+        "properties": {
+          "op": {
+            "enum": [
+              "-",
+              "+",
+              " "
+            ],
+            "title": "Op",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "op",
+          "text"
+        ],
+        "title": "DiffLine",
+        "type": "object"
+      },
       "Disagreement": {
         "additionalProperties": false,
         "properties": {
@@ -1747,11 +1985,31 @@
       },
       "DoneData": {
         "properties": {
+          "message_id": {
+            "title": "Message Id",
+            "type": "integer"
+          },
+          "stop": {
+            "enum": [
+              "end_turn",
+              "awaiting_confirmation",
+              "tool_limit"
+            ],
+            "title": "Stop",
+            "type": "string"
+          },
+          "thread_id": {
+            "title": "Thread Id",
+            "type": "integer"
+          },
           "usage": {
             "$ref": "#/components/schemas/UsageData"
           }
         },
         "required": [
+          "thread_id",
+          "message_id",
+          "stop",
           "usage"
         ],
         "title": "DoneData",
@@ -2073,6 +2331,51 @@
           "lock"
         ],
         "title": "ExceptionRowOut",
+        "type": "object"
+      },
+      "ExportCard": {
+        "properties": {
+          "download_href": {
+            "title": "Download Href",
+            "type": "string"
+          },
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "kind": {
+            "const": "export_card",
+            "default": "export_card",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "const": "text/html",
+            "default": "text/html",
+            "title": "Media Type",
+            "type": "string"
+          },
+          "preview_href": {
+            "title": "Preview Href",
+            "type": "string"
+          },
+          "self_contained": {
+            "default": true,
+            "title": "Self Contained",
+            "type": "boolean"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "filename",
+          "size_bytes",
+          "preview_href",
+          "download_href"
+        ],
+        "title": "ExportCard",
         "type": "object"
       },
       "ExtractedLine": {
@@ -4097,6 +4400,34 @@
         "title": "PaymentStatus",
         "type": "string"
       },
+      "PendingOut": {
+        "properties": {
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "preview": {
+            "$ref": "#/components/schemas/ConfirmPreview"
+          },
+          "tool": {
+            "title": "Tool",
+            "type": "string"
+          }
+        },
+        "required": [
+          "call_id",
+          "tool",
+          "preview",
+          "expires_at"
+        ],
+        "title": "PendingOut",
+        "type": "object"
+      },
       "Permission": {
         "enum": [
           "items:read",
@@ -4138,10 +4469,30 @@
         "title": "PollerOut",
         "type": "object"
       },
+      "PreviewField": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "PreviewField",
+        "type": "object"
+      },
       "PromptKey": {
         "enum": [
           "item",
-          "flow"
+          "flow",
+          "assistant",
+          "matching"
         ],
         "title": "PromptKey",
         "type": "string"
@@ -4480,6 +4831,110 @@
           "bank_fees"
         ],
         "title": "RemittanceExtraction",
+        "type": "object"
+      },
+      "ReplayCard": {
+        "properties": {
+          "candidate_id": {
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "changed": {
+            "title": "Changed",
+            "type": "integer"
+          },
+          "currencies": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ReplayCurrency"
+            },
+            "title": "Currencies",
+            "type": "array"
+          },
+          "kind": {
+            "const": "replay_card",
+            "default": "replay_card",
+            "title": "Kind",
+            "type": "string"
+          },
+          "lab_href": {
+            "title": "Lab Href",
+            "type": "string"
+          },
+          "newly_ambiguous": {
+            "title": "Newly Ambiguous",
+            "type": "integer"
+          },
+          "newly_failed": {
+            "title": "Newly Failed",
+            "type": "integer"
+          },
+          "newly_matched": {
+            "title": "Newly Matched",
+            "type": "integer"
+          },
+          "replay_id": {
+            "title": "Replay Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "RUNNING",
+              "DONE",
+              "FAILED",
+              "STALE"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate_id",
+          "replay_id",
+          "status",
+          "changed",
+          "newly_matched",
+          "newly_failed",
+          "newly_ambiguous",
+          "lab_href"
+        ],
+        "title": "ReplayCard",
+        "type": "object"
+      },
+      "ReplayCurrency": {
+        "properties": {
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "items": {
+            "title": "Items",
+            "type": "integer"
+          },
+          "newly_matched": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Newly Matched",
+            "type": "string"
+          },
+          "newly_unmatched": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Newly Unmatched",
+            "type": "string"
+          }
+        },
+        "required": [
+          "currency",
+          "newly_matched",
+          "newly_unmatched",
+          "items"
+        ],
+        "title": "ReplayCurrency",
         "type": "object"
       },
       "RequeueIn": {
@@ -4968,15 +5423,357 @@
         "title": "StageItemsOut",
         "type": "object"
       },
+      "StateCard": {
+        "properties": {
+          "history_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "History Id"
+          },
+          "kind": {
+            "const": "state_card",
+            "default": "state_card",
+            "title": "Kind",
+            "type": "string"
+          },
+          "stats": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CardStat"
+            },
+            "title": "Stats",
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CardStatus"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "status"
+        ],
+        "title": "StateCard",
+        "type": "object"
+      },
       "StreamErrorData": {
         "properties": {
+          "call_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call Id"
+          },
           "code": {
             "enum": [
-              "timeout",
-              "llm_unavailable",
-              "refused",
-              "internal_error"
+              "FORBIDDEN",
+              "UNKNOWN_TOOL",
+              "INVALID_TOOL_INPUT",
+              "TOOL_LIMIT",
+              "TIMEOUT",
+              "LLM_UNAVAILABLE",
+              "REFUSED",
+              "INTERNAL_ERROR"
             ],
+            "title": "Code",
+            "type": "string"
+          },
+          "fatal": {
+            "title": "Fatal",
+            "type": "boolean"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "thread_id": {
+            "title": "Thread Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "fatal",
+          "thread_id"
+        ],
+        "title": "StreamErrorData",
+        "type": "object"
+      },
+      "TableCard": {
+        "properties": {
+          "columns": {
+            "items": {
+              "$ref": "#/components/schemas/TableColumn"
+            },
+            "title": "Columns",
+            "type": "array"
+          },
+          "kind": {
+            "const": "table_card",
+            "default": "table_card",
+            "title": "Kind",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          },
+          "truncated": {
+            "default": false,
+            "title": "Truncated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "title",
+          "columns",
+          "rows"
+        ],
+        "title": "TableCard",
+        "type": "object"
+      },
+      "TableColumn": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "numeric": {
+            "default": false,
+            "title": "Numeric",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "TableColumn",
+        "type": "object"
+      },
+      "TextDeltaData": {
+        "properties": {
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "TextDeltaData",
+        "type": "object"
+      },
+      "ThreadContextOut": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "kind": {
+            "enum": [
+              "none",
+              "item",
+              "flow"
+            ],
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "ThreadContextOut",
+        "type": "object"
+      },
+      "ThreadMessageItemOut": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "role": {
+            "enum": [
+              "user",
+              "assistant"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "tools": {
+            "items": {
+              "$ref": "#/components/schemas/ThreadToolRunOut"
+            },
+            "title": "Tools",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "seq",
+          "role",
+          "text",
+          "tools",
+          "created_at"
+        ],
+        "title": "ThreadMessageItemOut",
+        "type": "object"
+      },
+      "ThreadToolRunOut": {
+        "properties": {
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "duration_ms": {
+            "title": "Duration Ms",
+            "type": "integer"
+          },
+          "group": {
+            "$ref": "#/components/schemas/ToolGroup"
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "result_card": {
+            "anyOf": [
+              {
+                "discriminator": {
+                  "mapping": {
+                    "export_card": "#/components/schemas/ExportCard",
+                    "replay_card": "#/components/schemas/ReplayCard",
+                    "state_card": "#/components/schemas/StateCard",
+                    "table_card": "#/components/schemas/TableCard"
+                  },
+                  "propertyName": "kind"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/StateCard"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ReplayCard"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ExportCard"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TableCard"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Card"
+          },
+          "status": {
+            "enum": [
+              "done",
+              "failed",
+              "waiting",
+              "cancelled",
+              "expired"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "tool": {
+            "title": "Tool",
+            "type": "string"
+          }
+        },
+        "required": [
+          "call_id",
+          "tool",
+          "group",
+          "summary",
+          "ok",
+          "duration_ms",
+          "status"
+        ],
+        "title": "ThreadToolRunOut",
+        "type": "object"
+      },
+      "ToolErrorData": {
+        "properties": {
+          "code": {
             "title": "Code",
             "type": "string"
           },
@@ -4989,20 +5786,211 @@
           "code",
           "message"
         ],
-        "title": "StreamErrorData",
+        "title": "ToolErrorData",
         "type": "object"
       },
-      "TokenData": {
+      "ToolFinishedData": {
         "properties": {
-          "text": {
-            "title": "Text",
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "duration_ms": {
+            "title": "Duration Ms",
+            "type": "integer"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolErrorData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "result_card": {
+            "anyOf": [
+              {
+                "discriminator": {
+                  "mapping": {
+                    "export_card": "#/components/schemas/ExportCard",
+                    "replay_card": "#/components/schemas/ReplayCard",
+                    "state_card": "#/components/schemas/StateCard",
+                    "table_card": "#/components/schemas/TableCard"
+                  },
+                  "propertyName": "kind"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/StateCard"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ReplayCard"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ExportCard"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TableCard"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Card"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "tool": {
+            "title": "Tool",
             "type": "string"
           }
         },
         "required": [
-          "text"
+          "call_id",
+          "tool",
+          "duration_ms",
+          "ok"
         ],
-        "title": "TokenData",
+        "title": "ToolFinishedData",
+        "type": "object"
+      },
+      "ToolGroup": {
+        "enum": [
+          "engine",
+          "lab",
+          "settings",
+          "reports",
+          "review",
+          "exceptions",
+          "fusion_reads",
+          "metrics"
+        ],
+        "title": "ToolGroup",
+        "type": "string"
+      },
+      "ToolGroupOut": {
+        "properties": {
+          "allowed": {
+            "title": "Allowed",
+            "type": "boolean"
+          },
+          "group": {
+            "$ref": "#/components/schemas/ToolGroup"
+          },
+          "tools": {
+            "items": {
+              "$ref": "#/components/schemas/ToolOut"
+            },
+            "title": "Tools",
+            "type": "array"
+          }
+        },
+        "required": [
+          "group",
+          "allowed",
+          "tools"
+        ],
+        "title": "ToolGroupOut",
+        "type": "object"
+      },
+      "ToolOut": {
+        "properties": {
+          "allowed": {
+            "title": "Allowed",
+            "type": "boolean"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "mutating": {
+            "title": "Mutating",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "mutating",
+          "allowed"
+        ],
+        "title": "ToolOut",
+        "type": "object"
+      },
+      "ToolProgressData": {
+        "properties": {
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "done": {
+            "title": "Done",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "call_id",
+          "done",
+          "total"
+        ],
+        "title": "ToolProgressData",
+        "type": "object"
+      },
+      "ToolStartedData": {
+        "properties": {
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "group": {
+            "$ref": "#/components/schemas/ToolGroup"
+          },
+          "mutating": {
+            "title": "Mutating",
+            "type": "boolean"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "tool": {
+            "title": "Tool",
+            "type": "string"
+          }
+        },
+        "required": [
+          "call_id",
+          "tool",
+          "group",
+          "summary",
+          "mutating"
+        ],
+        "title": "ToolStartedData",
         "type": "object"
       },
       "UsageCallOut": {
@@ -6063,7 +7051,7 @@
                 }
               }
             },
-            "description": "Server-Sent Events: `token`, `action`, `done` or `stream-error` frames, each with a monotonic `id`."
+            "description": "Server-Sent Events: `text_delta`, `tool_started`, `tool_progress`, `tool_finished`, `confirm_required`, `error` or `done` frames, each with a monotonic `id`."
           },
           "4XX": {
             "content": {
@@ -6092,6 +7080,237 @@
           }
         ],
         "summary": "Chat Stream",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/chat/threads/{thread_id}": {
+      "get": {
+        "operationId": "get_chat_thread_chat_threads__thread_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "thread_id",
+            "required": true,
+            "schema": {
+              "title": "Thread Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatThreadOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Chat Thread",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/chat/tool-calls/{call_id}/cancel": {
+      "post": {
+        "operationId": "cancel_tool_call_chat_tool_calls__call_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "call_id",
+            "required": true,
+            "schema": {
+              "title": "Call Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancelOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Cancel Tool Call",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/chat/tool-calls/{call_id}/confirm": {
+      "post": {
+        "operationId": "confirm_tool_call_chat_tool_calls__call_id__confirm_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "call_id",
+            "required": true,
+            "schema": {
+              "title": "Call Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatStreamEventsDoc"
+                }
+              }
+            },
+            "description": "Server-Sent Events: `text_delta`, `tool_started`, `tool_progress`, `tool_finished`, `confirm_required`, `error` or `done` frames, each with a monotonic `id`."
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Confirm Tool Call",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/chat/tools": {
+      "get": {
+        "operationId": "list_chat_tools_chat_tools_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ToolGroupOut"
+                  },
+                  "title": "Response List Chat Tools Chat Tools Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Chat Tools",
         "tags": [
           "chat"
         ]

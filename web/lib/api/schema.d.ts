@@ -206,6 +206,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/chat/threads/{thread_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Chat Thread */
+        get: operations["get_chat_thread_chat_threads__thread_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chat/tool-calls/{call_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Tool Call */
+        post: operations["cancel_tool_call_chat_tool_calls__call_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chat/tool-calls/{call_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm Tool Call */
+        post: operations["confirm_tool_call_chat_tool_calls__call_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chat/tools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Chat Tools */
+        get: operations["list_chat_tools_chat_tools_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/config": {
         parameters: {
             query?: never;
@@ -708,17 +776,6 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** ActionData */
-        ActionData: {
-            /** Args */
-            args: {
-                [key: string]: string | number | boolean | null;
-            };
-            /** Id */
-            id: string;
-            /** Label */
-            label: string;
-        };
         /**
          * ActorKind
          * @enum {string}
@@ -910,6 +967,17 @@ export interface components {
             /** Y */
             y: number;
         };
+        /** CancelOut */
+        CancelOut: {
+            /** Call Id */
+            call_id: string;
+            /**
+             * Status
+             * @default CANCELLED
+             * @constant
+             */
+            status?: "CANCELLED";
+        };
         /** CandidateReceiptOut */
         CandidateReceiptOut: {
             /** Amount */
@@ -935,42 +1003,82 @@ export interface components {
             /** Stale */
             stale: boolean;
         };
+        /** CardStat */
+        CardStat: {
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+        };
+        /** CardStatus */
+        CardStatus: {
+            /** Label */
+            label: string;
+            /**
+             * Tone
+             * @enum {string}
+             */
+            tone: "ok" | "accent" | "warn" | "err" | "locked" | "muted";
+        };
         /** ChatContextIn */
         ChatContextIn: {
             /** Id */
             id?: string | null;
-            kind: components["schemas"]["PromptKey"];
-        };
-        /** ChatMessageIn */
-        ChatMessageIn: {
-            /** Content */
-            content: string;
             /**
-             * Role
+             * Kind
+             * @default none
              * @enum {string}
              */
-            role: "user" | "assistant";
+            kind?: "none" | "item" | "flow";
         };
         /**
          * ChatStreamEventsDoc
          * @description Documents the SSE wire format. Each frame is exactly one of these payloads, named by its
-         *     ``event:`` field (``token``, ``action``, ``done``, ``stream-error``) with the payload as
-         *     ``data:``. It carries the payload models into the OpenAPI schema.
+         *     ``event:`` field with the payload as ``data:``. It carries the payload models into the
+         *     OpenAPI schema.
          */
         ChatStreamEventsDoc: {
-            action?: components["schemas"]["ActionData"] | null;
+            confirm_required?: components["schemas"]["ConfirmRequiredData"] | null;
             done?: components["schemas"]["DoneData"] | null;
-            "stream-error"?: components["schemas"]["StreamErrorData"] | null;
-            token?: components["schemas"]["TokenData"] | null;
+            error?: components["schemas"]["StreamErrorData"] | null;
+            text_delta?: components["schemas"]["TextDeltaData"] | null;
+            tool_finished?: components["schemas"]["ToolFinishedData"] | null;
+            tool_progress?: components["schemas"]["ToolProgressData"] | null;
+            tool_started?: components["schemas"]["ToolStartedData"] | null;
         };
         /** ChatStreamIn */
         ChatStreamIn: {
-            /** Allowed Actions */
-            allowed_actions?: string[];
-            context: components["schemas"]["ChatContextIn"];
+            context?: components["schemas"]["ChatContextIn"];
+            /** Message */
+            message: string;
+            /** @default assistant */
+            system_prompt_key?: components["schemas"]["PromptKey"];
+            /** Thread Id */
+            thread_id?: number | null;
+            /** Tool Groups */
+            tool_groups?: components["schemas"]["ToolGroup"][] | null;
+        };
+        /** ChatThreadOut */
+        ChatThreadOut: {
+            context: components["schemas"]["ThreadContextOut"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
             /** Messages */
-            messages: components["schemas"]["ChatMessageIn"][];
-            system_prompt_key: components["schemas"]["PromptKey"];
+            messages: components["schemas"]["ThreadMessageItemOut"][];
+            pending?: components["schemas"]["PendingOut"] | null;
+            prompt_key: components["schemas"]["PromptKey"];
+            /** Title */
+            title: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * ClassificationOrigin
@@ -1089,6 +1197,54 @@ export interface components {
             /** Reason */
             reason: string;
             value: components["schemas"]["JsonValue"];
+        };
+        /** ConfirmIn */
+        ConfirmIn: {
+            /** Expected Version */
+            expected_version?: number | null;
+            /** Reason */
+            reason: string;
+        };
+        /** ConfirmPreview */
+        ConfirmPreview: {
+            /** After */
+            after: string;
+            /** Before */
+            before: string;
+            /**
+             * Details
+             * @default []
+             */
+            details?: components["schemas"]["PreviewField"][];
+            /**
+             * Diff
+             * @default []
+             */
+            diff?: components["schemas"]["DiffLine"][];
+            /** Expected Version */
+            expected_version?: number | null;
+            /**
+             * Reason Prompt
+             * @default Why are you making this change?
+             */
+            reason_prompt?: string;
+            /** What */
+            what: string;
+            /** Who */
+            who: string;
+        };
+        /** ConfirmRequiredData */
+        ConfirmRequiredData: {
+            /** Call Id */
+            call_id: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            preview: components["schemas"]["ConfirmPreview"];
+            /** Tool */
+            tool: string;
         };
         /** ContextWarningOut */
         ContextWarningOut: {
@@ -1259,6 +1415,16 @@ export interface components {
          * @enum {string}
          */
         DateKind: "payment" | "issue" | "order" | "deposit" | "other";
+        /** DiffLine */
+        DiffLine: {
+            /**
+             * Op
+             * @enum {string}
+             */
+            op: "-" | "+" | " ";
+            /** Text */
+            text: string;
+        };
         /** Disagreement */
         Disagreement: {
             /**
@@ -1277,6 +1443,15 @@ export interface components {
         };
         /** DoneData */
         DoneData: {
+            /** Message Id */
+            message_id: number;
+            /**
+             * Stop
+             * @enum {string}
+             */
+            stop: "end_turn" | "awaiting_confirmation" | "tool_limit";
+            /** Thread Id */
+            thread_id: number;
             usage: components["schemas"]["UsageData"];
         };
         /** EmailRequest */
@@ -1369,6 +1544,33 @@ export interface components {
             payment_status: components["schemas"]["PaymentStatus"] | null;
             stage: components["schemas"]["Stage"];
             state: components["schemas"]["ItemState"];
+        };
+        /** ExportCard */
+        ExportCard: {
+            /** Download Href */
+            download_href: string;
+            /** Filename */
+            filename: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "export_card";
+            /**
+             * Media Type
+             * @default text/html
+             * @constant
+             */
+            media_type?: "text/html";
+            /** Preview Href */
+            preview_href: string;
+            /**
+             * Self Contained
+             * @default true
+             */
+            self_contained?: boolean;
+            /** Size Bytes */
+            size_bytes: number;
         };
         /** Extracted[Annotated[Decimal, BeforeValidator, PlainSerializer, WithJsonSchema]] */
         Extracted_Annotated_Decimal__BeforeValidator__PlainSerializer__WithJsonSchema__: {
@@ -2012,6 +2214,19 @@ export interface components {
          * @enum {string}
          */
         PaymentStatus: "payment-success" | "payment-less-than-total-due-success" | "payment-more-than-total-due-success" | "payment-previously-applied" | "invoice-not-found" | "customer-not-found" | "missing-payment-date" | "receipt-not-found" | "zero-amount" | "payment-apply-failed-system" | "payment-apply-failed-receipt-closed" | "payment-apply-failed-zero-balance";
+        /** PendingOut */
+        PendingOut: {
+            /** Call Id */
+            call_id: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            preview: components["schemas"]["ConfirmPreview"];
+            /** Tool */
+            tool: string;
+        };
         /**
          * Permission
          * @enum {string}
@@ -2024,11 +2239,18 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** PreviewField */
+        PreviewField: {
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+        };
         /**
          * PromptKey
          * @enum {string}
          */
-        PromptKey: "item" | "flow";
+        PromptKey: "item" | "flow" | "assistant" | "matching";
         /** PurgeReportResponse */
         PurgeReportResponse: {
             /** Adjudications */
@@ -2167,6 +2389,55 @@ export interface components {
              * @description Every sales order number on the remittance, as strings.
              */
             sales_order_refs: string[];
+        };
+        /** ReplayCard */
+        ReplayCard: {
+            /** Candidate Id */
+            candidate_id: string;
+            /** Changed */
+            changed: number;
+            /**
+             * Currencies
+             * @default []
+             */
+            currencies?: components["schemas"]["ReplayCurrency"][];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "replay_card";
+            /** Lab Href */
+            lab_href: string;
+            /** Newly Ambiguous */
+            newly_ambiguous: number;
+            /** Newly Failed */
+            newly_failed: number;
+            /** Newly Matched */
+            newly_matched: number;
+            /** Replay Id */
+            replay_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "RUNNING" | "DONE" | "FAILED" | "STALE";
+        };
+        /** ReplayCurrency */
+        ReplayCurrency: {
+            /** Currency */
+            currency: string;
+            /** Items */
+            items: number;
+            /**
+             * Newly Matched
+             * @example 12480.00
+             */
+            newly_matched: string;
+            /**
+             * Newly Unmatched
+             * @example 12480.00
+             */
+            newly_unmatched: string;
         };
         /** RequeueIn */
         RequeueIn: {
@@ -2319,20 +2590,199 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** StateCard */
+        StateCard: {
+            /** History Id */
+            history_id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "state_card";
+            /**
+             * Stats
+             * @default []
+             */
+            stats?: components["schemas"]["CardStat"][];
+            status: components["schemas"]["CardStatus"];
+            /** Title */
+            title: string;
+        };
         /** StreamErrorData */
         StreamErrorData: {
+            /** Call Id */
+            call_id?: string | null;
             /**
              * Code
              * @enum {string}
              */
-            code: "timeout" | "llm_unavailable" | "refused" | "internal_error";
+            code: "FORBIDDEN" | "UNKNOWN_TOOL" | "INVALID_TOOL_INPUT" | "TOOL_LIMIT" | "TIMEOUT" | "LLM_UNAVAILABLE" | "REFUSED" | "INTERNAL_ERROR";
+            /** Fatal */
+            fatal: boolean;
+            /** Message */
+            message: string;
+            /** Thread Id */
+            thread_id: number;
+        };
+        /** TableCard */
+        TableCard: {
+            /** Columns */
+            columns: components["schemas"]["TableColumn"][];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "table_card";
+            /** Rows */
+            rows: {
+                [key: string]: string | number | null;
+            }[];
+            /** Title */
+            title: string;
+            /** Total */
+            total?: number | null;
+            /**
+             * Truncated
+             * @default false
+             */
+            truncated?: boolean;
+        };
+        /** TableColumn */
+        TableColumn: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Numeric
+             * @default false
+             */
+            numeric?: boolean;
+        };
+        /** TextDeltaData */
+        TextDeltaData: {
+            /** Text */
+            text: string;
+        };
+        /** ThreadContextOut */
+        ThreadContextOut: {
+            /** Id */
+            id?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "none" | "item" | "flow";
+        };
+        /** ThreadMessageItemOut */
+        ThreadMessageItemOut: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "user" | "assistant";
+            /** Seq */
+            seq: number;
+            /** Text */
+            text: string;
+            /** Tools */
+            tools: components["schemas"]["ThreadToolRunOut"][];
+        };
+        /** ThreadToolRunOut */
+        ThreadToolRunOut: {
+            /** Call Id */
+            call_id: string;
+            /** Duration Ms */
+            duration_ms: number;
+            group: components["schemas"]["ToolGroup"];
+            /** Ok */
+            ok: boolean;
+            /** Result Card */
+            result_card?: (components["schemas"]["StateCard"] | components["schemas"]["ReplayCard"] | components["schemas"]["ExportCard"] | components["schemas"]["TableCard"]) | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "done" | "failed" | "waiting" | "cancelled" | "expired";
+            /** Summary */
+            summary: string;
+            /** Tool */
+            tool: string;
+        };
+        /** ToolErrorData */
+        ToolErrorData: {
+            /** Code */
+            code: string;
             /** Message */
             message: string;
         };
-        /** TokenData */
-        TokenData: {
-            /** Text */
-            text: string;
+        /** ToolFinishedData */
+        ToolFinishedData: {
+            /** Call Id */
+            call_id: string;
+            /** Duration Ms */
+            duration_ms: number;
+            error?: components["schemas"]["ToolErrorData"] | null;
+            /** Ok */
+            ok: boolean;
+            /** Result Card */
+            result_card?: (components["schemas"]["StateCard"] | components["schemas"]["ReplayCard"] | components["schemas"]["ExportCard"] | components["schemas"]["TableCard"]) | null;
+            /** Summary */
+            summary?: string | null;
+            /** Tool */
+            tool: string;
+        };
+        /**
+         * ToolGroup
+         * @enum {string}
+         */
+        ToolGroup: "engine" | "lab" | "settings" | "reports" | "review" | "exceptions" | "fusion_reads" | "metrics";
+        /** ToolGroupOut */
+        ToolGroupOut: {
+            /** Allowed */
+            allowed: boolean;
+            group: components["schemas"]["ToolGroup"];
+            /** Tools */
+            tools: components["schemas"]["ToolOut"][];
+        };
+        /** ToolOut */
+        ToolOut: {
+            /** Allowed */
+            allowed: boolean;
+            /** Description */
+            description: string;
+            /** Mutating */
+            mutating: boolean;
+            /** Name */
+            name: string;
+        };
+        /** ToolProgressData */
+        ToolProgressData: {
+            /** Call Id */
+            call_id: string;
+            /** Done */
+            done: number;
+            /** Total */
+            total: number;
+        };
+        /** ToolStartedData */
+        ToolStartedData: {
+            /** Call Id */
+            call_id: string;
+            group: components["schemas"]["ToolGroup"];
+            /** Mutating */
+            mutating: boolean;
+            /** Summary */
+            summary: string;
+            /** Tool */
+            tool: string;
         };
         /** UsageCallOut */
         UsageCallOut: {
@@ -2968,13 +3418,175 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Server-Sent Events: `token`, `action`, `done` or `stream-error` frames, each with a monotonic `id`. */
+            /** @description Server-Sent Events: `text_delta`, `tool_started`, `tool_progress`, `tool_finished`, `confirm_required`, `error` or `done` frames, each with a monotonic `id`. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": components["schemas"]["ChatStreamEventsDoc"];
+                };
+            };
+        };
+    };
+    get_chat_thread_chat_threads__thread_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                thread_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatThreadOut"];
+                };
+            };
+        };
+    };
+    cancel_tool_call_chat_tool_calls__call_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                call_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CancelOut"];
+                };
+            };
+        };
+    };
+    confirm_tool_call_chat_tool_calls__call_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                call_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server-Sent Events: `text_delta`, `tool_started`, `tool_progress`, `tool_finished`, `confirm_required`, `error` or `done` frames, each with a monotonic `id`. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatStreamEventsDoc"];
+                };
+            };
+        };
+    };
+    list_chat_tools_chat_tools_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToolGroupOut"][];
                 };
             };
         };
