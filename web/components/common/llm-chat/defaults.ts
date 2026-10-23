@@ -95,12 +95,6 @@ export function modelLabel(modelId: string | null): string {
   return MODEL_DISPLAY[modelId] ?? modelId;
 }
 
-export const DEFAULT_UPLOADS = {
-  maxBytes: 5 * 1024 * 1024,
-  maxFiles: 10,
-  accept: ["image/png", "image/jpeg", "image/webp", "application/pdf"],
-} as const;
-
 export const COPY = {
   placeholder: "How can I help you today?",
   fullPlaceholder: "Ask, or tell CashApp what to do. / for prompts, + for images.",

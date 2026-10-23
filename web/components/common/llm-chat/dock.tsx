@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 
 import { DOCK_INPUT_ID, LlmChat } from "@/components/common/llm-chat";
 
-import type { UploadLimits } from "./attach";
 import type { ChatToolsOut } from "./chat-schemas";
 import { chipsForRoute } from "./defaults";
 
@@ -18,14 +17,13 @@ export function focusAssistantDock(): void {
 type AssistantDockProps = {
   /** Null until the catalog has loaded; the dock renders and fetches it itself meanwhile. */
   catalog?: ChatToolsOut | null;
-  uploads?: UploadLimits;
 };
 
 /**
  * The assistant docked at the bottom of every shell screen. Mounted once in the shell layout, so
  * its thread survives navigation. The full-screen page renders its own chat, so the dock hides.
  */
-export function AssistantDock({ catalog, uploads }: AssistantDockProps) {
+export function AssistantDock({ catalog }: AssistantDockProps) {
   const pathname = usePathname();
   if (pathname === "/assistant" || pathname.startsWith("/assistant/")) return null;
   return (
@@ -39,7 +37,6 @@ export function AssistantDock({ catalog, uploads }: AssistantDockProps) {
         systemPromptKey="assistant"
         chips={chipsForRoute(pathname)}
         catalog={catalog ?? undefined}
-        uploads={uploads}
       />
     </div>
   );

@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 
 import { fetchChatTools } from "./llm-chat/chat-server-actions";
 import { ActionChips } from "./llm-chat/action-chips";
-import type { UploadLimits } from "./llm-chat/attach";
 import {
   TOOL_GROUPS,
   type ChatContextRef,
@@ -55,7 +54,6 @@ export type LlmChatProps = {
   catalog?: ChatToolsOut;
   /** "Acting as <name> · <role>" in the page header. */
   actingAs?: string;
-  uploads?: UploadLimits;
   /** Called once per `tool_finished` that carries a result card, in every variant. */
   onToolResult?: (card: ResultCard) => void;
   className?: string;
@@ -91,7 +89,6 @@ export function LlmChat({
   pending,
   catalog: givenCatalog,
   actingAs,
-  uploads,
   onToolResult,
   className,
 }: LlmChatProps) {
@@ -166,13 +163,11 @@ export function LlmChat({
         <div className="px-1">{banners}</div>
         <ActionChips chips={shownChips} disabled={streaming} onPick={(t) => onSend(t)} scroll className="px-1" />
         <Composer
-          form="dock"
           streaming={streaming}
           onSend={onSend}
           onStop={stop}
           fullScreenHref={fullScreenHref}
           inputId={DOCK_INPUT_ID}
-          toolLabels={toolLabels}
           inputTokens={state.inputTokens}
         />
         <div className="flex items-center justify-between px-2 text-[12px] text-soft">
@@ -205,7 +200,7 @@ export function LlmChat({
         {thread}
         <div className="flex flex-col gap-2 px-3 pb-3">
           {banners}
-          <Composer form="compact" streaming={streaming} onSend={onSend} onStop={stop} />
+          <Composer streaming={streaming} onSend={onSend} onStop={stop} inputTokens={state.inputTokens} />
         </div>
       </div>
     );
@@ -220,14 +215,7 @@ export function LlmChat({
           <div className="mx-auto flex w-full max-w-[880px] flex-col gap-3 px-4">
             {banners}
             <ActionChips chips={shownChips} disabled={streaming} onPick={(t) => onSend(t)} />
-            <Composer
-              form="full"
-              streaming={streaming}
-              onSend={onSend}
-              onStop={stop}
-              toolLabels={toolLabels}
-              uploadLimits={uploads}
-            />
+            <Composer streaming={streaming} onSend={onSend} onStop={stop} inputTokens={state.inputTokens} />
           </div>
         </div>
         <LiveContext tools={catalog} className="flex-[1_1_280px]" />
