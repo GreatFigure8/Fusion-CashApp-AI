@@ -26,6 +26,7 @@ T = TypeVar("T")
 
 log = logging.getLogger(__name__)
 
+LLM_CLIENTS_TYPE: Final = "cashapp.integrations.llm.base:LlmClients"
 FAILURE_HANDLER_FACTORY: Final = "cashapp.services.autofix.engine:build_failure_handler"
 
 # "module:Type" -> "module:factory". Types are matched by identity after a lazy import.
@@ -159,6 +160,9 @@ class WorkerContainer:
         for type_path, factory_path in _SERVICES.items():
             if load_factory(type_path) is key:
                 factory = load_factory(factory_path)
+                if type_path == LLM_CLIENTS_TYPE:
+                    # Usage rows reuse this container's engine and follow its runtime config.
+                    return factory(self.settings, self.config, uow_factory=self.uow_factory)
                 return factory(self.settings)
         registered = sorted([*_SERVICES, "ReceiptApplyGate", "BusHealth"])
         raise UnknownServiceError(
