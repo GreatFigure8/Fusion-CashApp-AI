@@ -57,6 +57,7 @@ FIELDS_REMITTANCE_REFERENCE = "ReferenceNumber"  # UNVERIFIED
 FIELDS_RECEIPT_APPLICATION = ",".join(  # UNVERIFIED: child resource and every field
     ["ReceivableApplicationId", "CustomerTransactionId", "AmountApplied", "ApplyDate", "Status"]
 )
+FIELDS_ATTACHMENTS = "AttachedDocumentId,FileName,Title,CreationDate"  # UNVERIFIED (s17)
 FIELDS_CUSTOMER_ACCOUNT = ",".join(  # UNVERIFIED: resource and every field
     ["AccountNumber", "PartyName", "SiteNumber", "SitePurpose", "Location", "Address", "Currency"]
 )

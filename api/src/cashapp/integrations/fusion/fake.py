@@ -311,6 +311,11 @@ class FakeFusionClient:
         self._raise_if_injected("list_transaction_applications")
         return self.applications(customer_trx_id=customer_trx_id)
 
+    async def list_receipt_attachments(self, receipt_id: int) -> list[AttachmentRef]:
+        self._record("list_receipt_attachments", receipt_id)
+        self._raise_if_injected("list_receipt_attachments")
+        return self.attachments(receipt_id)
+
     async def get_customer_account(self, account_number: str) -> FusionCustomer:
         self._record("get_customer_account", account_number)
         self._raise_if_injected("get_customer_account")
@@ -537,7 +542,7 @@ class FakeFusionClient:
         self._raise_if_injected("attach_to_receipt")
         await self._known_receipt(receipt_id)
         existing = self._attachments.setdefault(receipt_id, [])
-        ref = AttachmentRef(receipt_id, f"ATT-{receipt_id}-{len(existing) + 1}", filename)
+        ref = AttachmentRef(receipt_id, f"ATT-{receipt_id}-{len(existing) + 1}", filename, title)
         existing.append(ref)
         return ref
 
