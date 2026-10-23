@@ -1,9 +1,10 @@
 "use client";
 
-import { SearchIcon } from "lucide-react";
+import { MessageSquareIcon, SearchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { focusAssistantDock } from "@/components/common/llm-chat/dock";
 import { searchItems, type SearchHit } from "@/components/shell/actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -93,6 +94,19 @@ export function CommandPalette() {
             placeholder="WI id, receipt number or invoice number…"
           />
           <CommandList>
+            <CommandGroup heading="Assistant">
+              <CommandItem
+                value="ask-the-assistant"
+                onSelect={() => {
+                  setOpen(false);
+                  setQuery("");
+                  // After the dialog closes, so the dialog's focus return doesn't win.
+                  setTimeout(focusAssistantDock, 0);
+                }}
+              >
+                <MessageSquareIcon /> Ask the assistant
+              </CommandItem>
+            </CommandGroup>
             {trimmed !== "" && hits.length === 0 && direct === null ? (
               <CommandEmpty>No matching item.</CommandEmpty>
             ) : null}
