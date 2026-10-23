@@ -3,18 +3,17 @@
 import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import type { Route } from "next";
 import Link from "next/link";
-import { ArrowUpIcon, GitBranchIcon, PaperclipIcon, SquareIcon } from "lucide-react";
+import { ArrowUpIcon, SquareIcon } from "lucide-react";
 
-import { MonoLabel } from "@/components/common/mono-label";
 import { Pill } from "@/components/common/pill";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 import { Attach, type StagedUpload, type UploadLimits } from "./attach";
 import { MAX_MESSAGE_CHARS } from "./chat-schemas";
 import { COPY } from "./defaults";
+import { MicButton } from "./mic-button";
 import { PromptList } from "./prompt-list";
 
 export type ComposerForm = "dock" | "full" | "compact";
@@ -169,50 +168,21 @@ export function Composer({
         {showPrompts ? <PromptList query={text.slice(1)} onPick={pickPrompt} /> : null}
         {input}
         <div className="flex items-center gap-1.5">
-          <Attach
-            staged={staged}
-            onStaged={(added) => setStaged((s) => [...s, ...added])}
-            onRemove={(id) => setStaged((s) => s.filter((x) => x.id !== id))}
-            limits={uploadLimits}
-            disabled={streaming}
-          />
-          {form === "dock" ? (
-            <Popover>
-              <PopoverTrigger
-                render={
-                  <button type="button" className={cn(chipClass, "bg-white/[0.07]")} aria-label="What the assistant can use">
-                    <PaperclipIcon className="size-3.5" />
-                    Context
-                  </button>
-                }
-              />
-              <PopoverContent side="top" align="start" className="w-64">
-                <MonoLabel>Can use</MonoLabel>
-                <ul className="mt-2 flex flex-col gap-1 text-sm">
-                  {toolLabels.length > 0 ? (
-                    toolLabels.map((label) => <li key={label}>{label}</li>)
-                  ) : (
-                    <li className="text-muted-foreground">Nothing loaded yet.</li>
-                  )}
-                </ul>
-              </PopoverContent>
-            </Popover>
+          {fullScreenHref ? (
+            <Link href={fullScreenHref as Route} className="shrink-0 text-[12px] text-soft hover:text-foreground">
+              {COPY.fullScreen}
+            </Link>
           ) : null}
-          <Link href={"/config" as Route} className={chipClass} title="Fusion connection settings">
-            <GitBranchIcon className="size-3.5" />
-            Fusion
-          </Link>
           <span className="ml-auto flex items-center gap-2">
             {inputTokens !== null ? (
               <span className={cn(chipClass, "cursor-default bg-white/[0.07] hover:text-muted-foreground")}>
                 {compactTokens(inputTokens)} / {compactTokens(CONTEXT_WINDOW_TOKENS)}
               </span>
             ) : null}
-            {fullScreenHref ? (
-              <Link href={fullScreenHref as Route} className="shrink-0 text-[12px] text-soft hover:text-foreground">
-                {COPY.fullScreen}
-              </Link>
-            ) : null}
+            <MicButton
+              disabled={streaming}
+              onTranscript={(phrase) => setText((t) => (t.length > 0 ? `${t.trimEnd()} ${phrase}` : phrase))}
+            />
             {send}
           </span>
         </div>
