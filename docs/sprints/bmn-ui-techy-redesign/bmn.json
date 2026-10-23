@@ -191,6 +191,11 @@
    "at": "2026-10-23",
    "step": "design",
    "text": "I like the idea of the fusion traffic being direct but the mcp server also provides value because  there's no thinking about connectivity...it just works.  so we're going to go through the MCP server for fusion connectivity"
+  },
+  {
+   "at": "2026-10-23",
+   "step": "design",
+   "text": "sorry...I meant to say the mcp server will be used to read from fusion, write to fusion via REST however, the receipt SOAP call will be done from the API"
   }
  ],
  "assumptions": [
@@ -199,7 +204,8 @@
   "'the lab in 48' = the matching test console from issue #49, folded into this run.",
   "Item 7: fusion-sql-mcp (AIX Greenlight MCP) is consumed as an MCP client from the API; read-only tools for chat/lab; Fusion writes stay on FusionClient.",
   "Item 7 clarified: fusion-sql-mcp is the Fusion READ path (receipts, invoices) behind FusionClient; apply/writes stay direct unless the server proves it supports them; planner verifies the server tool list.",
-  "Decision: all Fusion connectivity (reads and writes) goes through fusion-sql-mcp; CLAUDE.md non-negotiable 9 refined. Gap: no SOAP/apply tool found in the server; planner verifies; apply gated off until it exists."
+  "Decision: all Fusion connectivity (reads and writes) goes through fusion-sql-mcp; CLAUDE.md non-negotiable 9 refined. Gap: no SOAP/apply tool found in the server; planner verifies; apply gated off until it exists.",
+  "Final item 7: MCP for Fusion reads + REST writes; SOAP createApplyReceipt direct from the API (Vault creds). Supersedes the all-via-MCP assumption."
  ],
  "blocker": null,
  "updated": "2026-10-23T00:00:00Z"
