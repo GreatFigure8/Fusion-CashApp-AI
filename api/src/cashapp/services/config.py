@@ -598,6 +598,13 @@ class ConfigAudit:
     ) -> Page[ConfigChange]:
         return await uow.repo(ConfigChangeRepository).history(key, offset, limit)
 
+    @staticmethod
+    async def history_all(
+        uow: UnitOfWork, *, offset: int = 0, limit: int = 50
+    ) -> Page[ConfigChange]:
+        """Changes across every key, newest first."""
+        return await uow.repo(ConfigChangeRepository).history_all(offset, limit)
+
 
 class ConfigWriter:
     """Validated, versioned, audited writes. Never commits: the caller owns the transaction."""

@@ -57,6 +57,14 @@ class ConfigChangeRepository(BaseRepository[ConfigChange]):
             limit=limit,
         )
 
+    async def history_all(self, offset: int = 0, limit: int = 50) -> Page[ConfigChange]:
+        """Change rows across every key, newest first."""
+        return await self.list(
+            order_by=[ConfigChange.changed_at.desc(), ConfigChange.id.desc()],
+            offset=offset,
+            limit=limit,
+        )
+
     async def latest_by_key(self, keys: Sequence[str]) -> dict[str, ConfigChange]:
         """The most recent change row for each of `keys` that has one."""
         if not keys:
