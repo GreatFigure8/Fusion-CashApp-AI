@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Protocol
 
 from cashapp.pipeline.roles import Container
+from cashapp.services.notifications.sources import NotificationSourcesHook
 
 
 class HealthTickHook(Protocol):
@@ -13,4 +14,4 @@ class HealthTickHook(Protocol):
 
 
 # Hook modules must not import cashapp.workers.host. Append an instance to this literal.
-HEALTH_TICK_HOOKS: list[HealthTickHook] = []
+HEALTH_TICK_HOOKS: list[HealthTickHook] = [NotificationSourcesHook()]

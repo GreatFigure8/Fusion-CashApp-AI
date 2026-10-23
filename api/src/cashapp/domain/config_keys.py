@@ -246,6 +246,24 @@ NOTIFICATIONS_BATCH_WINDOW_SECONDS = _key(
     300,
     "Window in which notifications are batched.",
 )
+NOTIFICATIONS_OUTAGE_THRESHOLD = _key(
+    "notifications.outage_threshold",
+    Annotated[int, Field(ge=1)],
+    10,
+    "Transient Fusion or LLM errors within the outage window that count as an outage.",
+)
+NOTIFICATIONS_OUTAGE_WINDOW_SECONDS = _key(
+    "notifications.outage_window_seconds",
+    Annotated[int, Field(ge=60)],
+    300,
+    "Window in which transient errors are counted for outage detection.",
+)
+NOTIFICATIONS_APP_BASE_URL = _key(
+    "notifications.app_base_url",
+    str | None,
+    None,
+    "Base URL of the web app, used for links in notifications; empty gives relative links.",
+)
 REPORTS_DAILY_SUMMARY_CUTOVER = _key(
     "reports.daily_summary_cutover",
     _Cutover,
@@ -283,6 +301,9 @@ _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     BUDGET_DAILY_USD,
     NOTIFICATIONS_RECIPIENTS,
     NOTIFICATIONS_BATCH_WINDOW_SECONDS,
+    NOTIFICATIONS_OUTAGE_THRESHOLD,
+    NOTIFICATIONS_OUTAGE_WINDOW_SECONDS,
+    NOTIFICATIONS_APP_BASE_URL,
     REPORTS_DAILY_SUMMARY_CUTOVER,
     DISCOUNT_ENABLED,
 )
