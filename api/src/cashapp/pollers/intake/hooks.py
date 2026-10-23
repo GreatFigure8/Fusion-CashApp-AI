@@ -36,3 +36,9 @@ from cashapp.services.retention.hook import RetentionCycleHook  # noqa: E402
 
 if not any(isinstance(hook, RetentionCycleHook) for hook in CYCLE_HOOKS):
     CYCLE_HOOKS.append(RetentionCycleHook())
+
+# s41: the daily summary is generated and emailed by the first cycle after the UTC cutover.
+from cashapp.services.reports.hook import DailySummaryCycleHook  # noqa: E402
+
+if not any(isinstance(hook, DailySummaryCycleHook) for hook in CYCLE_HOOKS):
+    CYCLE_HOOKS.append(DailySummaryCycleHook())

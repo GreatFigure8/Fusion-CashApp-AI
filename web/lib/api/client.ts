@@ -44,7 +44,7 @@ function applyQuery(url: URL, query: unknown): void {
 }
 
 /** The one place a request to the API is assembled. Shared by `api` and `apiStream`. */
-async function buildApiRequest(
+export async function buildApiRequest(
   method: string,
   path: string,
   accept: string,
@@ -88,7 +88,7 @@ async function buildApiRequest(
   });
 }
 
-async function send(prepared: Prepared): Promise<Result<Response, ApiError>> {
+export async function send(prepared: Prepared): Promise<Result<Response, ApiError>> {
   try {
     return ok(await fetch(prepared.request));
   } catch (e) {
@@ -97,7 +97,7 @@ async function send(prepared: Prepared): Promise<Result<Response, ApiError>> {
   }
 }
 
-async function errorFromResponse(response: Response, sentId: string): Promise<ApiError> {
+export async function errorFromResponse(response: Response, sentId: string): Promise<ApiError> {
   const status = response.status;
   let json: unknown = null;
   try {

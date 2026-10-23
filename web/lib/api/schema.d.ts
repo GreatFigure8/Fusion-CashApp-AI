@@ -35,6 +35,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/retention/purge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Purge */
+        post: operations["purge_admin_retention_purge_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/aliases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Aliases */
+        get: operations["list_aliases_aliases_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/aliases/{alias_id}/retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retire Alias */
+        post: operations["retire_alias_aliases__alias_id__retire_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/config": {
         parameters: {
             query?: never;
@@ -103,6 +154,161 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/items/{item_id}/classification/override": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Override Classification */
+        post: operations["override_classification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{item_id}/classifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Classifications */
+        get: operations["list_classifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{item_id}/lock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Lock */
+        get: operations["get_lock_items__item_id__lock_get"];
+        put?: never;
+        /** Acquire Lock */
+        post: operations["acquire_lock_items__item_id__lock_post"];
+        /** Release Lock */
+        delete: operations["release_lock_items__item_id__lock_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{item_id}/lock/force": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Force Take Lock */
+        post: operations["force_take_lock_items__item_id__lock_force_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{item_id}/lock/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Renew Lock */
+        post: operations["renew_lock_items__item_id__lock_renew_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{item_id}/requeue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Requeue Item */
+        post: operations["requeue_item_items__item_id__requeue_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/llm-usage/cohere-utilisation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Cohere Utilisation */
+        get: operations["get_cohere_utilisation_llm_usage_cohere_utilisation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/llm-usage/daily": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Daily Usage */
+        get: operations["get_daily_usage_llm_usage_daily_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/llm-usage/items/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Item Usage */
+        get: operations["get_item_usage_llm_usage_items__item_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me": {
         parameters: {
             query?: never;
@@ -120,10 +326,213 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notifications/log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Notification Log */
+        get: operations["get_notification_log_notifications_log_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/daily-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Daily Summary */
+        get: operations["get_daily_summary_reports_daily_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/daily-summary/email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Email Daily Summary */
+        post: operations["email_daily_summary_reports_daily_summary_email_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/daily-summary/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate Daily Summary */
+        post: operations["generate_daily_summary_reports_daily_summary_generate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/partially-paid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Partially Paid */
+        get: operations["get_partially_paid_reports_partially_paid_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AgingBucketOut */
+        AgingBucketOut: {
+            /** Count */
+            count: number;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+        };
+        /** AliasOut */
+        AliasOut: {
+            /** Alias Text */
+            alias_text: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Created By Name */
+            created_by_name: string;
+            /** Customer Number */
+            customer_number: string;
+            /** Id */
+            id: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "name" | "bank_account" | "reference";
+            /** Last Used At */
+            last_used_at: string | null;
+            /** Learned From Item Id */
+            learned_from_item_id: number | null;
+            /** Retired At */
+            retired_at: string | null;
+            /** Uses */
+            uses: number;
+        };
+        /** AliasPage */
+        AliasPage: {
+            /** Items */
+            items: components["schemas"]["AliasOut"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /** BBox */
+        BBox: {
+            /** H */
+            h: number;
+            /** W */
+            w: number;
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+        };
+        /**
+         * ClassificationOrigin
+         * @enum {string}
+         */
+        ClassificationOrigin: "MODEL" | "HUMAN";
+        /** ClassificationOut */
+        ClassificationOut: {
+            /** Confidence */
+            confidence: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Decided By */
+            decided_by: string;
+            /** Id */
+            id: number;
+            /** Is Remittance */
+            is_remittance: boolean;
+            /** Model Id */
+            model_id: string | null;
+            origin: components["schemas"]["ClassificationOrigin"];
+            /** Prompt Version */
+            prompt_version: string | null;
+            /** Reason */
+            reason: string;
+            /** Work Item Id */
+            work_item_id: number;
+        };
+        /** ClassificationOverrideIn */
+        ClassificationOverrideIn: {
+            /** Is Remittance */
+            is_remittance: boolean;
+            /** Reason */
+            reason: string;
+        };
+        /** ClassificationOverrideOut */
+        ClassificationOverrideOut: {
+            classification: components["schemas"]["ClassificationOut"];
+            stage: components["schemas"]["Stage"];
+            state: components["schemas"]["ItemState"];
+        };
+        /** CohereUtilisationOut */
+        CohereUtilisationOut: {
+            /** Best Pct */
+            best_pct: number;
+            /** Busy Seconds */
+            busy_seconds: number;
+            /** Calls */
+            calls: number;
+            /** Cluster Utilisation Pct */
+            cluster_utilisation_pct: number | null;
+            /** Utilisation Pct */
+            utilisation_pct: number;
+            /** Window Minutes */
+            window_minutes: number;
+        };
         /** ConfigChangeOut */
         ConfigChangeOut: {
             /**
@@ -184,6 +593,126 @@ export interface components {
             reason: string;
             value: components["schemas"]["JsonValue"];
         };
+        /** CurrencyAmountOut */
+        CurrencyAmountOut: {
+            /**
+             * Amount
+             * @example 12480.00
+             */
+            amount: string;
+            /** Currency */
+            currency: string;
+        };
+        /** DailySummaryOut */
+        DailySummaryOut: {
+            /** Aging Buckets */
+            aging_buckets: components["schemas"]["AgingBucketOut"][];
+            /** Applied By Currency */
+            applied_by_currency: components["schemas"]["CurrencyAmountOut"][];
+            /** Auto Applied */
+            auto_applied: number;
+            /** Auto Applied Pct */
+            auto_applied_pct: string | null;
+            /** Completed */
+            completed: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Escalations */
+            escalations: number;
+            /** Failures By Error Code */
+            failures_by_error_code: components["schemas"]["ErrorCodeCountOut"][];
+            /** Has Activity */
+            has_activity: boolean;
+            /** Items In */
+            items_in: number;
+        };
+        /** DailySummaryResponse */
+        DailySummaryResponse: {
+            /** Cutover */
+            cutover: string;
+            /** Emailed At */
+            emailed_at: string | null;
+            /** Emailed To */
+            emailed_to: string[];
+            last_generated: components["schemas"]["LastGeneratedOut"] | null;
+            summary: components["schemas"]["DailySummaryOut"];
+        };
+        /** DailyUsageOut */
+        DailyUsageOut: {
+            /** Calls */
+            calls: number;
+            /**
+             * Cost Usd
+             * @example 0.012345
+             */
+            cost_usd: string;
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Input Tokens */
+            input_tokens: number;
+            /** Model */
+            model: string | null;
+            /** Output Tokens */
+            output_tokens: number;
+            /** Station */
+            station: string | null;
+            /** Unpriced Calls */
+            unpriced_calls: number;
+        };
+        /** DateCandidate */
+        DateCandidate: {
+            /**
+             * Confidence
+             * @description Your own confidence in this value from 0 to 1. Use a low number when the text is blurred, ambiguous or cut off, and 0 when the value is null.
+             */
+            confidence: number;
+            /** @description payment, issue, order, deposit or other. */
+            kind: components["schemas"]["DateKind"];
+            /** @description Where the value was read: the part number, the page and the region. null when the value was not found, so it has no location. */
+            source?: components["schemas"]["SourceLocation"] | null;
+            /**
+             * Value
+             * Format: date
+             * @description The date in ISO form, YYYY-MM-DD. Resolve day/month order from context.
+             */
+            value: string;
+        };
+        /**
+         * DateKind
+         * @enum {string}
+         */
+        DateKind: "payment" | "issue" | "order" | "deposit" | "other";
+        /** EmailRequest */
+        EmailRequest: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Recipients */
+            recipients?: string[] | null;
+        };
+        /** EmailResponse */
+        EmailResponse: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Emailed At
+             * Format: date-time
+             */
+            emailed_at: string;
+            /** Emailed To */
+            emailed_to: string[];
+        };
         /** ErrorBody */
         ErrorBody: {
             /** Code */
@@ -200,9 +729,159 @@ export interface components {
             /** Request Id */
             request_id: string;
         };
+        /**
+         * ErrorCode
+         * @enum {string}
+         */
+        ErrorCode: "RECEIPT_NOT_YET_AVAILABLE" | "RECEIPT_AMBIGUOUS" | "RECEIPT_RESERVED" | "AMOUNT_VARIANCE" | "CUSTOMER_NOT_FOUND" | "CUSTOMER_MULTIPLE_ACCOUNTS" | "INVOICE_NOT_FOUND" | "INVOICE_CLOSED" | "INVOICE_CURRENCY_MISMATCH" | "INVOICE_STATUS_INVALID" | "INVALID_INVOICE_NUMBER" | "INVALID_DATE" | "INVALID_CURRENCY" | "MISSING_PAYMENT_DATE" | "ZERO_AMOUNT_LINE" | "LOW_EXTRACTION_CONFIDENCE" | "EXTRACTION_FAILED" | "CLASSIFICATION_FAILED" | "LLM_REFUSAL" | "LLM_TRANSIENT" | "UNSUPPORTED_ARTIFACT" | "FUSION_OVERAPPLY" | "FUSION_ALREADY_APPLIED" | "FUSION_LOCKED" | "FUSION_TRANSIENT" | "FUSION_GL_DATE" | "FUSION_FAULT" | "FUSION_DISCOUNT_REJECTED" | "FUSION_WRITE_DISABLED" | "WRITE_BACK_FAILED" | "REVERSAL_FAILED" | "AGED_OUT" | "PREPAYMENT" | "PO_SO_ERS_ONLY" | "DUAL_CURRENCY" | "UNGROUNDED" | "SYSTEM_DEAD_LETTER";
+        /** ErrorCodeCountOut */
+        ErrorCodeCountOut: {
+            /** Count */
+            count: number;
+            error_code: components["schemas"]["ErrorCode"];
+        };
         /** ErrorEnvelope */
         ErrorEnvelope: {
             error: components["schemas"]["ErrorBody"];
+        };
+        /** Extracted[Annotated[Decimal, BeforeValidator, PlainSerializer, WithJsonSchema]] */
+        Extracted_Annotated_Decimal__BeforeValidator__PlainSerializer__WithJsonSchema__: {
+            /**
+             * Confidence
+             * @description Your own confidence in this value from 0 to 1. Use a low number when the text is blurred, ambiguous or cut off, and 0 when the value is null.
+             */
+            confidence: number;
+            /** @description Where the value was read: the part number, the page and the region. null when the value was not found, so it has no location. */
+            source?: components["schemas"]["SourceLocation"] | null;
+            /**
+             * Value
+             * @description The value exactly as it appears on the remittance, normalised only to the declared type. null when the remittance does not state it. Never infer, calculate or guess a value.
+             */
+            value?: string | null;
+        };
+        /** Extracted[Annotated[str, StringConstraints]] */
+        Extracted_Annotated_str__StringConstraints__: {
+            /**
+             * Confidence
+             * @description Your own confidence in this value from 0 to 1. Use a low number when the text is blurred, ambiguous or cut off, and 0 when the value is null.
+             */
+            confidence: number;
+            /** @description Where the value was read: the part number, the page and the region. null when the value was not found, so it has no location. */
+            source?: components["schemas"]["SourceLocation"] | null;
+            /**
+             * Value
+             * @description The value exactly as it appears on the remittance, normalised only to the declared type. null when the remittance does not state it. Never infer, calculate or guess a value.
+             */
+            value?: string | null;
+        };
+        /** Extracted[date] */
+        Extracted_date_: {
+            /**
+             * Confidence
+             * @description Your own confidence in this value from 0 to 1. Use a low number when the text is blurred, ambiguous or cut off, and 0 when the value is null.
+             */
+            confidence: number;
+            /** @description Where the value was read: the part number, the page and the region. null when the value was not found, so it has no location. */
+            source?: components["schemas"]["SourceLocation"] | null;
+            /**
+             * Value
+             * @description The value exactly as it appears on the remittance, normalised only to the declared type. null when the remittance does not state it. Never infer, calculate or guess a value.
+             */
+            value?: string | null;
+        };
+        /** Extracted[str] */
+        Extracted_str_: {
+            /**
+             * Confidence
+             * @description Your own confidence in this value from 0 to 1. Use a low number when the text is blurred, ambiguous or cut off, and 0 when the value is null.
+             */
+            confidence: number;
+            /** @description Where the value was read: the part number, the page and the region. null when the value was not found, so it has no location. */
+            source?: components["schemas"]["SourceLocation"] | null;
+            /**
+             * Value
+             * @description The value exactly as it appears on the remittance, normalised only to the declared type. null when the remittance does not state it. Never infer, calculate or guess a value.
+             */
+            value?: string | null;
+        };
+        /** ExtractedLine */
+        ExtractedLine: {
+            /**
+             * Amount Paid
+             * @description The amount the payer says they paid against this line, as a decimal string with two decimals; negative for credit memos. null when the line states no paid amount.
+             */
+            amount_paid?: string | null;
+            /**
+             * Confidence
+             * @description Your own confidence in this value from 0 to 1. Use a low number when the text is blurred, ambiguous or cut off, and 0 when the value is null.
+             */
+            confidence: number;
+            /**
+             * Deduction
+             * @description An amount the payer deducted from this line (short pay, dispute, tax withholding), as a positive decimal string. null if none is stated.
+             */
+            deduction?: string | null;
+            /**
+             * Discount Claimed
+             * @description A discount the payer claims on this line, as a positive decimal string. null if none is stated. Never work out a discount that is not written.
+             */
+            discount_claimed?: string | null;
+            /**
+             * Ers Reference
+             * @description An evaluated receipt settlement (ERS) reference on this line. null if none.
+             */
+            ers_reference?: string | null;
+            /**
+             * Gross Amount
+             * @description The original or gross amount of the document on the line, as a decimal string. null if absent.
+             */
+            gross_amount?: string | null;
+            /** @description INVOICE, CREDIT_MEMO (also for returns and negative documents), BANK_FEE, TARIFF, DISCOUNT, or UNKNOWN when the type cannot be told. */
+            kind: components["schemas"]["LineKind"];
+            /**
+             * Line No
+             * @description The position of the line on the remittance, counting from 1.
+             */
+            line_no: number;
+            /**
+             * Po Number
+             * @description A purchase order number on this line, as a string. null if none.
+             */
+            po_number?: string | null;
+            /**
+             * Sales Order
+             * @description A sales order number on this line, as a string. null if none.
+             */
+            sales_order?: string | null;
+            /** @description Where the value was read: the part number, the page and the region. null when the value was not found, so it has no location. */
+            source?: components["schemas"]["SourceLocation"] | null;
+            /**
+             * Transaction Number
+             * @description The invoice or credit memo number as a string, character for character: keep leading zeros, letters, and suffixes such as '-1'. Never a JSON number. Use an empty string only for BANK_FEE, TARIFF and DISCOUNT lines that have no document number.
+             */
+            transaction_number: string;
+        };
+        /** FieldChangeOut */
+        FieldChangeOut: {
+            /** After */
+            after?: unknown;
+            /** Before */
+            before?: unknown;
+            /** Path */
+            path: string;
+        };
+        /** ForceTakeIn */
+        ForceTakeIn: {
+            /** Reason */
+            reason: string;
+        };
+        /** GenerateRequest */
+        GenerateRequest: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
         };
         /** GroupRoleMappingModel */
         GroupRoleMappingModel: {
@@ -236,7 +915,61 @@ export interface components {
             /** Version */
             version: string;
         };
+        /**
+         * ItemState
+         * @enum {string}
+         */
+        ItemState: "PENDING" | "IN_PROGRESS" | "AWAITING_RECEIPT" | "ESCALATED" | "DONE" | "ARCHIVED";
         JsonValue: unknown;
+        /** LastGeneratedOut */
+        LastGeneratedOut: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** By */
+            by: string;
+            /**
+             * By Kind
+             * @enum {string}
+             */
+            by_kind: "user" | "cutover";
+        };
+        /**
+         * LineKind
+         * @enum {string}
+         */
+        LineKind: "INVOICE" | "CREDIT_MEMO" | "UNKNOWN" | "BANK_FEE" | "TARIFF" | "DISCOUNT";
+        /**
+         * LineStatus
+         * @enum {string}
+         */
+        LineStatus: "allocation-applied" | "allocation-applied-short-pay" | "allocation-applied-less-than-instruction" | "allocation-applied-with-discount" | "allocation-previously-applied" | "allocation-invoice-not-found" | "allocation-customer-not-found" | "allocation-no-remaining-balance" | "allocation-zero-amount" | "allocation-missing-payment-date" | "allocation-no-receipt-match" | "allocation-apply-failed" | "allocation-reversed" | "allocation-dry-run";
+        /**
+         * LlmRole
+         * @enum {string}
+         */
+        LlmRole: "reader_a" | "reader_b" | "adjudicator" | "workhorse";
+        /** LockInfoOut */
+        LockInfoOut: {
+            /**
+             * Acquired At
+             * Format: date-time
+             */
+            acquired_at: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Item Id */
+            item_id: number;
+            /** Owner */
+            owner: string;
+            /** Owner Name */
+            owner_name: string;
+        };
         /** MeResponse */
         MeResponse: {
             /** Display Name */
@@ -252,16 +985,312 @@ export interface components {
             /** Subject */
             subject: string;
         };
+        /** Money */
+        Money: {
+            /**
+             * Amount
+             * @example 12480.00
+             */
+            amount: string;
+            /** Currency */
+            currency: string;
+        };
+        /** NotificationLogOut */
+        NotificationLogOut: {
+            /** Channel */
+            channel: string;
+            /** Error */
+            error: string | null;
+            /** Event Ids */
+            event_ids: string[];
+            /** Id */
+            id: number;
+            /** Item Count */
+            item_count: number;
+            /** Kind */
+            kind: string;
+            /** Recipients */
+            recipients: string[];
+            /**
+             * Sent At
+             * Format: date-time
+             */
+            sent_at: string;
+            /** Severity */
+            severity: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "sent" | "failed" | "suppressed";
+            /** Subject */
+            subject: string;
+        };
+        /** NotificationLogPage */
+        NotificationLogPage: {
+            /** Items */
+            items: components["schemas"]["NotificationLogOut"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /** PartiallyPaidResponse */
+        PartiallyPaidResponse: {
+            /**
+             * From
+             * Format: date
+             */
+            from: string;
+            /** Rows */
+            rows: components["schemas"]["PartiallyPaidRowOut"][];
+            /**
+             * To
+             * Format: date
+             */
+            to: string;
+            /** Truncated */
+            truncated: boolean;
+        };
+        /** PartiallyPaidRowOut */
+        PartiallyPaidRowOut: {
+            /** Currency */
+            currency: string;
+            /** Customer Account Number */
+            customer_account_number: string | null;
+            /** Customer Name */
+            customer_name: string | null;
+            /** Invoice Number */
+            invoice_number: string;
+            /** Item Id */
+            item_id: number;
+            line_status: components["schemas"]["LineStatus"];
+            /**
+             * Original
+             * @example 12480.00
+             */
+            original: string;
+            /**
+             * Paid
+             * @example 12480.00
+             */
+            paid: string;
+            /**
+             * Remaining
+             * @example 12480.00
+             */
+            remaining: string;
+            /** Short Pay Reason */
+            short_pay_reason: string;
+        };
         /**
          * Permission
          * @enum {string}
          */
         Permission: "items:read" | "items:work" | "apply:reverse" | "classification:override" | "config:read" | "config:write" | "reports:read" | "backlog:run" | "chat:use";
+        /** PurgeReportResponse */
+        PurgeReportResponse: {
+            /** Adjudications */
+            adjudications: number;
+            /** Artifacts */
+            artifacts: number;
+            /** Dry Run */
+            dry_run: boolean;
+            /** History Payloads */
+            history_payloads: number;
+            /** Objects Deleted */
+            objects_deleted: number;
+            /** Objects Kept Shared */
+            objects_kept_shared: number;
+            /** Parts */
+            parts: number;
+            /**
+             * Ran At
+             * Format: date-time
+             */
+            ran_at: string;
+            /** Readings */
+            readings: number;
+            /** Resumed */
+            resumed: number;
+            /** Skipped */
+            skipped: number;
+        };
+        /**
+         * PurgeRequest
+         * @description ``dry_run`` has no default on purpose: an empty POST must never purge.
+         */
+        PurgeRequest: {
+            /** Dry Run */
+            dry_run: boolean;
+        };
+        /** RemittanceExtraction */
+        RemittanceExtraction: {
+            /**
+             * Bank Fees
+             * @description Bank charges or fees deducted from the payment, each with its amount and the currency code. Empty when none are stated.
+             */
+            bank_fees: components["schemas"]["Money"][];
+            /** @description The ISO 4217 code (three capital letters) only when the remittance makes it certain. A bare '$' is not certain: leave the value null for it. */
+            currency: components["schemas"]["Extracted_Annotated_str__StringConstraints__"];
+            /**
+             * Currency Ambiguous
+             * @description true when the currency is written with a bare '$' or any other symbol that fits more than one currency and nothing else on the document settles it.
+             */
+            currency_ambiguous: boolean;
+            /** @description The currency exactly as written (for example 'USD', 'US$', '$', 'EUR', 'Rs.'). Do not convert it. */
+            currency_raw: components["schemas"]["Extracted_str_"];
+            /**
+             * Dates
+             * @description Every date on the remittance that could matter, each with its kind: payment (the date the money was or will be paid), issue (the remittance or document date), order, deposit, or other. Keep all of them, even when they differ.
+             */
+            dates: components["schemas"]["DateCandidate"][];
+            /**
+             * Ers Refs
+             * @description Every evaluated receipt settlement (ERS) reference on the remittance.
+             */
+            ers_refs: string[];
+            /**
+             * Lines
+             * @description One entry per line of the remittance, in the order printed: invoices, credit memos, bank fees, tariffs and discount lines. Include a line even when it states no amount.
+             */
+            lines: components["schemas"]["ExtractedLine"][];
+            /**
+             * Notes
+             * @description Anything else useful for matching that does not fit a field above (for example 'prepayment', 'partial payment', 'two currencies'). Never put personal data here. null if nothing.
+             */
+            notes?: string | null;
+            /** @description The payer's bank account or IBAN as printed, if any. Keep it exactly as shown, as a string. */
+            payer_bank_account: components["schemas"]["Extracted_str_"];
+            /** @description The name of the party that made the payment, as written on the remittance (the remitter, not the payee that receives the money). */
+            payer_name: components["schemas"]["Extracted_str_"];
+            /** @description The total amount of the payment as a decimal string with two decimals, for example '12480.00'. Never a number type, never with a currency symbol or thousands separator. */
+            payment_amount: components["schemas"]["Extracted_Annotated_Decimal__BeforeValidator__PlainSerializer__WithJsonSchema__"];
+            /** @description The one date you judge to be the payment date, chosen from the dates you listed. null when no date can be justified as the payment date. */
+            payment_date: components["schemas"]["Extracted_date_"];
+            /**
+             * Po Refs
+             * @description Every purchase order number on the remittance, as strings.
+             */
+            po_refs: string[];
+            /** @description The payer's own reference for this payment: remittance advice number, payment number, check or EFT number, or the document title reference. A string. */
+            remittance_reference: components["schemas"]["Extracted_str_"];
+            /**
+             * Sales Order Refs
+             * @description Every sales order number on the remittance, as strings.
+             */
+            sales_order_refs: string[];
+        };
+        /** RequeueIn */
+        RequeueIn: {
+            corrected_extraction?: components["schemas"]["RemittanceExtraction"] | null;
+            /** Customer Number */
+            customer_number?: string | null;
+            /**
+             * Learn Alias
+             * @default true
+             */
+            learn_alias?: boolean;
+            /** Note */
+            note: string;
+            /** Receipt Id */
+            receipt_id?: number | null;
+            target_stage?: components["schemas"]["Stage"] | null;
+        };
+        /** RequeueOut */
+        RequeueOut: {
+            /** Alias Learned */
+            alias_learned: boolean;
+            /** Changes */
+            changes: components["schemas"]["FieldChangeOut"][];
+            /** Item Id */
+            item_id: number;
+            stage: components["schemas"]["Stage"];
+            state: components["schemas"]["ItemState"];
+        };
+        /** RetireAliasIn */
+        RetireAliasIn: {
+            /** Reason */
+            reason: string;
+        };
         /**
          * Role
          * @enum {string}
          */
         Role: "ADMIN" | "OPERATOR" | "REVERSER" | "VIEWER";
+        /** SourceLocation */
+        SourceLocation: {
+            /** @description The region of the page holding the value, as fractions of the page width and height (x, y of the top-left corner, w, h of the box), each from 0 to 1. null when unknown. */
+            bbox?: components["schemas"]["BBox"] | null;
+            /**
+             * Page
+             * @description The 1-based page within the part, or null for parts that have no pages.
+             */
+            page?: number | null;
+            /**
+             * Part No
+             * @description The number of the artifact part, counting from 1 in the order the parts were supplied.
+             */
+            part_no: number;
+            /**
+             * Quote
+             * @description The short text read at that location, at most 300 characters. null if none.
+             */
+            quote?: string | null;
+        };
+        /**
+         * Stage
+         * @enum {string}
+         */
+        Stage: "INTAKE" | "CLASSIFY" | "EXTRACT" | "ADJUDICATE" | "VALIDATE" | "RESOLVE_CUSTOMER" | "FAST_PATH" | "MATCH_RECEIPT" | "MATCH_LINES" | "APPLY" | "WRITE_BACK" | "DONE";
+        /** UsageCallOut */
+        UsageCallOut: {
+            /** Cost Usd */
+            cost_usd: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Effort */
+            effort: string | null;
+            /** Error Code */
+            error_code: string | null;
+            /** Id */
+            id: number;
+            /** Input Tokens */
+            input_tokens: number | null;
+            /** Latency Ms */
+            latency_ms: number;
+            /** Model Id */
+            model_id: string;
+            outcome: components["schemas"]["UsageOutcome"];
+            /** Output Tokens */
+            output_tokens: number | null;
+            /** Prompt Version */
+            prompt_version: string | null;
+            /** Provider */
+            provider: string;
+            /** Purpose */
+            purpose: string;
+            role: components["schemas"]["LlmRole"];
+            /** Schema Version */
+            schema_version: string | null;
+            /** Station */
+            station: string;
+        };
+        /**
+         * UsageGroupBy
+         * @enum {string}
+         */
+        UsageGroupBy: "station" | "model";
+        /**
+         * UsageOutcome
+         * @enum {string}
+         */
+        UsageOutcome: "ok" | "refused" | "error" | "timeout";
     };
     responses: never;
     parameters: never;
@@ -388,6 +1417,135 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConfigChangePage"];
+                };
+            };
+        };
+    };
+    purge_admin_retention_purge_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PurgeRequest"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurgeReportResponse"];
+                };
+            };
+        };
+    };
+    list_aliases_aliases_get: {
+        parameters: {
+            query?: {
+                active?: boolean;
+                limit?: number;
+                offset?: number;
+                q?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AliasPage"];
+                };
+            };
+        };
+    };
+    retire_alias_aliases__alias_id__retire_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alias_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RetireAliasIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AliasOut"];
                 };
             };
         };
@@ -555,6 +1713,458 @@ export interface operations {
             };
         };
     };
+    override_classification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClassificationOverrideIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassificationOverrideOut"];
+                };
+            };
+        };
+    };
+    list_classifications: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassificationOut"][];
+                };
+            };
+        };
+    };
+    get_lock_items__item_id__lock_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LockInfoOut"] | null;
+                };
+            };
+        };
+    };
+    acquire_lock_items__item_id__lock_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LockInfoOut"];
+                };
+            };
+        };
+    };
+    release_lock_items__item_id__lock_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    force_take_lock_items__item_id__lock_force_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForceTakeIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LockInfoOut"];
+                };
+            };
+        };
+    };
+    renew_lock_items__item_id__lock_renew_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LockInfoOut"];
+                };
+            };
+        };
+    };
+    requeue_item_items__item_id__requeue_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequeueIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequeueOut"];
+                };
+            };
+        };
+    };
+    get_cohere_utilisation_llm_usage_cohere_utilisation_get: {
+        parameters: {
+            query?: {
+                window_minutes?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CohereUtilisationOut"];
+                };
+            };
+        };
+    };
+    get_daily_usage_llm_usage_daily_get: {
+        parameters: {
+            query?: {
+                from?: string | null;
+                group_by?: components["schemas"]["UsageGroupBy"];
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyUsageOut"][];
+                };
+            };
+        };
+    };
+    get_item_usage_llm_usage_items__item_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsageCallOut"][];
+                };
+            };
+        };
+    };
     get_me_me_get: {
         parameters: {
             query?: never;
@@ -589,6 +2199,217 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+        };
+    };
+    get_notification_log_notifications_log_get: {
+        parameters: {
+            query?: {
+                from?: string | null;
+                kind?: string | null;
+                limit?: number;
+                offset?: number;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationLogPage"];
+                };
+            };
+        };
+    };
+    get_daily_summary_reports_daily_summary_get: {
+        parameters: {
+            query?: {
+                date?: string | null;
+                format?: "json" | "csv" | "xlsx";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailySummaryResponse"];
+                };
+            };
+        };
+    };
+    email_daily_summary_reports_daily_summary_email_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailRequest"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailResponse"];
+                };
+            };
+        };
+    };
+    generate_daily_summary_reports_daily_summary_generate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerateRequest"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailySummaryResponse"];
+                };
+            };
+        };
+    };
+    get_partially_paid_reports_partially_paid_get: {
+        parameters: {
+            query?: {
+                format?: "json" | "csv" | "xlsx";
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartiallyPaidResponse"];
                 };
             };
         };
