@@ -1,30 +1,47 @@
-"""The shared LLM chat: prompts, context, action blocks and the streaming service."""
+"""The shared LLM chat agent: prompts, context, the tool registry and the streaming service."""
 
-from cashapp.services.chat.errors import ChatError, ChatInvalid, ChatNotFound
+from cashapp.services.chat.errors import (
+    ChatError,
+    ChatForbidden,
+    ChatInvalid,
+    ChatNotFound,
+    ThreadNotFound,
+    ToolCallConflict,
+    ToolCallNotFound,
+)
 from cashapp.services.chat.events import (
-    ActionEvent,
     ChatContextRef,
     ChatEvent,
-    ChatTurnIn,
-    DoneEvent,
-    StreamErrorEvent,
-    TokenEvent,
+    ConfirmRequired,
+    Done,
+    StreamError,
+    TextDelta,
+    ToolFinished,
+    ToolProgress,
+    ToolStarted,
 )
 from cashapp.services.chat.prompts import PromptKey
-from cashapp.services.chat.service import ChatService, PreparedChat
+from cashapp.services.chat.service import ChatService, PreparedChat, PreparedConfirm
 
 __all__ = [
-    "ActionEvent",
     "ChatContextRef",
     "ChatError",
     "ChatEvent",
+    "ChatForbidden",
     "ChatInvalid",
     "ChatNotFound",
     "ChatService",
-    "ChatTurnIn",
-    "DoneEvent",
+    "ConfirmRequired",
+    "Done",
     "PreparedChat",
+    "PreparedConfirm",
     "PromptKey",
-    "StreamErrorEvent",
-    "TokenEvent",
+    "StreamError",
+    "TextDelta",
+    "ThreadNotFound",
+    "ToolCallConflict",
+    "ToolCallNotFound",
+    "ToolFinished",
+    "ToolProgress",
+    "ToolStarted",
 ]
