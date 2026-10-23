@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useReducer } from "react";
 
-import { useEventStream, type StreamEvent } from "@/lib/api/use-event-stream";
+import { useEventStream, type StreamEvent } from "@/hooks/use-event-stream";
 
 import { chatReducer, initialChatState, type ChatState } from "./chat-reducer";
 import {

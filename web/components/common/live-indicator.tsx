@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import type { StreamStatus } from "@/lib/api/use-event-stream";
+import type { StreamStatus } from "@/hooks/use-event-stream";
 import { cn } from "@/lib/utils";
 
 /** The stream's connection state: Live, Reconnecting with the retry count, or Disconnected. */

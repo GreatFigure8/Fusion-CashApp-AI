@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useEffectEvent, useState } from "react";
 import type { z } from "zod";
 
-import { createSseParser } from "./sse-parser";
-import type { StreamPath } from "./stream-paths";
+import { createSseParser } from "@/lib/api/sse-parser";
+import type { StreamPath } from "@/lib/api/stream-paths";
 
 export type StreamStatus = "live" | "reconnecting" | "disconnected";
 export type StreamEvent<T> = { id: string | null; event: string; data: T };
@@ -12,6 +12,8 @@ export type UseEventStreamOptions<T> = {
   onEvent: (e: StreamEvent<T>) => void;
   /** Present means POST with this JSON body. */
   body?: unknown;
+  /** Appended to the URL as a query string; part of the connection identity. */
+  query?: Readonly<Record<string, string>>;
   /** Validates each data payload; an invalid frame is dropped. */
   schema?: z.ZodType<T>;
   /** Called for `stream-error` frames. */
@@ -39,14 +41,15 @@ export function useEventStream<T>(
   path: StreamPath,
   options: UseEventStreamOptions<T>,
 ): { status: StreamStatus; retries: number; retry: () => void } {
-  const { body, schema, enabled = true, maxRetries = 8 } = options;
+  const { body, query, schema, enabled = true, maxRetries = 8 } = options;
   const reconnect = options.reconnect ?? body === undefined;
 
   const bodyKey = JSON.stringify(body ?? null);
+  const queryKey = JSON.stringify(query ?? null);
   const [attemptKey, setAttemptKey] = useState(0);
   // State is tagged with the connection it belongs to, so a new connection starts fresh
   // without resetting state inside the effect.
-  const connectionKey = `${path}|${bodyKey}|${attemptKey}`;
+  const connectionKey = `${path}|${queryKey}|${bodyKey}|${attemptKey}`;
   const [state, setState] = useState<ConnectionState>({
     key: connectionKey,
     status: "reconnecting",
@@ -67,6 +70,7 @@ export function useEventStream<T>(
   const setRetries = useEffectEvent((retries: number) => patch({ retries }));
   const hasBody = body !== undefined;
   const currentBody = useEffectEvent(() => body);
+  const currentQuery = useEffectEvent(() => query);
 
   const handleEvent = useEffectEvent((e: StreamEvent<T>) => options.onEvent(e));
   const handleStreamError = useEffectEvent((data: unknown) => options.onStreamError?.(data));
@@ -107,6 +111,9 @@ export function useEventStream<T>(
     const connect = async () => {
       if (stopped) return;
       const url = new URL(`/api/stream${path}`, window.location.origin);
+      for (const [name, value] of Object.entries(currentQuery() ?? {})) {
+        url.searchParams.set(name, value);
+      }
       const headers: Record<string, string> = { Accept: "text/event-stream" };
       if (lastEventId) headers["Last-Event-ID"] = lastEventId;
       let init: RequestInit = { method: "GET", headers, signal: controller.signal, cache: "no-store" };
@@ -184,7 +191,7 @@ export function useEventStream<T>(
       if (timer !== undefined) clearTimeout(timer);
     };
     // The connection identity: path, body and enabled. Callbacks go through useEffectEvent.
-  }, [path, bodyKey, hasBody, enabled, reconnect, maxRetries, attemptKey]);
+  }, [path, queryKey, bodyKey, hasBody, enabled, reconnect, maxRetries, attemptKey]);
 
   return { status: enabled ? current.status : "disconnected", retries: current.retries, retry };
 }
