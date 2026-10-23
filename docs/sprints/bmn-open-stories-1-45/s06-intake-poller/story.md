@@ -44,3 +44,4 @@ Parsing formats (s34), classification (s07), backlog batches (s35), the real mai
 
 - A single-document artifact gets no envelope item.
 - Drop folder is a local/mounted path configured by setting `intake.drop_folder`.
+- **Mailbox decision (s33, `docs/spikes/mailbox-access.md`):** `MailboxSource(ArtifactSource)` with `folder` from configuration, `fetch_new() -> AsyncIterator[IncomingArtifact]` yielding one artifact per message (raw RFC 822 bytes, `content_type="message/rfc822"`, `source_kind="mailbox"`), and `mark_processed(ref, outcome: "processed"|"failed") -> None` moving to `CashApp/Processed` / `CashApp/Failed` plus the `cashapp-processed` marker; content-hash dedupe is the safety net. Internal senders are accepted; sender allow/deny is runtime config (`intake.sender_allow`/`sender_deny`, default allow-all), added with the real adapter. Recommended adapter: Graph if Microsoft 365, else IMAP; provisional until Jonathan names the platform.
