@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glass Orbit: engine control panel</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#05060a}
+a{color:#9db8ff}a:hover{color:#c7d6ff}
+.gl{font-family:Geist,system-ui,sans-serif;font-size:14px;line-height:1.5;color:#e6eaf2;min-height:1500px;background-color:#05060a;background-image:radial-gradient(circle,#ffffff12 1.4px,transparent 1.6px);background-size:22px 22px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.gl *{box-sizing:border-box}
+.glass{background:#0a0c11b8;backdrop-filter:blur(14px);border:1px solid #ffffff1f;border-radius:16px;box-shadow:0 1px 0 #ffffff0a inset,0 30px 80px -30px #000000e6}
+.wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.rail{flex:1 1 200px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.main{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px;position:relative}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:#a9b2c3;text-decoration:none;min-height:40px}
+.nav.on{background:#4f7cff1f;color:#c7d6ff;box-shadow:inset 0 0 0 1px #4f7cff66,0 0 28px -10px #4f7cff}
+.code{font-family:'Geist Mono',monospace;font-size:10.5px;width:26px;height:22px;border-radius:6px;border:1px solid #ffffff1f;display:inline-flex;align-items:center;justify-content:center;color:#8a94a6}
+.nav.on .code{border-color:#4f7cff;color:#9db8ff}
+.mono{font-family:'Geist Mono',monospace}
+.lab{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a94a6}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 16px}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #ffffff12}
+.bd{padding:16px 18px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;white-space:nowrap}
+.ok{background:#5fe6d817;color:#8cf2e7}.wa{background:#ffc96b14;color:#ffd98f}.er{background:#f8717117;color:#fca5a5}.ac{background:#4f7cff1f;color:#9db8ff}.mu{background:#ffffff0d;color:#a9b2c3}.lk{background:#b794ff1a;color:#d4bfff}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:#5fe6d8;box-shadow:0 0 10px #5fe6d8}
+.btn{font-family:Geist,sans-serif;font-size:12.5px;font-weight:500;border-radius:9px;padding:6px 12px;min-height:32px;cursor:pointer;border:1px solid #ffffff1f;background:#ffffff08;color:#e6eaf2}
+.btn.pri{background:#2f5bdb;border-color:#4f7cff;color:#fff;box-shadow:0 0 24px -8px #4f7cff}
+.btn.warn{border-color:#ffc96b55;color:#ffd98f;background:#ffc96b0f}
+.stations{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.sc{border:1px solid #ffffff14;border-radius:12px;background:#ffffff05;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.bar{height:5px;border-radius:3px;background:#ffffff12}
+.t{width:100%;border-collapse:collapse}
+.t th{font-family:'Geist Mono',monospace;font-weight:400;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8a94a6;text-align:left;padding:8px 12px;border-bottom:1px solid #ffffff12;white-space:nowrap}
+.t td{padding:9px 12px;border-bottom:1px solid #ffffff0a;white-space:nowrap}
+.scrim{position:absolute;inset:0;border-radius:16px;background:#05060ab3;backdrop-filter:blur(2px);display:flex;justify-content:center;align-items:flex-start;padding-top:260px}
+.dlg{width:min(500px,92%);padding:0}
+.inp{font-family:Geist,sans-serif;font-size:14px;color:#e6eaf2;background:#ffffff06;border:1px solid #ffffff1f;border-radius:10px;padding:10px 12px;width:100%}
+.states{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.st{padding:18px;min-height:180px;display:flex;flex-direction:column;gap:10px}
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,#ffffff08,#ffffff14,#ffffff08)}
+</style>
+</helmet>
+<div class="gl">
+<div class="wrap">
+<nav class="rail glass" aria-label="Primary">
+<div style="display:flex;align-items:center;gap:10px;padding:6px 8px 14px"><span style="width:28px;height:28px;border-radius:8px;background:#2f5bdb;box-shadow:0 0 20px -4px #4f7cff;display:inline-flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;color:#fff">CA</span><span style="font-weight:600">CashApp</span><span class="lab" style="margin-left:auto">AI</span></div>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="7"><a class="{{n.cls}}" href="#"><span class="code">{{n.code}}</span><span>{{n.label}}</span><span class="mono" style="margin-left:auto;font-size:11px;color:#5d6778">{{n.count}}</span></a></sc-for>
+</nav>
+<main class="main">
+<div class="glass top"><span style="font-size:18px;font-weight:600">Engine</span><span class="pill wa mono">DEV</span><span class="pill ok"><span class="dot"></span>Live</span><span style="font-size:12px;color:#8a94a6">Lag streamed · updated 1 s ago</span><span class="pill lk">Admin only · audited</span><span class="pill ok">Fusion reads · MCP healthy 180 ms</span><span class="mono" style="margin-left:auto;font-size:12px;color:#8a94a6">OCI Streaming · group cashapp-dev</span></div>
+<div class="glass"><div class="hd"><span style="font-weight:600">Stations</span><span style="display:flex;gap:8px"><span class="pill ok">11 running</span><span class="pill wa">1 paused</span><span class="pill ac">1 draining</span></span></div>
+<div class="bd stations">
+<sc-for list="{{stations}}" as="s" hint-placeholder-count="12"><div class="sc" style="{{s.ring}}">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><span class="mono" style="font-size:12.5px">{{s.name}}</span><span class="{{s.pcls}}">{{s.state}}</span></div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#a9b2c3"><span>lag <span class="mono" style="color:#e6eaf2">{{s.lag}}</span></span><span><span class="mono" style="color:#e6eaf2">{{s.thru}}</span>/min</span><span>dlq <span class="mono" style="color:#e6eaf2">{{s.dlq}}</span></span></div>
+<div class="bar"><div style="{{s.fill}}"></div></div><span class="mono" style="font-size:11px;color:#8a94a6">in-flight {{s.inf}}</span>
+<div style="display:flex;gap:6px"><button class="btn warn" type="button">{{s.act}}</button><button class="btn" type="button">Drain</button></div>
+</div></sc-for>
+</div></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+<div class="glass"><div class="hd"><span style="font-weight:600">Throttle</span><span class="lab">config v41</span></div>
+<div class="bd" style="display:flex;flex-direction:column;gap:16px">
+<label style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="mono" style="font-size:12.5px">concurrency.per_stage</span><span class="mono" style="color:#9db8ff">8</span></span><input type="range" min="1" max="32" value="8" onChange="{{noop}}" style="accent-color:#4f7cff"></label>
+<label style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="mono" style="font-size:12.5px">concurrency.apply_per_receipt</span><span class="mono" style="color:#9db8ff">2</span></span><input type="range" min="1" max="8" value="2" onChange="{{noop}}" style="accent-color:#4f7cff"><span style="font-size:12px;color:#8a94a6">Fusion applies take about 6 s a line; this is the back-pressure.</span></label>
+<div><button class="btn pri" type="button">Save throttle…</button></div>
+</div></div>
+<div class="glass"><div class="hd"><span style="font-weight:600">Audit</span><span class="lab">who · when · why</span></div>
+<div class="bd" style="display:flex;flex-direction:column;gap:12px;font-size:13px">
+<div style="display:flex;gap:10px"><span class="mono" style="color:#8a94a6;font-size:12px;width:44px">14:02</span><span><strong style="font-weight:500">J. Stevenson</strong> paused <span class="mono">apply</span><br><span style="color:#8a94a6">“Fusion dev pod patching until 15:00”</span></span></div>
+<div style="display:flex;gap:10px"><span class="mono" style="color:#8a94a6;font-size:12px;width:44px">11:40</span><span><strong style="font-weight:500">J. Stevenson</strong> throttled apply_per_receipt 3 → 2<br><span style="color:#8a94a6">“AR-856792 lock errors”</span></span></div>
+<div style="display:flex;gap:10px"><span class="mono" style="color:#8a94a6;font-size:12px;width:44px">09:12</span><span><strong style="font-weight:500">M. Okafor</strong> replayed 3 dead letters → extract<br><span style="color:#8a94a6">“Cohere endpoint restored”</span></span></div>
+</div></div>
+</div>
+<div class="glass"><div class="hd"><span style="font-weight:600">Dead-letter queue</span><span style="display:flex;gap:8px;align-items:center"><span class="pill er">4 events</span><button class="btn pri" type="button">Replay 2 selected…</button></span></div>
+<div style="overflow-x:auto"><table class="t"><thead><tr><th><span style="position:absolute;left:-9999px">Select</span></th><th>Event</th><th>Stage</th><th>Item</th><th>Error</th><th>Attempts</th><th>Dead since</th></tr></thead><tbody>
+<sc-for list="{{dlq}}" as="d" hint-placeholder-count="4"><tr><td><input type="checkbox" aria-label="{{d.lbl}}" checked="{{d.sel}}" onChange="{{d.noop}}" style="accent-color:#4f7cff"></td><td class="mono" style="color:#8a94a6;font-size:12px">{{d.id}}</td><td class="mono" style="font-size:12.5px">{{d.stage}}</td><td><a href="#" class="mono" style="font-size:12.5px">{{d.item}}</a></td><td><span class="pill er mono" style="font-size:11px">{{d.err}}</span></td><td class="mono">{{d.att}}</td><td class="mono" style="color:#8a94a6">{{d.since}}</td></tr></sc-for>
+</tbody></table></div></div>
+<div class="scrim">
+<div class="glass dlg" role="dialog" aria-modal="true" aria-labelledby="gdt">
+<div class="hd"><span id="gdt" style="font-weight:600">Pause the apply station?</span><span class="pill lk">audited</span></div>
+<div class="bd" style="display:flex;flex-direction:column;gap:14px">
+<span style="color:#a9b2c3;font-size:13.5px">New deliveries stay uncommitted on the bus, so nothing is lost. The 7 applies in flight finish first.</span>
+<label style="display:flex;flex-direction:column;gap:6px"><span class="lab">Reason · required</span><textarea class="inp" rows="3" value="Fusion dev pod patching until 15:00" onChange="{{noop}}"></textarea></label>
+<span style="font-size:12px;color:#8a94a6">Recorded as <span style="color:#e6eaf2">J. Stevenson · admin</span> · 23 Oct 2026 14:02 UTC · expected version 41</span>
+<div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" type="button">Cancel</button><button class="btn warn" type="button" style="background:#ffc96b;color:#1b1300;border-color:#ffc96b">Pause apply</button></div>
+</div></div>
+</div>
+</main>
+</div>
+<div role="region" aria-label="Assistant dock" style="align-self:center;width:min(880px,100%);display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center"><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Where are items waiting longest?</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Pause apply until 15:00</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Export this week’s report</button></div>
+<div style="display:flex;align-items:center;gap:10px;border:1px solid #ffffff1f;background:#0e1117;border-radius:16px;padding:10px 12px 10px 16px;box-shadow:0 0 0 4px #4f7cff1f,0 30px 60px -30px #000"><span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9db8ff">Assistant</span><input aria-label="Ask the assistant" placeholder="Ask or tell CashApp to do something…" style="flex:1;background:transparent;border:0;outline:none;color:#e6eaf2;font-family:Geist,sans-serif;font-size:15px"><a href="#" style="font-size:12.5px">Full screen</a><button type="button" aria-label="Send" style="width:32px;height:32px;border-radius:8px;background:#2f5bdb;color:#fff;border:0;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
+<span style="text-align:center;font-family:'Geist Mono',monospace;font-size:10.75px;text-transform:uppercase;letter-spacing:.04em;color:#8a94a6">Acts with your permissions · every change asks you to confirm · ⌘K</span>
+</div>
+<section class="states" aria-label="States">
+<div class="glass st"><span class="lab">Loading</span><div class="stations"><div class="sk" style="height:70px"></div><div class="sk" style="height:70px"></div><div class="sk" style="height:70px"></div></div><span style="font-size:13px;color:#8a94a6">Reading consumer lag…</span></div>
+<div class="glass st"><span class="lab">Empty · DLQ</span><span style="font-size:17px;font-weight:600">No dead letters</span><span style="font-size:13px;color:#a9b2c3">Every event is inside its retry budget.</span></div>
+<div class="glass st" style="border-color:#f8717155"><span class="lab" style="color:#fca5a5">Error · bus</span><span style="font-size:17px;font-weight:600">Bus health unavailable</span><span style="font-size:13px;color:#a9b2c3">Controls are disabled until lag can be read.</span><div><button class="btn" type="button">Retry</button></div></div>
+<div class="glass st"><span class="lab">Operator view</span><span style="font-size:17px;font-weight:600">Read-only</span><span style="font-size:13px;color:#a9b2c3">Pause, drain, throttle and replay show “needs admin” and stay disabled.</span><div><button class="btn" type="button" disabled="{{true}}" style="opacity:.45">Pause · needs admin</button></div></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Dashboard','DB',''],['Flow','FL','312'],['Exceptions','EX','63'],['Engine','EN',''],['Review','RV','3'],['Reports','RP',''],['Lab','LB','2'],['Config','CF','']];
+const active = 'Engine';
+const nav = items.map(([label,code,count]) => ({ label, code, count, cls: label === active ? 'nav on' : 'nav' }));
+const rows = [['intake','Running','0',1,8,'4.2','0'],['classify','Running','3',2,8,'4.1','0'],['extract.reader_a','Running','18',8,8,'3.9','0'],['extract.reader_b','Running','22',8,8,'3.7','2'],['adjudicate','Running','6',4,8,'3.8','0'],['validate','Running','0',0,8,'3.8','0'],['resolve_customer','Running','1',1,8,'3.6','0'],['match_receipt','Running','4',2,8,'3.1','1'],['await_receipt','Running','142',0,0,'0.4','0'],['match_lines','Running','2',1,8,'2.9','0'],['apply','Paused','96',7,16,'0.0','1'],['write_back','Draining','0',2,8,'0.6','0']];
+const stations = rows.map(([name,state,lag,i,m,thru,dlq]) => ({ name, state, lag, thru, dlq, inf: m ? i + ' / ' + m : 'n/a',
+ pcls: state==='Running' ? 'pill ok' : state==='Paused' ? 'pill wa' : 'pill ac', act: state==='Paused' ? 'Resume' : 'Pause',
+ ring: state==='Paused' ? 'border-color:#ffc96b66' : '',
+ fill: 'height:5px;border-radius:3px;width:' + (m ? Math.round(i/m*100) : 0) + '%;background:' + (m && i===m ? '#ffc96b' : '#4f7cff') }));
+const noop = () => {};
+const dlq = [
+{id:'evt_7f21c',stage:'extract.reader_b',item:'WI-20388',err:'EXTRACTION_FAILED',att:'5',since:'08:41',sel:true},
+{id:'evt_7f2a0',stage:'extract.reader_b',item:'WI-20391',err:'EXTRACTION_FAILED',att:'5',since:'08:44',sel:true},
+{id:'evt_80b13',stage:'match_receipt',item:'WI-20402',err:'FUSION_TRANSIENT',att:'6',since:'12:10',sel:false},
+{id:'evt_81c07',stage:'apply',item:'WI-20417',err:'FUSION_GL_DATE',att:'3',since:'13:55',sel:false}].map((d) => ({ ...d, lbl: 'Select ' + d.id, noop }));
+return { nav, stations, dlq, noop };
+}
+}
+</script>
+</body>
+</html>

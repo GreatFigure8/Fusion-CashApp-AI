@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glass Orbit: assistant agent</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#05060a}
+a{color:#9db8ff}a:hover{color:#c7d6ff}
+.gl{font-family:Geist,system-ui,sans-serif;font-size:14px;line-height:1.5;color:#e6eaf2;min-height:1500px;background-color:#05060a;background-image:radial-gradient(circle,#ffffff12 1.4px,transparent 1.6px);background-size:22px 22px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.gl *{box-sizing:border-box}
+.glass{background:#0a0c11b8;backdrop-filter:blur(14px);border:1px solid #ffffff1f;border-radius:16px;box-shadow:0 1px 0 #ffffff0a inset,0 30px 80px -30px #000000e6}
+.wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:stretch}
+.rail{flex:1 1 200px;padding:14px;display:flex;flex-direction:column;gap:4px;align-self:flex-start}
+.main{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:#a9b2c3;text-decoration:none;min-height:40px}
+.nav.on{background:#4f7cff1f;color:#c7d6ff;box-shadow:inset 0 0 0 1px #4f7cff66,0 0 28px -10px #4f7cff}
+.code{font-family:'Geist Mono',monospace;font-size:10.5px;width:26px;height:22px;border-radius:6px;border:1px solid #ffffff1f;display:inline-flex;align-items:center;justify-content:center;color:#8a94a6}
+.nav.on .code{border-color:#4f7cff;color:#9db8ff}
+.mono{font-family:'Geist Mono',monospace}
+.lab{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a94a6}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;white-space:nowrap}
+.ok{background:#5fe6d817;color:#8cf2e7}.wa{background:#ffc96b14;color:#ffd98f}.er{background:#f8717117;color:#fca5a5}.ac{background:#4f7cff1f;color:#9db8ff}.mu{background:#ffffff0d;color:#a9b2c3}
+.split{display:flex;flex-wrap:wrap;gap:16px;align-items:stretch}
+.chat{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;background:#0a0c11;border:1px solid #ffffff1f;border-radius:16px;overflow:hidden}
+.chh{display:flex;align-items:center;gap:12px;height:40px;border-bottom:1px solid #ffffff12;padding:0 16px;font-family:'Geist Mono',monospace;font-size:11.75px;text-transform:uppercase;letter-spacing:.04em}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:#5fe6d8}
+.thread{padding:24px 16px;display:flex;flex-direction:column;gap:18px;width:100%;max-width:880px;margin:0 auto}
+.ub{align-self:flex-end;max-width:78%;border:1px solid #ffffff1f;background:#151922;border-radius:12px;padding:10px 14px;font-size:15.5px;line-height:1.6}
+.md{font-size:14px;line-height:1.7}
+.md code{font-family:'Geist Mono',monospace;font-size:.85em;background:#151922;border:1px solid #ffffff12;border-radius:5px;padding:.1em .35em}
+.grp{border-top:1px solid #ffffff0a;border-bottom:1px solid #ffffff0a;margin:0 -16px}
+.act{display:flex;align-items:center;gap:8px;padding:12px 24px;font-size:14px;color:#8a94a6}
+.act .tool{font-family:'Geist Mono',monospace;font-size:12.5px;color:#e6eaf2}
+.card{border:1px solid #ffffff1f;border-radius:12px;background:#0e1117;overflow:hidden}
+.card.cf{border-color:#ffc96b66;box-shadow:0 0 40px -22px #ffc96b}
+.cardh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #ffffff12}
+.kv{display:grid;grid-template-columns:96px 1fr;gap:8px 12px;padding:12px 14px;font-size:13.5px}
+.kv span:nth-child(odd){color:#8a94a6}
+.btn{font-family:Geist,sans-serif;font-size:13px;font-weight:500;border-radius:10px;padding:7px 14px;min-height:34px;cursor:pointer;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2}
+.btn.pri{background:#2f5bdb;border-color:#2f5bdb;color:#fff}
+.btn.warn{background:#ffc96b;border-color:#ffc96b;color:#1b1300}
+.mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;padding:12px 14px}
+.mini div{display:flex;flex-direction:column}
+.mv{font-family:'Geist Mono',monospace;font-size:20px}
+.comp{width:100%;max-width:880px;margin:0 auto;padding:0 16px 12px;display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px;cursor:pointer}
+.box{display:flex;flex-direction:column;gap:8px;border:1px solid #ffffff1f;background:#0e1117;border-radius:16px;padding:14px 16px 10px;box-shadow:0 0 0 4px #4f7cff1f}
+.box textarea{background:transparent;border:0;outline:none;resize:none;color:#e6eaf2;font-family:Geist,sans-serif;font-size:15px;min-height:48px;line-height:1.6}
+.send{width:32px;height:32px;border-radius:8px;background:#2f5bdb;color:#fff;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.hints{display:flex;flex-wrap:wrap;gap:4px 14px;font-family:'Geist Mono',monospace;font-size:10.75px;text-transform:uppercase;letter-spacing:.04em;color:#8a94a6}
+.k{border:1px solid #ffffff1f;border-radius:4px;padding:0 4px;margin-right:4px;background:#151922}
+.panel{flex:1 1 280px;padding:16px;display:flex;flex-direction:column;gap:8px;align-self:flex-start}
+.row{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #ffffff0a;padding:7px 0;font-size:13px}
+.states{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.st{padding:18px;min-height:170px;display:flex;flex-direction:column;gap:10px}
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,#ffffff08,#ffffff14,#ffffff08)}
+</style>
+</helmet>
+<div class="gl">
+<div class="wrap">
+<nav class="rail glass" aria-label="Primary">
+<div style="display:flex;align-items:center;gap:10px;padding:6px 8px 14px"><span style="width:28px;height:28px;border-radius:8px;background:#2f5bdb;box-shadow:0 0 20px -4px #4f7cff;display:inline-flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;color:#fff">CA</span><span style="font-weight:600">CashApp</span><span class="lab" style="margin-left:auto">AI</span></div>
+<a class="nav on" href="#"><span class="code">AI</span><span>Assistant</span><span class="mono" style="margin-left:auto;font-size:11px;color:#5d6778">⌘K</span></a>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="8"><a class="{{n.cls}}" href="#"><span class="code">{{n.code}}</span><span>{{n.label}}</span><span class="mono" style="margin-left:auto;font-size:11px;color:#5d6778">{{n.count}}</span></a></sc-for>
+</nav>
+<main class="main">
+<div class="split">
+<section class="chat" aria-label="Assistant">
+<div class="chh"><span>Assistant</span><span style="display:flex;align-items:center;gap:6px;color:#8cf2e7"><span class="dot"></span>Connected</span><span style="color:#8a94a6">Haiku 5.5 · zero retention</span><span style="margin-left:auto;color:#8a94a6">Acting as J. Stevenson · admin</span></div>
+<div class="thread">
+<div class="ub">Fusion dev is patching until 15:00. Pause applies until then.</div>
+<div class="grp">
+<div class="act"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5fe6d8" stroke-width="2" aria-hidden="true"><path d="M5 12l5 5 9-9"/></svg><span class="tool">engine.status</span>apply is running, 7 in flight<span class="mono" style="margin-left:auto;font-size:12px">0.3 s</span></div>
+<div class="act"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffc96b" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg><span class="tool">engine.pause</span>waiting for your confirmation</div>
+</div>
+<div class="card cf">
+<div class="cardh"><span class="lab" style="color:#ffd98f">Confirm a change</span><span class="pill mu">Audited</span></div>
+<div class="kv"><span>What</span><span>Pause <span class="mono">apply</span> until 15:00 UTC</span><span>Before</span><span>Running · 7 in flight</span><span>After</span><span>Paused · in-flight work finishes · nothing leaves the bus</span><span>Who</span><span>J. Stevenson · admin</span><span>Reason</span><span>Fusion dev pod patching until 15:00</span></div>
+<div style="display:flex;gap:8px;padding:0 14px 14px"><button class="btn warn" type="button">Confirm</button><button class="btn" type="button">Cancel</button></div></div>
+<div class="card"><div class="cardh"><span style="font-weight:600">Apply station</span><span class="pill wa">Paused</span></div>
+<div class="mini"><div><span class="lab">In flight</span><span class="mv">3 → 0</span></div><div><span class="lab">Waiting</span><span class="mv">96</span></div><div><span class="lab">Resumes</span><span class="mv">15:00</span></div><div><span class="lab">History</span><span class="mono" style="font-size:13px;color:#9db8ff">h_99120</span></div></div></div>
+<div class="ub">While we wait: what would cut the INR ambiguity?</div>
+<div class="grp">
+<div class="act"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5fe6d8" stroke-width="2" aria-hidden="true"><path d="M5 12l5 5 9-9"/></svg><span class="tool">metrics.read</span>7-day ambiguity by currency<span class="mono" style="margin-left:auto;font-size:12px">0.8 s</span></div>
+<div class="act"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5fe6d8" stroke-width="2" aria-hidden="true"><path d="M5 12l5 5 9-9"/></svg><span class="tool">fusion-sql-mcp · query</span>Read-only: INR receipts created in the last 7 days, 64 rows<span class="mono" style="margin-left:auto;font-size:12px">1.9 s</span></div>
+<div class="act"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5fe6d8" stroke-width="2" aria-hidden="true"><path d="M5 12l5 5 9-9"/></svg><span class="tool">lab.replay</span>window_days.INR 5 → 3 on 1,912 items<span class="mono" style="margin-left:auto;font-size:12px">42 s</span></div>
+</div>
+<div class="md">Same-amount INR receipts land 4–5 days apart. A <code>±3</code> day INR window resolves 19 of the 23 ambiguous items and moves 3 to awaiting receipt. Nothing outside INR changes.</div>
+<div class="card"><div class="cardh"><span style="font-weight:600">Replay rp_3381</span><a href="#" style="font-size:13px">Open in Lab</a></div>
+<div class="mini"><div><span class="lab">Changed</span><span class="mv">41</span></div><div><span class="lab">Newly matched</span><span class="mv" style="color:#8cf2e7">+19</span></div><div><span class="lab">Newly failed</span><span class="mv" style="color:#fca5a5">+3</span></div><div><span class="lab">INR affected</span><span class="mono" style="font-size:15px">2,904,110.00</span></div></div>
+<div style="display:flex;gap:8px;padding:0 14px 14px"><button class="btn pri" type="button">Promote…</button><button class="btn" type="button">Discard</button></div></div>
+<div class="ub">Export this week’s progress for the AR team.</div>
+<div class="grp"><div class="act"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5fe6d8" stroke-width="2" aria-hidden="true"><path d="M5 12l5 5 9-9"/></svg><span class="tool">reports.export</span>Progress · 7 days · HTML<span class="mono" style="margin-left:auto;font-size:12px">2.1 s</span></div></div>
+<div class="card"><div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:12px 14px"><span style="width:36px;height:44px;border-radius:6px;background:#eef1f5;display:inline-flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-family:'Geist Mono',monospace;font-size:9px;color:#151922">HTML</span><span style="display:flex;flex-direction:column"><span class="mono" style="font-size:13px">progress_7d_2026-10-23.html</span><span style="font-size:12px;color:#8a94a6">84 KB · self-contained</span></span><a href="#" style="margin-left:auto;font-size:13px">Preview</a><button class="btn" type="button">Download</button></div></div>
+</div>
+<div style="flex:1"></div>
+<div class="comp">
+<div class="chips"><button class="chip" type="button">Where is time lost between stations?</button><button class="chip" type="button">Which auto-fix fails most?</button><button class="chip" type="button">Is the Cohere cluster oversized?</button><button class="chip" type="button">Work my oldest exception</button></div>
+<div class="box"><textarea aria-label="Message" placeholder="Ask, or tell CashApp what to do…"></textarea>
+<div style="display:flex;align-items:center;gap:8px"><button class="btn" type="button" aria-label="Attach receipt images" style="min-width:34px;padding:0">+</button><span class="pill mu" style="font-size:11.5px">Engine · Lab · Settings · Reports · Review · Exceptions · Fusion reads</span><div style="flex:1"></div><button class="send" type="button" aria-label="Send"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div></div>
+<div class="hints"><span><span class="k">↵</span>Send</span><span><span class="k">Ctrl+↵</span>New line</span><span><span class="k">/</span>Prompts</span><span><span class="k">+</span>Images</span><span style="margin-left:auto">Changes run only after you confirm</span></div>
+</div>
+</section>
+<aside class="panel glass" aria-label="Live context">
+<span class="lab">Live context</span>
+<div class="row"><span>Automation · 7d</span><span class="mono" style="color:#8cf2e7">87.4%</span></div>
+<div class="row"><span>Open exceptions</span><span class="mono" style="color:#ffd98f">63</span></div>
+<div class="row"><span>Bus lag</span><span class="mono">312</span></div>
+<div class="row"><span>Apply</span><span class="pill wa">Paused</span></div>
+<div class="row"><span>Fusion reads</span><span class="pill ok">MCP healthy</span></div>
+<span class="lab" style="margin-top:12px">Your tools</span>
+<div class="row"><span>Engine control</span><span class="pill ok">Allowed</span></div>
+<div class="row"><span>Change settings</span><span class="pill ok">Allowed</span></div>
+<div class="row"><span>Lab replay and promote</span><span class="pill ok">Allowed</span></div>
+<div class="row"><span>Work exceptions</span><span class="pill ok">Allowed</span></div>
+<div class="row"><span>Submit receipt images</span><span class="pill ok">Allowed</span></div>
+<div class="row"><span>Export reports</span><span class="pill ok">Allowed</span></div>
+<span style="font-size:12.5px;color:#8a94a6;margin-top:6px">The assistant can never do more than your role allows.</span>
+</aside>
+</div>
+</main>
+</div>
+<section class="states" aria-label="States">
+<div class="glass st"><span class="lab">Empty · welcome</span><span style="font-size:22px;font-weight:600;letter-spacing:-.01em">What should CashApp do?</span><div class="chips"><button class="chip" type="button">Show live progress</button><button class="chip" type="button">Pause a station</button><button class="chip" type="button">Submit failed receipts</button></div></div>
+<div class="glass st"><span class="lab">Loading · tool running</span><div class="act" style="padding:0"><span class="dot"></span><span class="tool">lab.replay</span>1,140 of 1,912 items</div><div class="sk" style="width:80%"></div></div>
+<div class="glass st" style="border-color:#f8717155"><span class="lab" style="color:#fca5a5">Error · tool failed</span><span style="font-size:15px;font-weight:600">engine.pause returned 409</span><span style="font-size:13px;color:#a9b2c3">M. Okafor paused apply first. Nothing changed.</span></div>
+<div class="glass st"><span class="lab">Denied · permission</span><span style="font-size:15px;font-weight:600">Settings changes need config write</span><span style="font-size:13px;color:#a9b2c3">You’re an operator. The assistant can draft the change for an admin.</span></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Dashboard','DB',''],['Flow','FL','312'],['Exceptions','EX','63'],['Engine','EN',''],['Review','RV','3'],['Reports','RP',''],['Lab','LB','2'],['Config','CF','']];
+const nav = items.map(([label,code,count]) => ({ label, code, count, cls: 'nav' }));
+return { nav };
+}
+}
+</script>
+</body>
+</html>

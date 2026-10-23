@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glass Orbit: reports and export</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#05060a}
+a{color:#9db8ff}a:hover{color:#c7d6ff}
+.gl{font-family:Geist,system-ui,sans-serif;font-size:14px;line-height:1.5;color:#e6eaf2;min-height:1500px;background-color:#05060a;background-image:radial-gradient(circle,#ffffff12 1.4px,transparent 1.6px);background-size:22px 22px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.gl *{box-sizing:border-box}
+.glass{background:#0a0c11b8;backdrop-filter:blur(14px);border:1px solid #ffffff1f;border-radius:16px;box-shadow:0 1px 0 #ffffff0a inset,0 30px 80px -30px #000000e6}
+.wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.rail{flex:1 1 200px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.main{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:#a9b2c3;text-decoration:none;min-height:40px}
+.nav.on{background:#4f7cff1f;color:#c7d6ff;box-shadow:inset 0 0 0 1px #4f7cff66,0 0 28px -10px #4f7cff}
+.code{font-family:'Geist Mono',monospace;font-size:10.5px;width:26px;height:22px;border-radius:6px;border:1px solid #ffffff1f;display:inline-flex;align-items:center;justify-content:center;color:#8a94a6}
+.nav.on .code{border-color:#4f7cff;color:#9db8ff}
+.mono{font-family:'Geist Mono',monospace}
+.lab{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a94a6}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 16px}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #ffffff12}
+.bd{padding:16px 18px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;white-space:nowrap}
+.ok{background:#5fe6d817;color:#8cf2e7}.wa{background:#ffc96b14;color:#ffd98f}.mu{background:#ffffff0d;color:#a9b2c3}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:#5fe6d8;box-shadow:0 0 10px #5fe6d8}
+.btn{font-family:Geist,sans-serif;font-size:13px;font-weight:500;border-radius:10px;padding:8px 14px;min-height:36px;cursor:pointer;border:1px solid #ffffff1f;background:#ffffff08;color:#e6eaf2}
+.btn.pri{background:#2f5bdb;border-color:#4f7cff;color:#fff;box-shadow:0 0 24px -8px #4f7cff}
+.split{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.form{flex:1 1 300px;display:flex;flex-direction:column;gap:16px}
+.prev{flex:999 1 560px;min-width:0}
+.inp{font-family:Geist,sans-serif;font-size:14px;color:#e6eaf2;background:#ffffff06;border:1px solid #ffffff1f;border-radius:10px;padding:9px 12px;width:100%}
+.ck{display:flex;gap:10px;align-items:center;font-size:14px;min-height:32px}
+.doc{background:#fbfbfd;color:#151922;border-radius:12px;padding:40px 44px;display:flex;flex-direction:column;gap:20px}
+.dk{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.dk div{border-radius:10px;background:#eef1f5;padding:12px 14px;display:flex;flex-direction:column}
+.dt{width:100%;border-collapse:collapse;font-size:13.5px}
+.dt th{text-align:left;font-weight:600;color:#5d6778;border-bottom:1px solid #d6dbe3;padding:7px 8px}
+.dt td{border-bottom:1px solid #e6e9ef;padding:7px 8px}
+.row{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #ffffff0a;font-size:13px}
+.states{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.st{padding:18px;min-height:170px;display:flex;flex-direction:column;gap:10px}
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,#ffffff08,#ffffff14,#ffffff08)}
+</style>
+</helmet>
+<div class="gl">
+<div class="wrap">
+<nav class="rail glass" aria-label="Primary">
+<div style="display:flex;align-items:center;gap:10px;padding:6px 8px 14px"><span style="width:28px;height:28px;border-radius:8px;background:#2f5bdb;box-shadow:0 0 20px -4px #4f7cff;display:inline-flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;color:#fff">CA</span><span style="font-weight:600">CashApp</span><span class="lab" style="margin-left:auto">AI</span></div>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="8"><a class="{{n.cls}}" href="#"><span class="code">{{n.code}}</span><span>{{n.label}}</span><span class="mono" style="margin-left:auto;font-size:11px;color:#5d6778">{{n.count}}</span></a></sc-for>
+</nav>
+<main class="main">
+<div class="glass top"><span style="font-size:18px;font-weight:600">Reports</span><span class="pill wa mono">DEV</span><span class="pill mu">Sample data</span><span class="pill ok" style="margin-left:auto"><span class="dot"></span>Preview updates live</span></div>
+<div class="split">
+<div class="form">
+<div class="glass"><div class="hd"><span style="font-weight:600">Build a report</span></div>
+<div class="bd" style="display:flex;flex-direction:column;gap:14px">
+<label style="display:flex;flex-direction:column;gap:6px"><span class="lab">Report</span><select class="inp" value="progress" onChange="{{noop}}"><option value="progress">Progress summary</option><option value="exceptions">Exceptions aging</option><option value="models">Model efficiency</option></select></label>
+<label style="display:flex;flex-direction:column;gap:6px"><span class="lab">Window</span><select class="inp" value="7d" onChange="{{noop}}"><option value="7d">Last 7 days</option><option value="30d">Last 30 days</option><option value="mtd">Month to date</option></select></label>
+<span class="lab">Sections</span>
+<sc-for list="{{sections}}" as="s" hint-placeholder-count="5"><label class="ck"><input type="checkbox" checked="{{s.on}}" onChange="{{s.noop}}" style="accent-color:#4f7cff;width:16px;height:16px">{{s.label}}</label></sc-for>
+<button class="btn pri" type="button">Export HTML</button>
+<span style="font-size:12.5px;color:#8a94a6">A single self-contained file with inline styles and no scripts. Safe to email.</span>
+</div></div>
+<div class="glass"><div class="hd"><span style="font-weight:600">Recent exports</span></div>
+<div class="bd" style="padding-top:6px;padding-bottom:6px">
+<div class="row"><span class="mono" style="font-size:12.5px">progress_7d_2026-10-23.html</span><span style="color:#8a94a6">J. Stevenson · 13:40</span></div>
+<div class="row"><span class="mono" style="font-size:12.5px">exceptions_30d_2026-10-20.html</span><span style="color:#8a94a6">M. Okafor · 20 Oct</span></div>
+<div class="row" style="border:0"><span class="mono" style="font-size:12.5px">models_mtd_2026-10-16.html</span><span style="color:#8a94a6">J. Stevenson · 16 Oct</span></div>
+</div></div>
+</div>
+<div class="prev glass" style="padding:16px">
+<div style="display:flex;justify-content:space-between;padding:0 4px 12px"><span class="lab">Preview · what you export</span><span class="mono" style="font-size:12px;color:#8a94a6">As of 14:02 UTC</span></div>
+<article class="doc" aria-label="Report preview">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#5d6778">Cash application progress</div><h2 style="margin:6px 0 0;font-size:28px;font-weight:600;letter-spacing:-.01em">16 – 23 October 2026</h2></div><span style="font-size:12px;color:#5d6778">Generated 23 Oct 2026, 14:02 UTC</span></div>
+<div class="dk">
+<div><span style="font-size:12px;color:#5d6778">Receipts matched</span><span style="font-family:'Geist Mono',monospace;font-size:24px">1,284</span></div>
+<div><span style="font-size:12px;color:#5d6778">Automation rate</span><span style="font-family:'Geist Mono',monospace;font-size:24px">87.4%</span></div>
+<div><span style="font-size:12px;color:#5d6778">Open exceptions</span><span style="font-family:'Geist Mono',monospace;font-size:24px">63</span></div>
+<div><span style="font-size:12px;color:#5d6778">Awaiting receipt</span><span style="font-family:'Geist Mono',monospace;font-size:24px">142</span></div>
+</div>
+<div><h3 style="margin:0 0 8px;font-size:16px;font-weight:600">Money applied by currency</h3>
+<table class="dt"><thead><tr><th>Currency</th><th style="text-align:right">Applied</th><th style="text-align:right">Receipts</th></tr></thead><tbody>
+<tr><td>USD</td><td style="text-align:right;font-family:'Geist Mono',monospace">4,812,330.17</td><td style="text-align:right">902</td></tr>
+<tr><td>CAD</td><td style="text-align:right;font-family:'Geist Mono',monospace">612,004.50</td><td style="text-align:right">188</td></tr>
+<tr><td>EUR</td><td style="text-align:right;font-family:'Geist Mono',monospace">233,118.92</td><td style="text-align:right">71</td></tr>
+<tr><td>INR</td><td style="text-align:right;font-family:'Geist Mono',monospace">18,220,410.00</td><td style="text-align:right">123</td></tr>
+</tbody></table></div>
+<div><h3 style="margin:0 0 8px;font-size:16px;font-weight:600">Daily throughput</h3>
+<svg viewBox="0 0 400 100" width="100%" height="100" role="img" aria-label="Items done per day, 16 to 23 October"><path d="M0,40 L57,28 L114,45 L171,20 L228,10 L285,60 L342,65 L400,32" fill="none" stroke="#2f5bdb" stroke-width="2.5"></path><line x1="0" y1="98" x2="400" y2="98" stroke="#d6dbe3"></line></svg></div>
+<p style="margin:0;font-size:12px;color:#5d6778">Accuracy appears only for the 212 items people corrected. Model cost excludes 0.4% of calls with no recorded cost.</p>
+</article>
+</div>
+</div>
+</main>
+</div>
+<div role="region" aria-label="Assistant dock" style="align-self:center;width:min(880px,100%);display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center"><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Where are items waiting longest?</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Pause apply until 15:00</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Export this week’s report</button></div>
+<div style="display:flex;align-items:center;gap:10px;border:1px solid #ffffff1f;background:#0e1117;border-radius:16px;padding:10px 12px 10px 16px;box-shadow:0 0 0 4px #4f7cff1f,0 30px 60px -30px #000"><span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9db8ff">Assistant</span><input aria-label="Ask the assistant" placeholder="Ask or tell CashApp to do something…" style="flex:1;background:transparent;border:0;outline:none;color:#e6eaf2;font-family:Geist,sans-serif;font-size:15px"><a href="#" style="font-size:12.5px">Full screen</a><button type="button" aria-label="Send" style="width:32px;height:32px;border-radius:8px;background:#2f5bdb;color:#fff;border:0;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
+<span style="text-align:center;font-family:'Geist Mono',monospace;font-size:10.75px;text-transform:uppercase;letter-spacing:.04em;color:#8a94a6">Acts with your permissions · every change asks you to confirm · ⌘K</span>
+</div>
+<section class="states" aria-label="States">
+<div class="glass st"><span class="lab">Loading · preview</span><div class="sk" style="height:30px"></div><div class="sk"></div><div class="sk" style="height:70px"></div></div>
+<div class="glass st"><span class="lab">Empty</span><span style="font-size:17px;font-weight:600">Nothing to report yet</span><span style="font-size:13px;color:#a9b2c3">No item finished in this window. Export unlocks when there is data.</span></div>
+<div class="glass st" style="border-color:#f8717155"><span class="lab" style="color:#fca5a5">Error · export</span><span style="font-size:17px;font-weight:600">The export didn’t finish</span><span style="font-size:13px;color:#a9b2c3">The report query timed out. No file was created.</span><div><button class="btn" type="button">Try again</button></div></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Dashboard','DB',''],['Flow','FL','312'],['Exceptions','EX','63'],['Engine','EN',''],['Review','RV','3'],['Reports','RP',''],['Lab','LB','2'],['Config','CF','']];
+const active = 'Reports';
+const nav = items.map(([label,code,count]) => ({ label, code, count, cls: label === active ? 'nav on' : 'nav' }));
+const noop = () => {};
+const sections = [['Headline numbers',true],['Money by currency',true],['Throughput',true],['Exceptions by reason',false],['Model efficiency',false]].map(([label,on]) => ({ label, on, noop }));
+return { nav, sections, noop };
+}
+}
+</script>
+</body>
+</html>
