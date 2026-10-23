@@ -13,7 +13,7 @@ export function Sparkline({ values }: { values: readonly number[] }) {
       aria-label="Throughput last 60 minutes"
       viewBox={`0 0 ${width} ${height}`}
       preserveAspectRatio="none"
-      className="h-6 w-full text-status-progress"
+      className="h-6 w-full text-brand-hi"
     >
       <polyline
         points={points}

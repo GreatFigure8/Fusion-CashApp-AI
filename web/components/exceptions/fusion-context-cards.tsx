@@ -2,7 +2,8 @@ import { TriangleAlert } from "lucide-react";
 
 import { Money } from "@/components/common/money";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
+import { MonoLabel } from "@/components/common/mono-label";
+import { Pill } from "@/components/common/pill";
 import {
   Table,
   TableBody,
@@ -19,14 +20,14 @@ function Section({
 }: Readonly<{ title: string; children: React.ReactNode }>): React.JSX.Element {
   return (
     <section className="grid gap-2">
-      <h4 className="text-sm font-medium">{title}</h4>
+      <MonoLabel as="h3">{title}</MonoLabel>
       {children}
     </section>
   );
 }
 
 function Scroll({ children }: Readonly<{ children: React.ReactNode }>): React.JSX.Element {
-  return <div className="overflow-x-auto rounded-lg border">{children}</div>;
+  return <div className="overflow-x-auto rounded-xl border border-line-strong bg-surface-2">{children}</div>;
 }
 
 const NONE = <p className="text-sm text-muted-foreground">None found in Fusion.</p>;
@@ -44,7 +45,7 @@ export function CustomerCard({
   const site = customer.bill_to_site;
   return (
     <Section title="Customer">
-      <div className="grid gap-1 rounded-lg border p-3 text-sm">
+      <div className="grid gap-1 rounded-xl border border-line-strong bg-surface-2 p-3 text-sm">
         <p>
           <span className="font-mono">{customer.account_number}</span> · {customer.name}
         </p>
@@ -57,10 +58,10 @@ export function CustomerCard({
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <span className="text-xs text-muted-foreground">Pays on behalf:</span>
             {customer.relationships.map((rel) => (
-              <Badge key={rel.account_number} variant="outline" className="font-mono">
+              <Pill key={rel.account_number} tone="muted" mono>
                 {rel.account_number}
                 {rel.name ? ` · ${rel.name}` : ""} ({rel.directions.join(" / ").toLowerCase()})
-              </Badge>
+              </Pill>
             ))}
           </div>
         ) : null}
@@ -167,7 +168,7 @@ export function CreditMemoHistory({
     <Section title="Credit memo history">
       <div className="grid gap-3">
         {memos.map((memo) => (
-          <div key={memo.customer_trx_id} className="rounded-lg border p-3 text-sm">
+          <div key={memo.customer_trx_id} className="rounded-xl border border-line-strong bg-surface-2 p-3 text-sm">
             <p className="flex flex-wrap items-center gap-x-3">
               <span className="font-mono">{memo.number}</span>
               <span className="text-muted-foreground">original</span>

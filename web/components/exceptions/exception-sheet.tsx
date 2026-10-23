@@ -1,18 +1,22 @@
 "use client";
 
+import { XIcon } from "lucide-react";
 import type { Route } from "next";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { ReactNode } from "react";
+import Link from "next/link";
+import { useState, type ReactNode } from "react";
 
 import { ErrorAlert } from "@/components/common/error-alert";
 import { StatusBadge } from "@/components/common/status-badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import type { Schemas } from "@/lib/api/types";
-import { formatWorkItemId, humanizeEnum } from "@/lib/format";
+import { formatMoney, formatWorkItemId, humanizeEnum } from "@/lib/format";
 
+import { DetailFrame, useDetailClose } from "./detail-frame";
 import type { RemittanceExtraction } from "./edit-model";
-import { LockControls } from "./lock-controls";
+import { LockConflictCard } from "./lock-conflict-card";
+import { LockActions, LockStatus } from "./lock-controls";
+import { reasonLabel } from "./reason";
 import { SheetProvider, useSheet } from "./sheet-context";
 
 type Props = Readonly<{
@@ -20,7 +24,10 @@ type Props = Readonly<{
   /** The signed-in user's subject, to tell my lock from someone else's. */
   me: string;
   canWork: boolean;
-  item: Pick<Schemas["ItemOut"], "stage" | "state" | "version" | "payer_name">;
+  item: Pick<
+    Schemas["ItemOut"],
+    "stage" | "state" | "version" | "payer_name" | "amount" | "currency" | "last_error_code"
+  >;
   lock: Schemas["LockInfoOut"] | null;
   final: RemittanceExtraction | null;
   /** The server-rendered body (RC-8): passed through, never re-rendered by this component. */
@@ -51,18 +58,70 @@ function Notices(): React.JSX.Element | null {
   );
 }
 
-function Header({ itemId, payer, final }: Readonly<{ itemId: number; payer: string | null; final: RemittanceExtraction | null }>) {
+function Header({
+  itemId,
+  item,
+}: Readonly<{ itemId: number; item: Props["item"] }>) {
   const { sheet } = useSheet();
+  const close = useDetailClose();
+  const money = item.amount && item.currency ? ` · ${formatMoney(item.amount, item.currency)}` : "";
   return (
-    <SheetHeader className="gap-3 border-b pr-12">
-      <div className="flex flex-wrap items-center gap-2">
-        <SheetTitle className="font-mono">{formatWorkItemId(itemId)}</SheetTitle>
-        <StatusBadge kind="item_state" value={sheet.state} />
-        <span className="text-xs text-muted-foreground">{humanizeEnum(sheet.stage)}</span>
+    <header className="flex items-start gap-3 border-b border-line px-[18px] py-3.5">
+      <div className="grid min-w-0 flex-1 gap-1">
+        <p className="font-mono text-xs text-muted-foreground">
+          {formatWorkItemId(itemId)}
+          {money}
+        </p>
+        <h2 className="text-[17px] font-semibold tracking-[-0.01em]">
+          {item.last_error_code ? reasonLabel(item.last_error_code) : "Needs a person"}
+        </h2>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <StatusBadge kind="item_state" value={sheet.state} />
+          <span>{humanizeEnum(sheet.stage)}</span>
+          <span>{item.payer_name ?? "Payer not read"}</span>
+        </div>
       </div>
-      <SheetDescription>{payer ?? "Payer not read"}</SheetDescription>
-      <LockControls final={final} />
-    </SheetHeader>
+      <Button variant="ghost" size="icon-sm" aria-label="Close" onClick={close}>
+        <XIcon />
+      </Button>
+    </header>
+  );
+}
+
+function Body({
+  itemId,
+  item,
+  final,
+  children,
+}: Readonly<{
+  itemId: number;
+  item: Props["item"];
+  final: RemittanceExtraction | null;
+  children: ReactNode;
+}>) {
+  const [conflictDismissed, setConflictDismissed] = useState(false);
+  return (
+    <>
+      <Header itemId={itemId} item={item} />
+      <div className="grid gap-5 px-[18px] py-4">
+        <LockConflictCard
+          dismissed={conflictDismissed}
+          onDismiss={() => setConflictDismissed(true)}
+        />
+        <LockStatus />
+        <Notices />
+        {children}
+        <div className="flex flex-wrap items-center gap-2 border-t border-line pt-4">
+          <LockActions final={final} errorCode={item.last_error_code} />
+          <Link
+            href={`/items/${itemId}` as Route}
+            className="ml-auto text-sm underline-offset-4 hover:underline"
+          >
+            Full history
+          </Link>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -75,31 +134,13 @@ export function ExceptionSheet({
   final,
   children,
 }: Props): React.JSX.Element {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const close = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("item");
-    const query = params.toString();
-    router.replace((query ? `${pathname}?${query}` : pathname) as Route, { scroll: false });
-  };
-
   return (
     <SheetProvider itemId={itemId} me={me} canWork={canWork} item={item} lock={lock}>
-      <Sheet open onOpenChange={(open) => (open ? undefined : close())}>
-        <SheetContent
-          className="w-full overflow-y-auto data-[side=right]:w-full data-[side=right]:sm:max-w-none lg:data-[side=right]:w-[60vw]"
-          aria-label={`Exception ${formatWorkItemId(itemId)}`}
-        >
-          <Header itemId={itemId} payer={item.payer_name} final={final} />
-          <div className="grid gap-5 px-4 pb-8">
-            <Notices />
-            {children}
-          </div>
-        </SheetContent>
-      </Sheet>
+      <DetailFrame label={`Item ${formatWorkItemId(itemId)}`}>
+        <Body itemId={itemId} item={item} final={final}>
+          {children}
+        </Body>
+      </DetailFrame>
     </SheetProvider>
   );
 }

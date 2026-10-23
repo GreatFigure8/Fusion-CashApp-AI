@@ -4,6 +4,7 @@ import { LockIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import { GlassPanel } from "@/components/common/glass-panel";
 import { Money } from "@/components/common/money";
 import { StatusBadge } from "@/components/common/status-badge";
 import { useFlowStream } from "@/components/shell/flow-stream";
@@ -49,9 +50,9 @@ export function ItemHeader({
   const currentLock = newer ? patch.lock : lock;
 
   return (
-    <header data-slot="item-header" className="flex flex-col gap-1.5 rounded-lg border bg-card p-3">
+    <GlassPanel as="header" className="flex flex-col gap-1.5 p-3.5">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <h1 className="font-mono text-lg font-semibold">{formatWorkItemId(item.id)}</h1>
+        <h1 className="font-mono text-lg font-semibold text-brand-ink">{formatWorkItemId(item.id)}</h1>
         <span className="text-sm text-muted-foreground">{humanizeEnum(stage)}</span>
         <StatusBadge kind="item_state" value={state} />
         {paymentStatus ? <StatusBadge kind="payment_status" value={paymentStatus} /> : null}
@@ -59,11 +60,11 @@ export function ItemHeader({
       </div>
       <p className="text-sm text-muted-foreground">{item.payer_name ?? "Payer not yet read"}</p>
       {currentLock ? (
-        <p data-slot="lock-line" className="flex items-center gap-1.5 text-sm text-status-locked">
+        <p data-slot="lock-line" className="flex items-center gap-1.5 text-sm text-locked-ink">
           <LockIcon aria-hidden className="size-4" />
           Locked by {currentLock.owner_name} since {formatDateTime(currentLock.acquired_at)}
         </p>
       ) : null}
-    </header>
+    </GlassPanel>
   );
 }

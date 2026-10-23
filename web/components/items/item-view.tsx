@@ -1,6 +1,7 @@
 "use client";
 
 import { ArtifactViewer } from "@/components/common/artifact-viewer";
+import { GlassPanel, PanelBody, PanelHeader } from "@/components/common/glass-panel";
 import { HistoryTimeline } from "@/components/common/history-timeline";
 import { LlmChat } from "@/components/common/llm-chat";
 import { highlightsFor } from "@/components/items/extraction-rows";
@@ -28,7 +29,9 @@ function Panes({
     <div className="flex min-w-0 flex-col gap-3">
       <ItemHeader item={item} lock={detail.lock} />
       <div className="grid min-w-0 gap-3 lg:grid-cols-[2fr_3fr_minmax(320px,1.4fr)]">
-        <section aria-label="Artifact" className="min-w-0">
+        <GlassPanel aria-label="Artifact" className="min-w-0 overflow-hidden">
+          <PanelHeader title="Artifact" titleSize="label" />
+          <PanelBody flush>
           <ArtifactViewer
             itemId={item.id}
             parts={detail.parts}
@@ -36,12 +39,13 @@ function Panes({
             activeHighlightId={active}
             onHighlightHover={setActive}
           />
-        </section>
-        <section aria-label="Extraction" className="flex min-w-0 flex-col gap-3">
+          </PanelBody>
+        </GlassPanel>
+        <section aria-label="Extraction" className="flex min-w-0 flex-col gap-3 overflow-x-auto">
           <ExtractionTabs extraction={extraction} />
           <LinesTable lines={detail.lines} currency={item.currency} />
         </section>
-        <aside aria-label="History and chat" className="min-w-0 rounded-lg border bg-card p-2">
+        <GlassPanel as="aside" aria-label="History and chat" className="min-w-0 p-2">
           <Tabs defaultValue="history">
             <TabsList>
               <TabsTrigger value="history">History</TabsTrigger>
@@ -61,7 +65,7 @@ function Panes({
               />
             </TabsContent>
           </Tabs>
-        </aside>
+        </GlassPanel>
       </div>
     </div>
   );

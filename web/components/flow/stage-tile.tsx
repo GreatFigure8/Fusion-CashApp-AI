@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { Sparkline } from "@/components/flow/sparkline";
-import { Badge } from "@/components/ui/badge";
+import { Pill } from "@/components/common/pill";
 import type { Schemas } from "@/lib/api/types";
 import { formatDuration, humanizeEnum } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -22,21 +22,22 @@ export function StageTile({
       href={`/flow/${tile.stage.toLowerCase()}`}
       data-stage={tile.stage}
       className={cn(
-        "flex min-w-0 flex-col gap-1.5 rounded-lg border bg-card p-3 text-sm transition-colors",
-        "hover:border-ring focus-visible:ring-2 focus-visible:ring-ring",
-        "md:w-44 md:shrink-0",
+        "flex min-w-0 flex-col gap-2 rounded-xl border border-line bg-surface-2/40 px-3.5 py-3 text-sm transition-colors",
+        "hover:border-brand-hi/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-hi/60",
       )}
     >
       <span className="flex items-center justify-between gap-2">
-        <span className="font-medium">{label}</span>
+        <span className="font-mono text-xs uppercase tracking-[0.06em]">{label}</span>
         {tile.errors > 0 ? (
-          <Badge variant="destructive" data-slot="error-badge" aria-label={`${tile.errors} errors`}>
-            {tile.errors}
-          </Badge>
+          <span data-slot="error-badge" aria-label={`${tile.errors} errors`}>
+            <Pill tone="err" mono>
+              {tile.errors}
+            </Pill>
+          </span>
         ) : null}
       </span>
       <span className="flex items-baseline gap-2">
-        <span className="text-2xl font-semibold tabular-nums" data-slot="in-queue">
+        <span className="font-mono text-2xl font-medium tabular-nums" data-slot="in-queue">
           {tile.in_queue}
         </span>
         <span className="text-xs text-muted-foreground">

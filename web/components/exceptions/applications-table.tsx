@@ -1,5 +1,6 @@
 "use client";
 
+import { MonoLabel } from "@/components/common/mono-label";
 import { Money } from "@/components/common/money";
 import {
   Table,
@@ -29,10 +30,10 @@ export function ApplicationsTable({ applications, currency, canReverse }: Props)
 
   return (
     <section className="grid gap-2" aria-labelledby="applications-title">
-      <h4 id="applications-title" className="text-sm font-medium">
-        Applied to Fusion
-      </h4>
-      <div className="overflow-x-auto rounded-lg border">
+      <MonoLabel as="h3">
+        <span id="applications-title">Applied to Fusion</span>
+      </MonoLabel>
+      <div className="overflow-x-auto rounded-xl border border-line-strong bg-surface-2">
         <Table>
           <TableHeader>
             <TableRow>
