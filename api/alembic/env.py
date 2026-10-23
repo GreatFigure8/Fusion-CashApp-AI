@@ -2,15 +2,16 @@
 
 import asyncio
 import importlib
-import os
 import pkgutil
 
 from alembic import context
 from sqlalchemy.engine import Connection
+from sqlalchemy.pool import NullPool
 
 import cashapp.data.models as models_pkg
 from cashapp.data.base import Base
 from cashapp.data.engine import create_engine
+from cashapp.settings import get_settings
 
 config = context.config
 
@@ -21,11 +22,8 @@ target_metadata = Base.metadata
 
 
 def _database_url() -> str:
-    """The one place the migration URL comes from (s27 rewires this to the settings object)."""
-    url = os.environ.get("CASHAPP_DATABASE_URL")
-    if not url:
-        raise RuntimeError("CASHAPP_DATABASE_URL is not set; it must hold the SQLAlchemy URL.")
-    return url
+    """The one place the migration URL comes from: the `atp` settings group."""
+    return get_settings().atp.url().render_as_string(hide_password=False)
 
 
 def run_migrations_offline() -> None:
@@ -47,7 +45,11 @@ def do_run_migrations(connection: Connection) -> None:
 
 
 async def run_migrations_online() -> None:
-    engine = create_engine(_database_url())
+    engine = create_engine(
+        _database_url(),
+        poolclass=NullPool,
+        connect_args=get_settings().atp.connect_args(),
+    )
     async with engine.connect() as connection:
         await connection.run_sync(do_run_migrations)
     await engine.dispose()
