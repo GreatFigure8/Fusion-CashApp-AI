@@ -9,7 +9,10 @@
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "api:openapi": "uv run --project ../api python -m cashapp.openapi_dump --out lib/api/openapi.json",
+    "api:types": "node scripts/gen-api-types.mjs",
+    "api:sync": "npm run api:openapi && npm run api:types"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
