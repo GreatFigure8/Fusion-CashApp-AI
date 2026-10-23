@@ -257,6 +257,183 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/engine/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Engine Audit
+         * @description Who did what to the engine, newest first. The default page size is a setting.
+         */
+        get: operations["list_engine_audit_engine_audit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/dead-letters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Dead Letters */
+        get: operations["list_dead_letters_engine_dead_letters_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/dead-letters/replay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Replay Dead Letters
+         * @description Send chosen dead letters back to their stage; locked, done and repeated ones are skipped.
+         */
+        post: operations["replay_dead_letters_engine_dead_letters_replay_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/stations/{station}/drain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Drain Station
+         * @description Pause a station and report DRAINED once nothing is in flight.
+         */
+        post: operations["drain_station_engine_stations__station__drain_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/stations/{station}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pause Station
+         * @description Pause a station: in-flight work finishes; new deliveries stay uncommitted on the bus.
+         */
+        post: operations["pause_station_engine_stations__station__pause_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/stations/{station}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resume Station
+         * @description Resume a paused or drained station.
+         */
+        post: operations["resume_station_engine_stations__station__resume_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Engine Status
+         * @description Per station: state, lag, throughput, in-flight against its limit, dead letters.
+         */
+        get: operations["get_engine_status_engine_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Stream Engine
+         * @description SSE: a ``status`` event on connect and whenever the status changes; a ping every 15 s.
+         */
+        get: operations["stream_engine_engine_stream_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/throttle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Throttle
+         * @description Set items per stage (1 to 32) and Fusion applies per receipt (1 to 8).
+         */
+        put: operations["put_throttle_engine_throttle_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/exceptions": {
         parameters: {
             query?: never;
@@ -935,6 +1112,27 @@ export interface components {
             /** Stale */
             stale: boolean;
         };
+        /** PollerOut */
+        cashapp__api__schemas__engine__PollerOut: {
+            /** Healthy */
+            healthy: boolean;
+            /** Interval Seconds */
+            interval_seconds: number;
+            /** Last Beat At */
+            last_beat_at: string | null;
+            /**
+             * Name
+             * @enum {string}
+             */
+            name: "intake-poller" | "receipt-watcher";
+        };
+        /** PollerOut */
+        cashapp__api__schemas__flow__PollerOut: {
+            /** Last Cycle At */
+            last_cycle_at: string | null;
+            /** Name */
+            name: string;
+        };
         /** ChatContextIn */
         ChatContextIn: {
             /** Id */
@@ -1259,6 +1457,41 @@ export interface components {
          * @enum {string}
          */
         DateKind: "payment" | "issue" | "order" | "deposit" | "other";
+        /** DeadLetterOut */
+        DeadLetterOut: {
+            /** Attempts */
+            attempts: number;
+            /**
+             * Dead Since
+             * Format: date-time
+             */
+            dead_since: string;
+            /** Error Code */
+            error_code: string | null;
+            /**
+             * Event Id
+             * Format: uuid
+             */
+            event_id: string;
+            /** Item Id */
+            item_id: number | null;
+            /**
+             * Stage
+             * @enum {string}
+             */
+            stage: "intake" | "classify" | "extract.reader_a" | "extract.reader_b" | "adjudicate" | "validate" | "resolve_customer" | "match_receipt" | "await_receipt" | "match_lines" | "apply" | "write_back";
+        };
+        /** DeadLetterPage */
+        DeadLetterPage: {
+            /** Items */
+            items: components["schemas"]["DeadLetterOut"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
         /** Disagreement */
         Disagreement: {
             /**
@@ -1303,6 +1536,101 @@ export interface components {
             emailed_at: string;
             /** Emailed To */
             emailed_to: string[];
+        };
+        /** EngineActionIn */
+        EngineActionIn: {
+            /** Expected Version */
+            expected_version: number;
+            /** Reason */
+            reason: string;
+        };
+        /** EngineActionOut */
+        EngineActionOut: {
+            audit: components["schemas"]["EngineAuditOut"];
+            status: components["schemas"]["EngineStatusOut"];
+        };
+        /** EngineAuditOut */
+        EngineAuditOut: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "PAUSE" | "RESUME" | "DRAIN" | "THROTTLE" | "REPLAY";
+            /** Actor Id */
+            actor_id: string;
+            /** Actor Name */
+            actor_name: string;
+            /** Actor Role */
+            actor_role: string;
+            /** After */
+            after: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Before */
+            before: {
+                [key: string]: unknown;
+            } | null;
+            /** Config Version */
+            config_version: number;
+            /** Id */
+            id: number;
+            /** Reason */
+            reason: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "api" | "chat";
+            /** Stations */
+            stations: ("intake" | "classify" | "extract.reader_a" | "extract.reader_b" | "adjudicate" | "validate" | "resolve_customer" | "match_receipt" | "await_receipt" | "match_lines" | "apply" | "write_back")[];
+        };
+        /** EngineAuditPage */
+        EngineAuditPage: {
+            /** Items */
+            items: components["schemas"]["EngineAuditOut"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /** EngineStatusOut */
+        EngineStatusOut: {
+            /** Bus Healthy */
+            bus_healthy: boolean;
+            /**
+             * Config Version
+             * @description Send this back as expected_version.
+             */
+            config_version: number;
+            /** Consumer Group */
+            consumer_group: string;
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Dlq Total */
+            dlq_total: number;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Pollers */
+            pollers: components["schemas"]["cashapp__api__schemas__engine__PollerOut"][];
+            /** Region */
+            region: string;
+            /** Stations */
+            stations: components["schemas"]["StationOut"][];
+            throttle: components["schemas"]["ThrottleOut"];
+            /** Total Lag */
+            total_lag: number;
         };
         /** ErrorBody */
         ErrorBody: {
@@ -1551,7 +1879,7 @@ export interface components {
             generated_at: string;
             kpis: components["schemas"]["FlowKpisOut"];
             /** Pollers */
-            pollers: components["schemas"]["PollerOut"][];
+            pollers: components["schemas"]["cashapp__api__schemas__flow__PollerOut"][];
             /** Stages */
             stages: components["schemas"]["FlowTileOut"][];
         };
@@ -2016,14 +2344,7 @@ export interface components {
          * Permission
          * @enum {string}
          */
-        Permission: "items:read" | "items:work" | "apply:reverse" | "classification:override" | "config:read" | "config:write" | "reports:read" | "backlog:run" | "chat:use";
-        /** PollerOut */
-        PollerOut: {
-            /** Last Cycle At */
-            last_cycle_at: string | null;
-            /** Name */
-            name: string;
-        };
+        Permission: "items:read" | "items:work" | "apply:reverse" | "classification:override" | "config:read" | "config:write" | "reports:read" | "backlog:run" | "chat:use" | "engine:control";
         /**
          * PromptKey
          * @enum {string}
@@ -2167,6 +2488,35 @@ export interface components {
              * @description Every sales order number on the remittance, as strings.
              */
             sales_order_refs: string[];
+        };
+        /** ReplayIn */
+        ReplayIn: {
+            /** Event Ids */
+            event_ids: string[];
+            /** Reason */
+            reason: string;
+        };
+        /** ReplayOut */
+        ReplayOut: {
+            /** Audit Id */
+            audit_id: number;
+            /** Replayed */
+            replayed: number;
+            /** Skipped */
+            skipped: components["schemas"]["ReplaySkipOut"][];
+        };
+        /** ReplaySkipOut */
+        ReplaySkipOut: {
+            /**
+             * Event Id
+             * Format: uuid
+             */
+            event_id: string;
+            /**
+             * Why
+             * @enum {string}
+             */
+            why: "locked" | "done" | "already_replayed" | "moved_on" | "not_found";
         };
         /** RequeueIn */
         RequeueIn: {
@@ -2319,6 +2669,45 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** StationOut */
+        StationOut: {
+            /** Dlq Depth */
+            dlq_depth: number;
+            /** In Flight */
+            in_flight: number;
+            /**
+             * Lag
+             * @description Messages not yet committed; null when unknown.
+             */
+            lag: number | null;
+            /** Limit */
+            limit: number;
+            /**
+             * Name
+             * @enum {string}
+             */
+            name: "intake" | "classify" | "extract.reader_a" | "extract.reader_b" | "adjudicate" | "validate" | "resolve_customer" | "match_receipt" | "await_receipt" | "match_lines" | "apply" | "write_back";
+            /**
+             * Saturated
+             * @description in_flight is at or above limit.
+             */
+            saturated: boolean;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "RUNNING" | "PAUSED" | "DRAINING" | "DRAINED";
+            /**
+             * Throughput Per Min
+             * @description Mean over the last five minutes.
+             */
+            throughput_per_min: number;
+            /**
+             * Waiting
+             * @description await_receipt only: items waiting for a receipt.
+             */
+            waiting: number | null;
+        };
         /** StreamErrorData */
         StreamErrorData: {
             /**
@@ -2328,6 +2717,29 @@ export interface components {
             code: "timeout" | "llm_unavailable" | "refused" | "internal_error";
             /** Message */
             message: string;
+        };
+        /** ThrottleIn */
+        ThrottleIn: {
+            /** Apply Per Receipt */
+            apply_per_receipt: number;
+            /** Expected Version */
+            expected_version: number;
+            /**
+             * Per Stage
+             * @description Written as concurrency.per_stage {"*": n}; other entries clamped.
+             */
+            per_stage: number;
+            /** Reason */
+            reason: string;
+        };
+        /** ThrottleOut */
+        ThrottleOut: {
+            /** Apply Per Receipt */
+            apply_per_receipt: number;
+            /** Per Stage */
+            per_stage: {
+                [key: string]: number;
+            };
         };
         /** TokenData */
         TokenData: {
@@ -3100,6 +3512,383 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConfigChangePage"];
+                };
+            };
+        };
+    };
+    list_engine_audit_engine_audit_get: {
+        parameters: {
+            query?: {
+                limit?: number | null;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineAuditPage"];
+                };
+            };
+        };
+    };
+    list_dead_letters_engine_dead_letters_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+                /** @description Only this station's dead letters. */
+                station?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeadLetterPage"];
+                };
+            };
+        };
+    };
+    replay_dead_letters_engine_dead_letters_replay_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplayIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReplayOut"];
+                };
+            };
+        };
+    };
+    drain_station_engine_stations__station__drain_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                station: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EngineActionIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineActionOut"];
+                };
+            };
+        };
+    };
+    pause_station_engine_stations__station__pause_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                station: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EngineActionIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineActionOut"];
+                };
+            };
+        };
+    };
+    resume_station_engine_stations__station__resume_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                station: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EngineActionIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineActionOut"];
+                };
+            };
+        };
+    };
+    get_engine_status_engine_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineStatusOut"];
+                };
+            };
+        };
+    };
+    stream_engine_engine_stream_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineStatusOut"];
+                    "text/event-stream": unknown;
+                };
+            };
+        };
+    };
+    put_throttle_engine_throttle_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThrottleIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineActionOut"];
                 };
             };
         };

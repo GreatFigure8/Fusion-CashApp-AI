@@ -1690,6 +1690,105 @@
         "title": "DateKind",
         "type": "string"
       },
+      "DeadLetterOut": {
+        "properties": {
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "dead_since": {
+            "format": "date-time",
+            "title": "Dead Since",
+            "type": "string"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "event_id": {
+            "format": "uuid",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "item_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Id"
+          },
+          "stage": {
+            "enum": [
+              "intake",
+              "classify",
+              "extract.reader_a",
+              "extract.reader_b",
+              "adjudicate",
+              "validate",
+              "resolve_customer",
+              "match_receipt",
+              "await_receipt",
+              "match_lines",
+              "apply",
+              "write_back"
+            ],
+            "title": "Stage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "stage",
+          "item_id",
+          "error_code",
+          "attempts",
+          "dead_since"
+        ],
+        "title": "DeadLetterOut",
+        "type": "object"
+      },
+      "DeadLetterPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DeadLetterOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ],
+        "title": "DeadLetterPage",
+        "type": "object"
+      },
       "Disagreement": {
         "additionalProperties": false,
         "properties": {
@@ -1816,6 +1915,268 @@
           "emailed_at"
         ],
         "title": "EmailResponse",
+        "type": "object"
+      },
+      "EngineActionIn": {
+        "properties": {
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "expected_version"
+        ],
+        "title": "EngineActionIn",
+        "type": "object"
+      },
+      "EngineActionOut": {
+        "properties": {
+          "audit": {
+            "$ref": "#/components/schemas/EngineAuditOut"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EngineStatusOut"
+          }
+        },
+        "required": [
+          "status",
+          "audit"
+        ],
+        "title": "EngineActionOut",
+        "type": "object"
+      },
+      "EngineAuditOut": {
+        "properties": {
+          "action": {
+            "enum": [
+              "PAUSE",
+              "RESUME",
+              "DRAIN",
+              "THROTTLE",
+              "REPLAY"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "actor_id": {
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "actor_name": {
+            "title": "Actor Name",
+            "type": "string"
+          },
+          "actor_role": {
+            "title": "Actor Role",
+            "type": "string"
+          },
+          "after": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "before": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Before"
+          },
+          "config_version": {
+            "title": "Config Version",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "api",
+              "chat"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "stations": {
+            "items": {
+              "enum": [
+                "intake",
+                "classify",
+                "extract.reader_a",
+                "extract.reader_b",
+                "adjudicate",
+                "validate",
+                "resolve_customer",
+                "match_receipt",
+                "await_receipt",
+                "match_lines",
+                "apply",
+                "write_back"
+              ],
+              "type": "string"
+            },
+            "title": "Stations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "at",
+          "actor_id",
+          "actor_name",
+          "actor_role",
+          "action",
+          "stations",
+          "before",
+          "after",
+          "reason",
+          "config_version",
+          "source"
+        ],
+        "title": "EngineAuditOut",
+        "type": "object"
+      },
+      "EngineAuditPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EngineAuditOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ],
+        "title": "EngineAuditPage",
+        "type": "object"
+      },
+      "EngineStatusOut": {
+        "properties": {
+          "bus_healthy": {
+            "title": "Bus Healthy",
+            "type": "boolean"
+          },
+          "config_version": {
+            "description": "Send this back as expected_version.",
+            "title": "Config Version",
+            "type": "integer"
+          },
+          "consumer_group": {
+            "title": "Consumer Group",
+            "type": "string"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "enum": [
+                "running",
+                "paused",
+                "draining",
+                "drained"
+              ]
+            },
+            "title": "Counts",
+            "type": "object"
+          },
+          "dlq_total": {
+            "title": "Dlq Total",
+            "type": "integer"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "pollers": {
+            "items": {
+              "$ref": "#/components/schemas/cashapp__api__schemas__engine__PollerOut"
+            },
+            "title": "Pollers",
+            "type": "array"
+          },
+          "region": {
+            "title": "Region",
+            "type": "string"
+          },
+          "stations": {
+            "items": {
+              "$ref": "#/components/schemas/StationOut"
+            },
+            "title": "Stations",
+            "type": "array"
+          },
+          "throttle": {
+            "$ref": "#/components/schemas/ThrottleOut"
+          },
+          "total_lag": {
+            "title": "Total Lag",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "bus_healthy",
+          "total_lag",
+          "dlq_total",
+          "pollers",
+          "region",
+          "consumer_group",
+          "stations",
+          "throttle",
+          "config_version",
+          "counts",
+          "generated_at"
+        ],
+        "title": "EngineStatusOut",
         "type": "object"
       },
       "ErrorBody": {
@@ -2587,7 +2948,7 @@
           },
           "pollers": {
             "items": {
-              "$ref": "#/components/schemas/PollerOut"
+              "$ref": "#/components/schemas/cashapp__api__schemas__flow__PollerOut"
             },
             "title": "Pollers",
             "type": "array"
@@ -4107,36 +4468,11 @@
           "config:write",
           "reports:read",
           "backlog:run",
-          "chat:use"
+          "chat:use",
+          "engine:control"
         ],
         "title": "Permission",
         "type": "string"
-      },
-      "PollerOut": {
-        "properties": {
-          "last_cycle_at": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Cycle At"
-          },
-          "name": {
-            "title": "Name",
-            "type": "string"
-          }
-        },
-        "required": [
-          "name",
-          "last_cycle_at"
-        ],
-        "title": "PollerOut",
-        "type": "object"
       },
       "PromptKey": {
         "enum": [
@@ -4480,6 +4816,84 @@
           "bank_fees"
         ],
         "title": "RemittanceExtraction",
+        "type": "object"
+      },
+      "ReplayIn": {
+        "properties": {
+          "event_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Event Ids",
+            "type": "array"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_ids",
+          "reason"
+        ],
+        "title": "ReplayIn",
+        "type": "object"
+      },
+      "ReplayOut": {
+        "properties": {
+          "audit_id": {
+            "title": "Audit Id",
+            "type": "integer"
+          },
+          "replayed": {
+            "title": "Replayed",
+            "type": "integer"
+          },
+          "skipped": {
+            "items": {
+              "$ref": "#/components/schemas/ReplaySkipOut"
+            },
+            "title": "Skipped",
+            "type": "array"
+          }
+        },
+        "required": [
+          "replayed",
+          "skipped",
+          "audit_id"
+        ],
+        "title": "ReplayOut",
+        "type": "object"
+      },
+      "ReplaySkipOut": {
+        "properties": {
+          "event_id": {
+            "format": "uuid",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "why": {
+            "enum": [
+              "locked",
+              "done",
+              "already_replayed",
+              "moved_on",
+              "not_found"
+            ],
+            "title": "Why",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "why"
+        ],
+        "title": "ReplaySkipOut",
         "type": "object"
       },
       "RequeueIn": {
@@ -4968,6 +5382,97 @@
         "title": "StageItemsOut",
         "type": "object"
       },
+      "StationOut": {
+        "properties": {
+          "dlq_depth": {
+            "title": "Dlq Depth",
+            "type": "integer"
+          },
+          "in_flight": {
+            "title": "In Flight",
+            "type": "integer"
+          },
+          "lag": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Messages not yet committed; null when unknown.",
+            "title": "Lag"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "name": {
+            "enum": [
+              "intake",
+              "classify",
+              "extract.reader_a",
+              "extract.reader_b",
+              "adjudicate",
+              "validate",
+              "resolve_customer",
+              "match_receipt",
+              "await_receipt",
+              "match_lines",
+              "apply",
+              "write_back"
+            ],
+            "title": "Name",
+            "type": "string"
+          },
+          "saturated": {
+            "description": "in_flight is at or above limit.",
+            "title": "Saturated",
+            "type": "boolean"
+          },
+          "state": {
+            "enum": [
+              "RUNNING",
+              "PAUSED",
+              "DRAINING",
+              "DRAINED"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "throughput_per_min": {
+            "description": "Mean over the last five minutes.",
+            "title": "Throughput Per Min",
+            "type": "number"
+          },
+          "waiting": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "await_receipt only: items waiting for a receipt.",
+            "title": "Waiting"
+          }
+        },
+        "required": [
+          "name",
+          "state",
+          "lag",
+          "throughput_per_min",
+          "dlq_depth",
+          "in_flight",
+          "limit",
+          "saturated",
+          "waiting"
+        ],
+        "title": "StationOut",
+        "type": "object"
+      },
       "StreamErrorData": {
         "properties": {
           "code": {
@@ -4990,6 +5495,63 @@
           "message"
         ],
         "title": "StreamErrorData",
+        "type": "object"
+      },
+      "ThrottleIn": {
+        "properties": {
+          "apply_per_receipt": {
+            "maximum": 8.0,
+            "minimum": 1.0,
+            "title": "Apply Per Receipt",
+            "type": "integer"
+          },
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "per_stage": {
+            "description": "Written as concurrency.per_stage {\"*\": n}; other entries clamped.",
+            "maximum": 32.0,
+            "minimum": 1.0,
+            "title": "Per Stage",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "expected_version",
+          "per_stage",
+          "apply_per_receipt"
+        ],
+        "title": "ThrottleIn",
+        "type": "object"
+      },
+      "ThrottleOut": {
+        "properties": {
+          "apply_per_receipt": {
+            "title": "Apply Per Receipt",
+            "type": "integer"
+          },
+          "per_stage": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Per Stage",
+            "type": "object"
+          }
+        },
+        "required": [
+          "per_stage",
+          "apply_per_receipt"
+        ],
+        "title": "ThrottleOut",
         "type": "object"
       },
       "TokenData": {
@@ -5202,6 +5764,72 @@
         ],
         "title": "UsageOutcome",
         "type": "string"
+      },
+      "cashapp__api__schemas__engine__PollerOut": {
+        "properties": {
+          "healthy": {
+            "title": "Healthy",
+            "type": "boolean"
+          },
+          "interval_seconds": {
+            "title": "Interval Seconds",
+            "type": "integer"
+          },
+          "last_beat_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Beat At"
+          },
+          "name": {
+            "enum": [
+              "intake-poller",
+              "receipt-watcher"
+            ],
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "interval_seconds",
+          "last_beat_at",
+          "healthy"
+        ],
+        "title": "PollerOut",
+        "type": "object"
+      },
+      "cashapp__api__schemas__flow__PollerOut": {
+        "properties": {
+          "last_cycle_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Cycle At"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "last_cycle_at"
+        ],
+        "title": "PollerOut",
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -6291,6 +6919,586 @@
         "summary": "Config History",
         "tags": [
           "config"
+        ]
+      }
+    },
+    "/engine/audit": {
+      "get": {
+        "description": "Who did what to the engine, newest first. The default page size is a setting.",
+        "operationId": "list_engine_audit_engine_audit_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 200,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineAuditPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Engine Audit",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/dead-letters": {
+      "get": {
+        "operationId": "list_dead_letters_engine_dead_letters_get",
+        "parameters": [
+          {
+            "description": "Only this station's dead letters.",
+            "in": "query",
+            "name": "station",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only this station's dead letters.",
+              "title": "Station"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeadLetterPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Dead Letters",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/dead-letters/replay": {
+      "post": {
+        "description": "Send chosen dead letters back to their stage; locked, done and repeated ones are skipped.",
+        "operationId": "replay_dead_letters_engine_dead_letters_replay_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplayIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Replay Dead Letters",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/stations/{station}/drain": {
+      "post": {
+        "description": "Pause a station and report DRAINED once nothing is in flight.",
+        "operationId": "drain_station_engine_stations__station__drain_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "station",
+            "required": true,
+            "schema": {
+              "title": "Station",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EngineActionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineActionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Drain Station",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/stations/{station}/pause": {
+      "post": {
+        "description": "Pause a station: in-flight work finishes; new deliveries stay uncommitted on the bus.",
+        "operationId": "pause_station_engine_stations__station__pause_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "station",
+            "required": true,
+            "schema": {
+              "title": "Station",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EngineActionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineActionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Pause Station",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/stations/{station}/resume": {
+      "post": {
+        "description": "Resume a paused or drained station.",
+        "operationId": "resume_station_engine_stations__station__resume_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "station",
+            "required": true,
+            "schema": {
+              "title": "Station",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EngineActionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineActionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Resume Station",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/status": {
+      "get": {
+        "description": "Per station: state, lag, throughput, in-flight against its limit, dead letters.",
+        "operationId": "get_engine_status_engine_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineStatusOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Engine Status",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/stream": {
+      "get": {
+        "description": "SSE: a ``status`` event on connect and whenever the status changes; a ping every 15 s.",
+        "operationId": "stream_engine_engine_stream_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineStatusOut"
+                }
+              },
+              "text/event-stream": {}
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Stream Engine",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/throttle": {
+      "put": {
+        "description": "Set items per stage (1 to 32) and Fusion applies per receipt (1 to 8).",
+        "operationId": "put_throttle_engine_throttle_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThrottleIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineActionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Put Throttle",
+        "tags": [
+          "engine"
         ]
       }
     },
