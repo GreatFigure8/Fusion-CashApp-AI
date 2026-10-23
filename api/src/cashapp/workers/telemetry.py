@@ -8,12 +8,13 @@ event marks the telemetry dirty and the next push is coalesced to at most one pe
 import asyncio
 import logging
 import time
-from typing import Final
+from typing import Final, cast
 
 from cashapp.domain.stages import Stage
 from cashapp.observability.metrics import Metrics
 from cashapp.observability.queue_stats import collect_queue_stats
 from cashapp.pipeline.health import BusHealth
+from cashapp.pipeline.roles import Container
 from cashapp.workers.container import WorkerContainer
 from cashapp.workers.hooks import HEALTH_TICK_HOOKS
 
@@ -58,7 +59,8 @@ class HostTelemetry:
         for hook in list(HEALTH_TICK_HOOKS):
             try:
                 await asyncio.wait_for(
-                    hook.on_tick(self._container, now), timeout=HOOK_TIMEOUT_SECONDS
+                    hook.on_tick(cast(Container, self._container), now),
+                    timeout=HOOK_TIMEOUT_SECONDS,
                 )
             except Exception:
                 log.exception("health tick hook %s failed", type(hook).__name__)

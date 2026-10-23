@@ -12,8 +12,9 @@ import logging
 import signal
 from collections.abc import Sequence
 from types import FrameType
+from typing import cast
 
-from cashapp.pipeline.roles import RoleSpec, RoleState, Runnable
+from cashapp.pipeline.roles import Container, RoleSpec, RoleState, Runnable
 from cashapp.services.claims import ClaimService
 from cashapp.workers.container import WorkerContainer
 from cashapp.workers.health import HealthServer, build_health_app
@@ -145,7 +146,7 @@ class WorkerHost:
         exit_code = 0
         try:
             for spec in self._roles:
-                runnable = spec.build(self._container)
+                runnable = spec.build(cast(Container, self._container))
                 self._runnables[spec.name] = runnable
                 self._tasks[spec.name] = asyncio.create_task(
                     runnable.run(stop), name=f"role:{spec.name}"
@@ -180,7 +181,7 @@ class WorkerHost:
     async def _wait_for_grace(self) -> None:
         loop = asyncio.get_running_loop()
         deadline = loop.time() + self._container.settings.worker.shutdown_grace_seconds
-        pending = {task for task in self._tasks.values() if not task.done()}
+        pending: set[asyncio.Task[None]] = {t for t in self._tasks.values() if not t.done()}
         while pending:
             remaining = deadline - loop.time()
             if remaining <= 0 or self._force.is_set():

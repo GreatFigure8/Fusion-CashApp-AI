@@ -7,7 +7,7 @@ it, and keeps the registry of deliveries that are fetched but not yet committed.
 
 import asyncio
 from collections.abc import AsyncIterator, Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 from pydantic import ValidationError
@@ -72,8 +72,8 @@ class StageLimiter:
 class _TrackedDelivery(Delivery):
     """The consumer's view of a delivery: committing it also frees the stage slot."""
 
-    inner: Delivery
-    on_done: Callable[[], None]
+    inner: Delivery = field(kw_only=True)
+    on_done: Callable[[], None] = field(kw_only=True)
 
     async def commit(self) -> None:
         await self.inner.commit()
