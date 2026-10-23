@@ -1,8 +1,9 @@
 "use client";
 
+import { LiveDot } from "@/components/common/live-dot";
+import { Pill } from "@/components/common/pill";
 import { Button } from "@/components/ui/button";
 import type { StreamStatus } from "@/lib/api/use-event-stream";
-import { cn } from "@/lib/utils";
 
 /** The stream's connection state: Live, Reconnecting with the retry count, or Disconnected. */
 export function LiveIndicator({
@@ -14,12 +15,7 @@ export function LiveIndicator({
   retries: number;
   onRetry: () => void;
 }) {
-  const dot =
-    status === "live"
-      ? "bg-status-success"
-      : status === "reconnecting"
-        ? "bg-status-waiting"
-        : "bg-status-error";
+  const tone = status === "live" ? "ok" : status === "reconnecting" ? "warn" : "err";
   const label =
     status === "live"
       ? "Live"
@@ -33,19 +29,14 @@ export function LiveIndicator({
       data-slot="live-indicator"
       data-status={status}
       role="status"
-      className="flex flex-col gap-1.5 px-2 text-xs"
+      className="flex items-center gap-2 text-xs"
     >
-      <span className="flex items-center gap-2">
-        <span aria-hidden className={cn("size-2 shrink-0 rounded-full", dot)} />
-        <span className="group-data-[collapsible=icon]:sr-only">{label}</span>
-      </span>
+      <Pill tone={tone}>
+        <LiveDot tone={tone} pulse={status === "live"} />
+        {label}
+      </Pill>
       {status === "disconnected" ? (
-        <Button
-          variant="outline"
-          size="xs"
-          onClick={onRetry}
-          className="group-data-[collapsible=icon]:hidden"
-        >
+        <Button variant="outline" size="xs" onClick={onRetry}>
           Retry
         </Button>
       ) : null}

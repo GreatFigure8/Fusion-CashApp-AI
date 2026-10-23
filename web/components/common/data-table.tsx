@@ -46,8 +46,15 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
+/** Per-column presentation hints, read from `columnDef.meta`. */
+export type DataTableColumnMeta = {
+  align?: "left" | "right";
+  mono?: boolean;
+};
+
 /** The features every data table registers: client sorting and column visibility. */
 export const dataTableFeatures = tableFeatures({
+  columnMeta: {} as DataTableColumnMeta,
   rowSortingFeature,
   sortedRowModel: createSortedRowModel(),
   sortFns: { alphanumeric: sortFn_alphanumeric, text: sortFn_text, basic: sortFn_basic },
@@ -87,6 +94,8 @@ export type DataTableProps<T extends RowData> = {
   emptyState?: ReactNode;
   loading?: boolean;
   caption?: string;
+  /** The row shown as selected (tinted, `aria-selected`). */
+  selectedRowId?: string | null;
 };
 
 const DENSITY_EVENT = "data-table-density";
@@ -203,6 +212,7 @@ export function DataTable<T extends RowData>({
   emptyState,
   loading = false,
   caption,
+  selectedRowId,
 }: DataTableProps<T>) {
   const router = useRouter();
   const [activeDensity, setDensity] = useDensity(densityStorageKey, density);
@@ -235,7 +245,7 @@ export function DataTable<T extends RowData>({
   const showToolbar = enableColumnVisibility && hideable.length > 1;
 
   return (
-    <div data-slot="data-table" className="min-w-0 rounded-lg border bg-card">
+    <div data-slot="data-table" className="min-w-0 overflow-x-auto rounded-2xl border border-line-strong bg-surface-1/70 backdrop-blur-[14px]">
       <div className="flex items-center justify-end gap-2 border-b px-3 py-1.5">
         <Button
           variant="ghost"
@@ -279,7 +289,10 @@ export function DataTable<T extends RowData>({
                     aria-sort={
                       sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
                     }
-                    className="h-9 text-xs font-medium text-muted-foreground"
+                    className={cn(
+                      "h-auto px-3 py-2 font-mono text-label font-medium uppercase tracking-[0.06em] text-muted-foreground",
+                      header.column.columnDef.meta?.align === "right" && "text-right",
+                    )}
                   >
                     {header.isPlaceholder ? null : canSort ? (
                       <button
@@ -319,13 +332,25 @@ export function DataTable<T extends RowData>({
             : rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className={cn(rowHeight, interactive && "cursor-pointer")}
+                  className={cn(
+                    rowHeight,
+                    interactive && "cursor-pointer",
+                    row.id === selectedRowId && "bg-brand-soft",
+                  )}
+                  aria-selected={selectedRowId === undefined ? undefined : row.id === selectedRowId}
                   tabIndex={interactive ? 0 : undefined}
                   onClick={interactive ? (event) => onRowMouse(event, row.original) : undefined}
                   onKeyDown={interactive ? (event) => onRowKey(event, row.original) : undefined}
                 >
                   {row.getVisibleCells().map((cell, index) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        "whitespace-nowrap px-3 py-2.5",
+                        cell.column.columnDef.meta?.align === "right" && "text-right",
+                        cell.column.columnDef.meta?.mono && "font-mono tabular-nums",
+                      )}
+                    >
                       {index === 0 && rowHref ? (
                         <Link href={rowHref(row.original) as Route} className="hover:underline">
                           <table.FlexRender cell={cell} />

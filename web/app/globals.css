@@ -9,6 +9,37 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-surface-1: var(--s1);
+  --color-surface-2: var(--s2);
+  --color-surface-3: var(--s3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line2);
+  --color-faint: var(--faint);
+  --color-brand: var(--acc);
+  --color-brand-hi: var(--acc-hi);
+  --color-brand-ink: var(--acc-ink);
+  --color-brand-soft: var(--acc-soft);
+  --color-ok: var(--ok);
+  --color-ok-ink: var(--ok-ink);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-ink: var(--warn-ink);
+  --color-warn-soft: var(--warn-soft);
+  --color-err: var(--err);
+  --color-err-ink: var(--err-ink);
+  --color-err-soft: var(--err-soft);
+  --color-locked: var(--locked);
+  --color-locked-ink: var(--locked-ink);
+  --color-locked-soft: var(--locked-soft);
+  --color-log: var(--log);
+  --color-header: var(--header);
+  --color-scrim: var(--scrim);
+  --shadow-panel: var(--sh);
+  --shadow-float: var(--sh-lg);
+  --text-label: 0.6875rem;
+  --animate-breathe: breathe 3.2s ease-in-out infinite;
+  --animate-live-pulse: live-pulse 2s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.4s linear infinite;
   --font-heading: var(--font-geist-sans);
   --color-status-success: var(--status-success);
   --color-status-progress: var(--status-progress);
@@ -54,85 +85,157 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.375rem;
-  --status-success: oklch(0.596 0.145 163.225);
-  --status-progress: oklch(0.588 0.158 241.966);
-  --status-waiting: oklch(0.666 0.179 58.318);
-  --status-attention: oklch(0.646 0.222 41.116);
-  --status-error: oklch(0.577 0.245 27.325);
+  /* Raw tokens, light set (design.md section 1). */
+  --bg: #f3f5f8;
+  --s1: #ffffff;
+  --s2: #f8f9fb;
+  --s3: #eef1f5;
+  --tx: #0f1729;
+  --soft: #5a6b7f;
+  --faint: #8a94a5;
+  --line: #0f172917;
+  --line2: #0f172926;
+  --acc: #1e40af;
+  --acc-hi: #2563eb;
+  --acc-ink: #1e40af;
+  --acc-soft: #eff6ff;
+  --ok: #06b6d4;
+  --ok-ink: #0e5f7a;
+  --ok-soft: #ecfeff;
+  --warn: #f59e0b;
+  --warn-ink: #92400e;
+  --warn-soft: #fffbeb;
+  --err: #dc2626;
+  --err-ink: #b91c1c;
+  --err-soft: #fef2f2;
+  --locked: oklch(0.541 0.281 293.009);
+  --locked-ink: oklch(0.45 0.25 293);
+  --locked-soft: oklch(0.541 0.281 293.009 / 10%);
+  --dot: #0f17291a;
+  --log: #f7f9fc;
+  --header: #ffffffcc;
+  --scrim: #0f172980;
+  --halo: #2563eb26;
+  --sh: 0 1px 2px #0f172914, 0 8px 24px -12px #0f17291f;
+  --sh-lg: 0 1px 0 #ffffff80 inset, 0 24px 60px -30px #0f172940;
+
+  /* shadcn mapping (design.md section 8.2). */
+  --background: var(--bg);
+  --foreground: var(--tx);
+  --card: var(--s1);
+  --card-foreground: var(--tx);
+  --popover: var(--s1);
+  --popover-foreground: var(--tx);
+  --primary: var(--acc-hi);
+  --primary-foreground: #ffffff;
+  --secondary: var(--s3);
+  --secondary-foreground: var(--tx);
+  --muted: var(--s3);
+  --muted-foreground: var(--soft);
+  --accent: var(--s3);
+  --accent-foreground: var(--tx);
+  --destructive: var(--err);
+  --border: var(--line);
+  --input: var(--line2);
+  --ring: var(--acc-hi);
+  --chart-1: var(--acc-hi);
+  --chart-2: var(--ok);
+  --chart-3: var(--warn);
+  --chart-4: var(--err);
+  --chart-5: var(--soft);
+  --radius: 0.625rem;
+
+  /* Status aliases (design.md section 8.3). */
+  --status-success: var(--ok);
+  --status-progress: var(--acc-hi);
+  --status-waiting: var(--soft);
+  --status-attention: var(--warn);
+  --status-error: var(--err);
   --status-locked: oklch(0.541 0.281 293.009);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  --sidebar: var(--s1);
+  --sidebar-foreground: var(--tx);
+  --sidebar-primary: var(--acc-hi);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--s3);
+  --sidebar-accent-foreground: var(--tx);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--acc-hi);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --status-success: oklch(0.765 0.177 163.223);
-  --status-progress: oklch(0.746 0.16 232.661);
-  --status-waiting: oklch(0.828 0.189 84.429);
-  --status-attention: oklch(0.75 0.183 55.934);
-  --status-error: oklch(0.704 0.191 22.216);
-  --status-locked: oklch(0.702 0.183 293.541);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --bg: #05060a;
+  --s1: #0a0c11;
+  --s2: #0e1117;
+  --s3: #151922;
+  --tx: #e6eaf2;
+  --soft: #8a94a6;
+  --faint: #5d6778;
+  --line: #ffffff12;
+  --line2: #ffffff1f;
+  --acc: #2f5bdb;
+  --acc-hi: #4f7cff;
+  --acc-ink: #9db8ff;
+  --acc-soft: #4f7cff1f;
+  --ok: #5fe6d8;
+  --ok-ink: #8cf2e7;
+  --ok-soft: #5fe6d817;
+  --warn: #ffc96b;
+  --warn-ink: #ffd98f;
+  --warn-soft: #ffc96b14;
+  --err: #f87171;
+  --err-ink: #fca5a5;
+  --err-soft: #f8717117;
+  --locked: #b794ff;
+  --locked-ink: #d4bfff;
+  --locked-soft: #b794ff1a;
+  --dot: #ffffff12;
+  --log: #07090d;
+  --header: #0a0c11b8;
+  --scrim: #05060ab3;
+  --halo: #4f7cff1f;
+  --sh: 0 1px 0 #ffffff0a inset, 0 12px 32px -16px #000000cc;
+  --sh-lg: 0 1px 0 #ffffff0a inset, 0 30px 80px -30px #000000e6;
+
+  --primary: var(--acc);
+  --status-locked: #b794ff;
+}
+
+.bg-blueprint {
+  background-color: var(--bg);
+  background-image: radial-gradient(circle, var(--dot) 1.4px, transparent 1.6px);
+  background-size: 22px 22px;
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 0 4px var(--halo);
+  }
 }
 
 @layer base {
@@ -144,5 +247,17 @@
   }
   html {
     @apply font-sans;
+  }
+  :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--halo);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-live-pulse,
+  .animate-shimmer,
+  .animate-breathe {
+    animation: none;
   }
 }

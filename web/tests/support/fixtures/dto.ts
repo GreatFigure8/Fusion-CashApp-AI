@@ -333,5 +333,8 @@ export function buildMe(roles: ("ADMIN" | "OPERATOR" | "REVERSER" | "VIEWER")[] 
     groups: [],
     roles,
     permissions,
+    env: "dev",
+    sample_data: false,
+    access_request_url: null,
   };
 }

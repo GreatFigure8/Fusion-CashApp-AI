@@ -1,20 +1,49 @@
-import { ActivityIcon, AlertOctagonIcon, FileBarChartIcon, SettingsIcon } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-
 import { hasPermission, type Me } from "@/lib/permissions";
 
+export type NavCountSource = "flow.in_flight" | "exceptions.open" | "review.queue" | "lab.candidates";
+
 export type NavItem = {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  permission: string;
+  readonly href: string;
+  readonly label: string;
+  /** Two-letter code shown in the rail chip. */
+  readonly code: string;
+  readonly permission: string;
+  readonly countSource?: NavCountSource;
 };
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { href: "/flow", label: "Flow", icon: ActivityIcon, permission: "items:read" },
-  { href: "/exceptions", label: "Exceptions", icon: AlertOctagonIcon, permission: "items:read" },
-  { href: "/reports", label: "Reports", icon: FileBarChartIcon, permission: "reports:read" },
-  { href: "/config", label: "Config", icon: SettingsIcon, permission: "config:read" },
+  { href: "/dashboard", label: "Dashboard", code: "DB", permission: "reports:read" },
+  {
+    href: "/flow",
+    label: "Flow",
+    code: "FL",
+    permission: "items:read",
+    countSource: "flow.in_flight",
+  },
+  {
+    href: "/exceptions",
+    label: "Exceptions",
+    code: "EX",
+    permission: "items:read",
+    countSource: "exceptions.open",
+  },
+  { href: "/engine", label: "Engine", code: "EN", permission: "reports:read" },
+  {
+    href: "/review",
+    label: "Review",
+    code: "RV",
+    permission: "items:work",
+    countSource: "review.queue",
+  },
+  { href: "/reports", label: "Reports", code: "RP", permission: "reports:read" },
+  {
+    href: "/lab",
+    label: "Lab",
+    code: "LB",
+    permission: "lab:run",
+    countSource: "lab.candidates",
+  },
+  { href: "/config", label: "Config", code: "CF", permission: "config:read" },
 ];
 
 /** The nav items this user may use. Hiding is a convenience; the API enforces the permission. */

@@ -5,6 +5,7 @@ import { DailySummaryView } from "@/components/reports/daily-summary-view";
 import { PartiallyPaidView } from "@/components/reports/partially-paid-view";
 import { ReportLoadError } from "@/components/reports/report-load-error";
 import { ReportsTabs } from "@/components/reports/reports-tabs";
+import { TopBar } from "@/components/shell/top-bar";
 import { api } from "@/lib/api/client";
 import { requireSession } from "@/lib/auth/session";
 import { todayUtc } from "@/lib/reports/format";
@@ -15,12 +16,15 @@ export const metadata: Metadata = { title: "Reports" };
 export default async function ReportsPage({ searchParams }: PageProps<"/reports">) {
   await requireSession("/reports");
   const now = new Date();
+  const bar = <TopBar title="Reports" />;
   const view = parseReportsSearchParams(await searchParams, now);
   const max = todayUtc(now);
 
   if (view.tab === "daily") {
     const result = await api("get", "/reports/daily-summary", { query: { date: view.date } });
     return (
+      <>
+        {bar}
       <ReportsTabs tab="daily">
         {result.ok ? (
           <DailySummaryView data={result.value} date={view.date} max={max} />
@@ -30,6 +34,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/reports"
           <ReportLoadError error={result.error} title="Couldn't load the daily summary" />
         )}
       </ReportsTabs>
+      </>
     );
   }
 
@@ -37,6 +42,8 @@ export default async function ReportsPage({ searchParams }: PageProps<"/reports"
     query: { from: view.from, to: view.to },
   });
   return (
+    <>
+      {bar}
     <ReportsTabs tab="partial">
       {result.ok ? (
         <PartiallyPaidView data={result.value} from={view.from} to={view.to} max={max} />
@@ -46,5 +53,6 @@ export default async function ReportsPage({ searchParams }: PageProps<"/reports"
         <ReportLoadError error={result.error} title="Couldn't load the partially paid report" />
       )}
     </ReportsTabs>
+    </>
   );
 }
