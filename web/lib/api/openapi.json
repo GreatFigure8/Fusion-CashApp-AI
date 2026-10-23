@@ -41,6 +41,82 @@
         "title": "ActionData",
         "type": "object"
       },
+      "ActivityEvent": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "item_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Id"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ActivityKind"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "at",
+          "kind",
+          "item_id",
+          "text"
+        ],
+        "title": "ActivityEvent",
+        "type": "object"
+      },
+      "ActivityKind": {
+        "enum": [
+          "APPLIED",
+          "RECEIPT_ARRIVED",
+          "AUTOFIX",
+          "ESCALATED"
+        ],
+        "title": "ActivityKind",
+        "type": "string"
+      },
+      "ActivityOut": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ActivityEvent"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "ActivityOut",
+        "type": "object"
+      },
       "ActorKind": {
         "enum": [
           "SYSTEM",
@@ -286,6 +362,66 @@
         "title": "AutofixAttemptOut",
         "type": "object"
       },
+      "AutofixOut": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AutofixOutcome"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "AutofixOut",
+        "type": "object"
+      },
+      "AutofixOutcome": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "fixed": {
+            "title": "Fixed",
+            "type": "integer"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate"
+          }
+        },
+        "required": [
+          "error_code",
+          "count",
+          "fixed",
+          "rate"
+        ],
+        "title": "AutofixOutcome",
+        "type": "object"
+      },
       "AwaitingBucketsOut": {
         "description": "Awaiting-receipt items by whole days waited.",
         "properties": {
@@ -313,6 +449,36 @@
           ">30d"
         ],
         "title": "AwaitingBucketsOut",
+        "type": "object"
+      },
+      "AwaitingReceipt": {
+        "properties": {
+          "aging_limit_days": {
+            "title": "Aging Limit Days",
+            "type": "integer"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "oldest_age_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oldest Age Days"
+          }
+        },
+        "required": [
+          "count",
+          "oldest_age_days",
+          "aging_limit_days"
+        ],
+        "title": "AwaitingReceipt",
         "type": "object"
       },
       "BBox": {
@@ -1240,6 +1406,14 @@
         "title": "ContextWarningOut",
         "type": "object"
       },
+      "CostBasis": {
+        "enum": [
+          "PER_CALL",
+          "CLUSTER"
+        ],
+        "title": "CostBasis",
+        "type": "string"
+      },
       "CreditMemoApplicationOut": {
         "properties": {
           "amount_applied": {
@@ -1348,6 +1522,43 @@
           "amount"
         ],
         "title": "CurrencyAmountOut",
+        "type": "object"
+      },
+      "CurrencyTotal": {
+        "properties": {
+          "amount": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency",
+            "type": "string"
+          },
+          "receipts": {
+            "title": "Receipts",
+            "type": "integer"
+          },
+          "residual": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Residual",
+            "type": "string"
+          }
+        },
+        "required": [
+          "currency",
+          "amount",
+          "receipts",
+          "residual"
+        ],
+        "title": "CurrencyTotal",
         "type": "object"
       },
       "CustomerContextOut": {
@@ -3787,6 +3998,160 @@
         "title": "MeResponse",
         "type": "object"
       },
+      "MetricsSummaryFrame": {
+        "description": "SSE ``event: summary``. Documentation only; the stream serialises it directly.",
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProgressSummary"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "MetricsSummaryFrame",
+        "type": "object"
+      },
+      "MetricsWindow": {
+        "enum": [
+          "24h",
+          "7d",
+          "30d",
+          "mtd"
+        ],
+        "title": "MetricsWindow",
+        "type": "string"
+      },
+      "ModelEfficiencyRow": {
+        "properties": {
+          "accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accuracy"
+          },
+          "accuracy_n": {
+            "title": "Accuracy N",
+            "type": "integer"
+          },
+          "agreement_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreement Rate"
+          },
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "cost_basis": {
+            "$ref": "#/components/schemas/CostBasis"
+          },
+          "cost_unknown_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Unknown Share"
+          },
+          "cost_usd": {
+            "anyOf": [
+              {
+                "examples": [
+                  "12480.00"
+                ],
+                "pattern": "^-?\\d+\\.\\d{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Usd"
+          },
+          "human_correction_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Human Correction Rate"
+          },
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/LlmRole"
+          }
+        },
+        "required": [
+          "role",
+          "model_id",
+          "calls",
+          "cost_basis",
+          "cost_usd",
+          "cost_unknown_share",
+          "agreement_rate",
+          "human_correction_rate",
+          "accuracy",
+          "accuracy_n"
+        ],
+        "title": "ModelEfficiencyRow",
+        "type": "object"
+      },
+      "ModelsOut": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ModelEfficiencyRow"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "ModelsOut",
+        "type": "object"
+      },
       "Money": {
         "properties": {
           "amount": {
@@ -3808,6 +4173,32 @@
           "currency"
         ],
         "title": "Money",
+        "type": "object"
+      },
+      "MoneyByCurrencyOut": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/CurrencyTotal"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "MoneyByCurrencyOut",
         "type": "object"
       },
       "NotificationLogOut": {
@@ -3921,6 +4312,29 @@
           "limit"
         ],
         "title": "NotificationLogPage",
+        "type": "object"
+      },
+      "OpenExceptions": {
+        "properties": {
+          "dead_lettered": {
+            "title": "Dead Lettered",
+            "type": "integer"
+          },
+          "locked": {
+            "title": "Locked",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "locked",
+          "dead_lettered"
+        ],
+        "title": "OpenExceptions",
         "type": "object"
       },
       "PartKind": {
@@ -4136,6 +4550,84 @@
           "last_cycle_at"
         ],
         "title": "PollerOut",
+        "type": "object"
+      },
+      "ProgressSummary": {
+        "properties": {
+          "autofix_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Autofix Rate"
+          },
+          "automation_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Automation Rate"
+          },
+          "awaiting_receipt": {
+            "$ref": "#/components/schemas/AwaitingReceipt"
+          },
+          "done_items": {
+            "title": "Done Items",
+            "type": "integer"
+          },
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "human_correction_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Human Correction Rate"
+          },
+          "open_exceptions": {
+            "$ref": "#/components/schemas/OpenExceptions"
+          },
+          "receipts_matched": {
+            "title": "Receipts Matched",
+            "type": "integer"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "start",
+          "end",
+          "receipts_matched",
+          "done_items",
+          "automation_rate",
+          "awaiting_receipt",
+          "open_exceptions",
+          "autofix_rate",
+          "human_correction_rate"
+        ],
+        "title": "ProgressSummary",
         "type": "object"
       },
       "PromptKey": {
@@ -4990,6 +5482,86 @@
           "message"
         ],
         "title": "StreamErrorData",
+        "type": "object"
+      },
+      "SummaryOut": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProgressSummary"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "SummaryOut",
+        "type": "object"
+      },
+      "ThroughputBucket": {
+        "enum": [
+          "hour",
+          "day"
+        ],
+        "title": "ThroughputBucket",
+        "type": "string"
+      },
+      "ThroughputOut": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ThroughputPoint"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "ThroughputOut",
+        "type": "object"
+      },
+      "ThroughputPoint": {
+        "properties": {
+          "applied": {
+            "title": "Applied",
+            "type": "integer"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "escalated": {
+            "title": "Escalated",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "at",
+          "applied",
+          "escalated"
+        ],
+        "title": "ThroughputPoint",
         "type": "object"
       },
       "TokenData": {
@@ -7850,6 +8422,464 @@
         "summary": "Get Me",
         "tags": [
           "identity"
+        ]
+      }
+    },
+    "/metrics/activity": {
+      "get": {
+        "operationId": "get_activity_metrics_activity_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Activity",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/metrics/autofix": {
+      "get": {
+        "operationId": "get_autofix_metrics_autofix_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AutofixOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Autofix",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/metrics/models": {
+      "get": {
+        "operationId": "get_models_metrics_models_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Models",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/metrics/money-by-currency": {
+      "get": {
+        "operationId": "get_money_by_currency_metrics_money_by_currency_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoneyByCurrencyOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Money By Currency",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/metrics/stream": {
+      "get": {
+        "operationId": "stream_metrics_metrics_stream_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Last-Event-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Last-Event-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetricsSummaryFrame"
+                }
+              },
+              "text/event-stream": {}
+            },
+            "description": "event: summary / activity / stream-error"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Stream Metrics",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/metrics/summary": {
+      "get": {
+        "operationId": "get_summary_metrics_summary_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Summary",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/metrics/throughput": {
+      "get": {
+        "operationId": "get_throughput_metrics_throughput_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bucket",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ThroughputBucket"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bucket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThroughputOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Throughput",
+        "tags": [
+          "metrics"
         ]
       }
     },

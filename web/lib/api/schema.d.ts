@@ -602,6 +602,125 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/metrics/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Activity */
+        get: operations["get_activity_metrics_activity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics/autofix": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Autofix */
+        get: operations["get_autofix_metrics_autofix_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics/models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Models */
+        get: operations["get_models_metrics_models_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics/money-by-currency": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Money By Currency */
+        get: operations["get_money_by_currency_metrics_money_by_currency_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stream Metrics */
+        get: operations["stream_metrics_metrics_stream_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Summary */
+        get: operations["get_summary_metrics_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics/throughput": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Throughput */
+        get: operations["get_throughput_metrics_throughput_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/notifications/log": {
         parameters: {
             query?: never;
@@ -719,6 +838,37 @@ export interface components {
             /** Label */
             label: string;
         };
+        /** ActivityEvent */
+        ActivityEvent: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Id */
+            id: number;
+            /** Item Id */
+            item_id: number | null;
+            kind: components["schemas"]["ActivityKind"];
+            /** Text */
+            text: string;
+        };
+        /**
+         * ActivityKind
+         * @enum {string}
+         */
+        ActivityKind: "APPLIED" | "RECEIPT_ARRIVED" | "AUTOFIX" | "ESCALATED";
+        /** ActivityOut */
+        ActivityOut: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Data */
+            data: components["schemas"]["ActivityEvent"][];
+            window: components["schemas"]["MetricsWindow"];
+        };
         /**
          * ActorKind
          * @enum {string}
@@ -800,6 +950,27 @@ export interface components {
             /** Reasoning */
             reasoning: string | null;
         };
+        /** AutofixOut */
+        AutofixOut: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Data */
+            data: components["schemas"]["AutofixOutcome"][];
+            window: components["schemas"]["MetricsWindow"];
+        };
+        /** AutofixOutcome */
+        AutofixOutcome: {
+            /** Count */
+            count: number;
+            error_code: components["schemas"]["ErrorCode"];
+            /** Fixed */
+            fixed: number;
+            /** Rate */
+            rate: number | null;
+        };
         /**
          * AwaitingBucketsOut
          * @description Awaiting-receipt items by whole days waited.
@@ -813,6 +984,15 @@ export interface components {
             "3-7d": number;
             /** 8-30D */
             "8-30d": number;
+        };
+        /** AwaitingReceipt */
+        AwaitingReceipt: {
+            /** Aging Limit Days */
+            aging_limit_days: number;
+            /** Count */
+            count: number;
+            /** Oldest Age Days */
+            oldest_age_days: number | null;
         };
         /** BacklogBatchCreate */
         BacklogBatchCreate: {
@@ -1101,6 +1281,11 @@ export interface components {
              */
             section: "customer" | "invoices" | "credit_memos" | "receipts";
         };
+        /**
+         * CostBasis
+         * @enum {string}
+         */
+        CostBasis: "PER_CALL" | "CLUSTER";
         /** CreditMemoApplicationOut */
         CreditMemoApplicationOut: {
             /**
@@ -1150,6 +1335,23 @@ export interface components {
             amount: string;
             /** Currency */
             currency: string;
+        };
+        /** CurrencyTotal */
+        CurrencyTotal: {
+            /**
+             * Amount
+             * @example 12480.00
+             */
+            amount: string;
+            /** Currency */
+            currency: string;
+            /** Receipts */
+            receipts: number;
+            /**
+             * Residual
+             * @example 12480.00
+             */
+            residual: string;
         };
         /** CustomerContextOut */
         CustomerContextOut: {
@@ -1891,6 +2093,56 @@ export interface components {
             /** Subject */
             subject: string;
         };
+        /**
+         * MetricsSummaryFrame
+         * @description SSE ``event: summary``. Documentation only; the stream serialises it directly.
+         */
+        MetricsSummaryFrame: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            data: components["schemas"]["ProgressSummary"];
+            window: components["schemas"]["MetricsWindow"];
+        };
+        /**
+         * MetricsWindow
+         * @enum {string}
+         */
+        MetricsWindow: "24h" | "7d" | "30d" | "mtd";
+        /** ModelEfficiencyRow */
+        ModelEfficiencyRow: {
+            /** Accuracy */
+            accuracy: number | null;
+            /** Accuracy N */
+            accuracy_n: number;
+            /** Agreement Rate */
+            agreement_rate: number | null;
+            /** Calls */
+            calls: number;
+            cost_basis: components["schemas"]["CostBasis"];
+            /** Cost Unknown Share */
+            cost_unknown_share: number | null;
+            /** Cost Usd */
+            cost_usd: string | null;
+            /** Human Correction Rate */
+            human_correction_rate: number | null;
+            /** Model Id */
+            model_id: string;
+            role: components["schemas"]["LlmRole"];
+        };
+        /** ModelsOut */
+        ModelsOut: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Data */
+            data: components["schemas"]["ModelEfficiencyRow"][];
+            window: components["schemas"]["MetricsWindow"];
+        };
         /** Money */
         Money: {
             /**
@@ -1900,6 +2152,17 @@ export interface components {
             amount: string;
             /** Currency */
             currency: string;
+        };
+        /** MoneyByCurrencyOut */
+        MoneyByCurrencyOut: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Data */
+            data: components["schemas"]["CurrencyTotal"][];
+            window: components["schemas"]["MetricsWindow"];
         };
         /** NotificationLogOut */
         NotificationLogOut: {
@@ -1940,6 +2203,15 @@ export interface components {
             limit: number;
             /** Offset */
             offset: number;
+            /** Total */
+            total: number;
+        };
+        /** OpenExceptions */
+        OpenExceptions: {
+            /** Dead Lettered */
+            dead_lettered: number;
+            /** Locked */
+            locked: number;
             /** Total */
             total: number;
         };
@@ -2023,6 +2295,32 @@ export interface components {
             last_cycle_at: string | null;
             /** Name */
             name: string;
+        };
+        /** ProgressSummary */
+        ProgressSummary: {
+            /** Autofix Rate */
+            autofix_rate: number | null;
+            /** Automation Rate */
+            automation_rate: number | null;
+            awaiting_receipt: components["schemas"]["AwaitingReceipt"];
+            /** Done Items */
+            done_items: number;
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /** Human Correction Rate */
+            human_correction_rate: number | null;
+            open_exceptions: components["schemas"]["OpenExceptions"];
+            /** Receipts Matched */
+            receipts_matched: number;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+            window: components["schemas"]["MetricsWindow"];
         };
         /**
          * PromptKey
@@ -2328,6 +2626,44 @@ export interface components {
             code: "timeout" | "llm_unavailable" | "refused" | "internal_error";
             /** Message */
             message: string;
+        };
+        /** SummaryOut */
+        SummaryOut: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            data: components["schemas"]["ProgressSummary"];
+            window: components["schemas"]["MetricsWindow"];
+        };
+        /**
+         * ThroughputBucket
+         * @enum {string}
+         */
+        ThroughputBucket: "hour" | "day";
+        /** ThroughputOut */
+        ThroughputOut: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Data */
+            data: components["schemas"]["ThroughputPoint"][];
+            window: components["schemas"]["MetricsWindow"];
+        };
+        /** ThroughputPoint */
+        ThroughputPoint: {
+            /** Applied */
+            applied: number;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Escalated */
+            escalated: number;
         };
         /** TokenData */
         TokenData: {
@@ -4012,6 +4348,298 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+        };
+    };
+    get_activity_metrics_activity_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityOut"];
+                };
+            };
+        };
+    };
+    get_autofix_metrics_autofix_get: {
+        parameters: {
+            query?: {
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutofixOut"];
+                };
+            };
+        };
+    };
+    get_models_metrics_models_get: {
+        parameters: {
+            query?: {
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelsOut"];
+                };
+            };
+        };
+    };
+    get_money_by_currency_metrics_money_by_currency_get: {
+        parameters: {
+            query?: {
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MoneyByCurrencyOut"];
+                };
+            };
+        };
+    };
+    stream_metrics_metrics_stream_get: {
+        parameters: {
+            query?: {
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: {
+                "Last-Event-ID"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description event: summary / activity / stream-error */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetricsSummaryFrame"];
+                    "text/event-stream": unknown;
+                };
+            };
+        };
+    };
+    get_summary_metrics_summary_get: {
+        parameters: {
+            query?: {
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SummaryOut"];
+                };
+            };
+        };
+    };
+    get_throughput_metrics_throughput_get: {
+        parameters: {
+            query?: {
+                bucket?: components["schemas"]["ThroughputBucket"] | null;
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThroughputOut"];
                 };
             };
         };
