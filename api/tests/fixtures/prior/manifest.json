@@ -1,0 +1,1 @@
+{"counts": {"applications": 61, "clusters": 40, "customers": 40, "failures": 4, "lines": 75, "messages": 40, "numeric_ids_coerced": 2, "receipts": 35, "relationships": 1, "transactions": 71}, "format_version": "1", "generated_by": "cashapp.tools.anonymise", "key_id": "48df5e0fec12", "seed": 43, "synthetic": true}
