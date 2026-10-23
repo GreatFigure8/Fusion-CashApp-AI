@@ -1,7 +1,7 @@
 """s45: RETENTION_PURGE (pending/confirmed marker for artifact purges).
 
 Revision ID: s45_retention_purge
-Revises: s36_llm_usage
+Revises: s42_notification_log
 """
 
 import sqlalchemy as sa
@@ -11,7 +11,7 @@ from cashapp.data.types import JsonDoc, UtcDateTime
 
 revision = "s45_retention_purge"
 # The head when this was coded; the merger re-points this and checks for a single head.
-down_revision = "s36_llm_usage"
+down_revision = "s42_notification_log"
 branch_labels = None
 depends_on = None
 
