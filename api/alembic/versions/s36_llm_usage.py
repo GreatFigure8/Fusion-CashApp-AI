@@ -11,7 +11,7 @@ from cashapp.data.types import UtcDateTime
 
 revision = "s36_llm_usage"
 # The head when this was coded; the merger re-points this and checks for a single head.
-down_revision = "s06_artifact_part"
+down_revision = "s14_receipt_watermark"
 branch_labels = None
 depends_on = None
 

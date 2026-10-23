@@ -13,7 +13,7 @@ from cashapp.data.types import JsonDoc, UtcDateTime
 
 revision: str = "s14_receipt_watermark"
 # The head when this was coded; the merger re-points this and checks for a single head.
-down_revision: str | None = "s06_artifact_part"
+down_revision: str | None = "s11_customer_resolution"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

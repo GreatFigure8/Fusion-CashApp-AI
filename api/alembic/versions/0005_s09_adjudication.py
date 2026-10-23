@@ -13,7 +13,7 @@ from cashapp.data.types import JsonDoc, UtcDateTime
 
 revision: str = "0005_s09_adjudication"
 # The head when this was coded; the merger re-points this if another story merges first.
-down_revision: str | None = "s06_artifact_part"
+down_revision: str | None = "s07_classification"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
