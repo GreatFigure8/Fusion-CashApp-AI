@@ -7,6 +7,7 @@ from typing import Any
 from sqlalchemy import CHAR, Date, ForeignKey, Index, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
+from cashapp.data.models.backlog import BacklogBatch as BacklogBatch
 from cashapp.data.models.base import Base
 from cashapp.data.types import JsonDoc, MoneyNumeric, StrEnumType, UtcDateTime, identity_pk
 from cashapp.domain.clock import utcnow
@@ -31,6 +32,7 @@ class WorkItem(Base):
         Index("IX_WORK_ITEM_STATE_AWAITING", "state", "awaiting_since"),
         Index("IX_WORK_ITEM_LOCK_OWNER", "lock_owner"),
         Index("IX_WORK_ITEM_PARENT_ID", "parent_id"),
+        Index("IX_WORK_ITEM_BATCH_STATE", "batch_id", "state"),
     )
 
     id: Mapped[int] = identity_pk()
@@ -67,7 +69,9 @@ class WorkItem(Base):
     info_flags: Mapped[list[str]] = mapped_column(JsonDoc(), nullable=False, default=list)
     human_hints: Mapped[HumanHints | None] = mapped_column(JsonDoc(), nullable=True)
     fix_hints: Mapped[FixHints | None] = mapped_column(JsonDoc(), nullable=True)
-    batch_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    batch_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("backlog_batch.id", name="FK_WORK_ITEM_BATCH_ID"), nullable=True
+    )
     priority: Mapped[int] = mapped_column(Integer, nullable=False, default=PRIORITY_LIVE)
     awaiting_since: Mapped[datetime | None] = mapped_column(UtcDateTime(), nullable=True)
     version: Mapped[int] = mapped_column(Integer, nullable=False)
