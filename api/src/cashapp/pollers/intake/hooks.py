@@ -49,3 +49,9 @@ from cashapp.services.poller_heartbeat import PollerHeartbeatHook  # noqa: E402
 
 if not any(isinstance(hook, PollerHeartbeatHook) for hook in CYCLE_HOOKS):
     CYCLE_HOOKS.append(PollerHeartbeatHook("intake-poller"))
+
+# s41: the daily summary is generated and emailed by the first cycle after the UTC cutover.
+from cashapp.services.reports.hook import DailySummaryCycleHook  # noqa: E402
+
+if not any(isinstance(hook, DailySummaryCycleHook) for hook in CYCLE_HOOKS):
+    CYCLE_HOOKS.append(DailySummaryCycleHook())
