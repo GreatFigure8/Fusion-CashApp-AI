@@ -26,7 +26,7 @@ export function PartiallyPaidTable({
           id: "invoice_number",
           header: "Invoice #",
           accessorFn: (r) => r.invoice_number,
-          cell: ({ row }) => <span className="font-mono">{row.original.invoice_number}</span>,
+          cell: ({ row }) => <span className="font-mono tabular-nums">{row.original.invoice_number}</span>,
         },
         {
           id: "customer",
@@ -41,6 +41,7 @@ export function PartiallyPaidTable({
           id: "original",
           header: "Original",
           accessorFn: (r) => r.original,
+          meta: { align: "right" },
           cell: ({ row }) => (
             <Money
               className="block text-right"
@@ -53,6 +54,7 @@ export function PartiallyPaidTable({
           id: "paid",
           header: "Paid",
           accessorFn: (r) => r.paid,
+          meta: { align: "right" },
           cell: ({ row }) => (
             <Money
               className="block text-right"
@@ -65,6 +67,7 @@ export function PartiallyPaidTable({
           id: "remaining",
           header: "Remaining",
           accessorFn: (r) => r.remaining,
+          meta: { align: "right" },
           cell: ({ row }) => (
             <Money
               className="block text-right"
@@ -84,7 +87,7 @@ export function PartiallyPaidTable({
           accessorFn: (r) => r.item_id,
           // Partially paid items are DONE, so they open in the item view, not the workbench.
           cell: ({ row }) => (
-            <a className="underline" href={`/items/${row.original.item_id}`}>
+            <a className="font-mono text-brand-ink underline-offset-2 hover:underline" href={`/items/${row.original.item_id}`}>
               WI-{row.original.item_id}
             </a>
           ),

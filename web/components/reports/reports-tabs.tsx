@@ -24,7 +24,7 @@ export function ReportsTabs({
           if (parsed.success) router.push(`/reports?tab=${parsed.data}`);
         }}
       >
-        <TabsList>
+        <TabsList variant="line">
           <TabsTrigger value="daily">Daily summary</TabsTrigger>
           <TabsTrigger value="partial">Partially paid invoices</TabsTrigger>
         </TabsList>

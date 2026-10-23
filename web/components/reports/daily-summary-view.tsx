@@ -1,8 +1,8 @@
 import type * as React from "react";
 
-import { EmptyState } from "@/components/common/empty-state";
 import { KpiCard } from "@/components/common/kpi-card";
 import { Money } from "@/components/common/money";
+import { StateCard } from "@/components/common/state-card";
 import type { Schemas } from "@/lib/api/types";
 import { formatReportDate, lastGeneratedLabel } from "@/lib/reports/format";
 
@@ -30,7 +30,7 @@ export function DailySummaryView({
       </div>
       <div className="flex flex-col gap-1">
         <DailySummaryActions date={date} />
-        <p className="text-sm text-muted-foreground">
+        <p className="font-mono text-xs text-muted-foreground">
           {lastGeneratedLabel(data.last_generated, data.cutover)}
         </p>
       </div>
@@ -64,7 +64,11 @@ export function DailySummaryView({
           <AgingTable rows={s.aging_buckets} />
         </>
       ) : (
-        <EmptyState title={`No activity on ${formatReportDate(date)}.`} />
+        <StateCard
+          kind="empty"
+          headline={`No activity on ${formatReportDate(date)}.`}
+          body="Nothing was processed on this day."
+        />
       )}
     </div>
   );
