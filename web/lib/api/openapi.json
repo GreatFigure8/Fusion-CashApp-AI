@@ -3733,6 +3733,159 @@
         "title": "LockInfoOut",
         "type": "object"
       },
+      "McpLastCallOut": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "duration_ms": {
+            "title": "Duration Ms",
+            "type": "integer"
+          },
+          "rows": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rows"
+          },
+          "tool": {
+            "title": "Tool",
+            "type": "string"
+          }
+        },
+        "required": [
+          "at",
+          "tool",
+          "rows",
+          "duration_ms"
+        ],
+        "title": "McpLastCallOut",
+        "type": "object"
+      },
+      "McpStatusOut": {
+        "properties": {
+          "client_id": {
+            "title": "Client Id",
+            "type": "string"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "healthy": {
+            "title": "Healthy",
+            "type": "boolean"
+          },
+          "last_call": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/McpLastCallOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "latency_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency Ms"
+          },
+          "secret_in_vault": {
+            "const": true,
+            "default": true,
+            "title": "Secret In Vault",
+            "type": "boolean"
+          },
+          "server_url": {
+            "title": "Server Url",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "healthy",
+          "latency_ms",
+          "server_url",
+          "client_id",
+          "source",
+          "error",
+          "last_call"
+        ],
+        "title": "McpStatusOut",
+        "type": "object"
+      },
+      "McpTestOut": {
+        "properties": {
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "probe_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Probe Ms"
+          },
+          "probe_tool": {
+            "const": "fusion_rest_get",
+            "title": "Probe Tool",
+            "type": "string"
+          },
+          "token_valid": {
+            "title": "Token Valid",
+            "type": "boolean"
+          },
+          "tools_count": {
+            "title": "Tools Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "token_valid",
+          "tools_count",
+          "probe_tool",
+          "probe_ms",
+          "error"
+        ],
+        "title": "McpTestOut",
+        "type": "object"
+      },
       "MeResponse": {
         "properties": {
           "display_name": {
@@ -6766,6 +6919,99 @@
         "summary": "Health",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/integrations/mcp/status": {
+      "get": {
+        "operationId": "get_status_integrations_mcp_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpStatusOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Status",
+        "tags": [
+          "integrations"
+        ]
+      }
+    },
+    "/integrations/mcp/test": {
+      "post": {
+        "description": "Never a 5xx for a server failure: the failure is reported in `error`.",
+        "operationId": "run_test_integrations_mcp_test_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpTestOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Run Test",
+        "tags": [
+          "integrations"
         ]
       }
     },

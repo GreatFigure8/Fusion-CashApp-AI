@@ -342,6 +342,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/integrations/mcp/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Status */
+        get: operations["get_status_integrations_mcp_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integrations/mcp/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Test
+         * @description Never a 5xx for a server failure: the failure is reported in `error`.
+         */
+        post: operations["run_test_integrations_mcp_test_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/items/{item_id}": {
         parameters: {
             query?: never;
@@ -1876,6 +1913,58 @@ export interface components {
             /** Owner Name */
             owner_name: string;
         };
+        /** McpLastCallOut */
+        McpLastCallOut: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Duration Ms */
+            duration_ms: number;
+            /** Rows */
+            rows: number | null;
+            /** Tool */
+            tool: string;
+        };
+        /** McpStatusOut */
+        McpStatusOut: {
+            /** Client Id */
+            client_id: string;
+            /** Error */
+            error: string | null;
+            /** Healthy */
+            healthy: boolean;
+            last_call: components["schemas"]["McpLastCallOut"] | null;
+            /** Latency Ms */
+            latency_ms: number | null;
+            /**
+             * Secret In Vault
+             * @default true
+             * @constant
+             */
+            secret_in_vault?: true;
+            /** Server Url */
+            server_url: string;
+            /** Source */
+            source: string;
+        };
+        /** McpTestOut */
+        McpTestOut: {
+            /** Error */
+            error: string | null;
+            /** Probe Ms */
+            probe_ms: number | null;
+            /**
+             * Probe Tool
+             * @constant
+             */
+            probe_tool: "fusion_rest_get";
+            /** Token Valid */
+            token_valid: boolean;
+            /** Tools Count */
+            tools_count: number;
+        };
         /** MeResponse */
         MeResponse: {
             /** Display Name */
@@ -3312,6 +3401,82 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    get_status_integrations_mcp_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["McpStatusOut"];
+                };
+            };
+        };
+    };
+    run_test_integrations_mcp_test_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["McpTestOut"];
                 };
             };
         };
