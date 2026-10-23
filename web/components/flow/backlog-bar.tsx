@@ -5,8 +5,9 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 
 import { pauseBacklogBatch } from "@/app/(shell)/flow/actions";
+import { GlassPanel } from "@/components/common/glass-panel";
+import { Meter } from "@/components/common/meter";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import type { Schemas } from "@/lib/api/types";
 
 /** "Backlog batch B-0007 · 2,140 / 5,000 items · ETA 41 min", with Pause for backlog:run. */
@@ -18,18 +19,18 @@ export function BacklogBar({
   canPause: boolean;
 }) {
   const [pending, startTransition] = useTransition();
-  const percent = batch.total > 0 ? Math.min(100, (batch.processed / batch.total) * 100) : 0;
   const eta = batch.eta_minutes === null ? "" : ` · ETA ${batch.eta_minutes} min`;
   const text = `Backlog batch ${batch.name} · ${batch.processed.toLocaleString("en-US")} / ${batch.total.toLocaleString("en-US")} items${eta}`;
 
   return (
-    <div
-      data-slot="backlog-bar"
-      className="flex w-full flex-col gap-2 rounded-lg border bg-card p-3 sm:flex-row sm:items-center"
+    <GlassPanel
+      as="div"
+      className="flex w-full flex-col gap-2 p-3 sm:flex-row sm:items-center"
     >
-      <Progress value={percent} aria-label={text} className="min-w-0 flex-1 flex-col gap-2">
+      <div data-slot="backlog-bar" className="flex min-w-0 flex-1 flex-col gap-2">
         <span className="text-sm">{text}</span>
-      </Progress>
+        <Meter value={batch.processed} max={batch.total} size={5} tone="accent" label={text} />
+      </div>
       {canPause ? (
         <Button
           variant="outline"
@@ -46,6 +47,6 @@ export function BacklogBar({
           <PauseIcon /> Pause
         </Button>
       ) : null}
-    </div>
+    </GlassPanel>
   );
 }

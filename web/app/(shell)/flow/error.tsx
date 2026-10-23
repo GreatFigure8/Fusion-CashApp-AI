@@ -1,15 +1,20 @@
 "use client";
 
-import { ErrorAlert } from "@/components/common/error-alert";
-import { apiError } from "@/lib/api/errors";
+import { StateCard } from "@/components/common/state-card";
+import { Button } from "@/components/ui/button";
 
 export default function FlowError({ reset }: { error: Error; reset: () => void }) {
   // The message is never shown: it could carry remittance content.
   return (
-    <ErrorAlert
-      error={apiError(500, "internal_error", "Something went wrong.", null)}
-      title="Couldn't load the flow"
-      onRetry={reset}
+    <StateCard
+      kind="error"
+      headline="Couldn't load the flow"
+      body="Something went wrong."
+      actions={
+        <Button size="sm" variant="outline" onClick={reset}>
+          Retry
+        </Button>
+      }
     />
   );
 }

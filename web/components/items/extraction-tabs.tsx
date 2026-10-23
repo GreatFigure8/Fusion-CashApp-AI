@@ -1,6 +1,8 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import { GlassPanel } from "@/components/common/glass-panel";
+import { Pill } from "@/components/common/pill";
+import { SOURCE_TAG, sourceTone } from "@/components/items/source-tag";
 import { Progress } from "@/components/ui/progress";
 import {
   Table,
@@ -17,8 +19,6 @@ import type { Schemas } from "@/lib/api/types";
 import { humanizeEnum } from "@/lib/format";
 
 type Extraction = Schemas["ExtractionOut"];
-
-const SOURCE_TAG: Record<string, string> = { A: "A", B: "B", both: "A+B", human: "Human" };
 
 function ConfidenceBar({ value }: { value: number }) {
   const percent = Math.round(value * 100);
@@ -67,7 +67,11 @@ function RowsTable({
               <TableCell className="font-mono whitespace-normal break-all">{row.value}</TableCell>
               {provenance ? (
                 <TableCell>
-                  {tag ? <Badge variant="secondary">{SOURCE_TAG[tag] ?? tag}</Badge> : null}
+                  {tag ? (
+                    <Pill tone={sourceTone(tag)} mono>
+                      {SOURCE_TAG[tag] ?? tag}
+                    </Pill>
+                  ) : null}
                 </TableCell>
               ) : null}
               <TableCell>
@@ -121,7 +125,9 @@ function DisagreementsPane({ items }: { items: Extraction["disagreements"] }) {
             <TableCell className="font-mono whitespace-normal break-all">{d.value_a ?? "—"}</TableCell>
             <TableCell className="font-mono whitespace-normal break-all">{d.value_b ?? "—"}</TableCell>
             <TableCell>
-              <Badge variant="secondary">{SOURCE_TAG[d.chosen] ?? d.chosen}</Badge>
+              <Pill tone={sourceTone(d.chosen)} mono>
+                {SOURCE_TAG[d.chosen] ?? d.chosen}
+              </Pill>
             </TableCell>
             <TableCell className="whitespace-normal">{d.reason}</TableCell>
           </TableRow>
@@ -135,7 +141,8 @@ function DisagreementsPane({ items }: { items: Extraction["disagreements"] }) {
 export function ExtractionTabs({ extraction }: { extraction: Extraction }) {
   const finalRows = extraction.final ? extractionRows(extraction.final) : null;
   return (
-    <Tabs defaultValue="final" className="min-w-0 rounded-lg border bg-card">
+    <GlassPanel as="div" className="min-w-0 overflow-x-auto">
+    <Tabs defaultValue="final" className="min-w-0">
       <div className="flex items-center justify-between gap-2 px-2 pt-2">
         <TabsList>
           <TabsTrigger value="final">Final</TabsTrigger>
@@ -153,7 +160,7 @@ export function ExtractionTabs({ extraction }: { extraction: Extraction }) {
       </div>
       <TabsContent value="final">
         {extraction.missing_reader ? (
-          <p className="px-3 pt-2 text-xs text-status-attention">
+          <p className="px-3 pt-2 text-xs text-warn-ink">
             Reader {extraction.missing_reader} returned nothing; this is the other reader&apos;s result.
           </p>
         ) : null}
@@ -177,5 +184,6 @@ export function ExtractionTabs({ extraction }: { extraction: Extraction }) {
         <DisagreementsPane items={extraction.disagreements} />
       </TabsContent>
     </Tabs>
+    </GlassPanel>
   );
 }

@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { ErrorAlert } from "@/components/common/error-alert";
 import { RequirePermission } from "@/components/common/require-permission";
+import { TopBar } from "@/components/shell/top-bar";
 import { StageItemsTable } from "@/components/flow/stage-items-table";
 import { api } from "@/lib/api/client";
 import { humanizeEnum } from "@/lib/format";
@@ -55,7 +56,7 @@ export default async function StagePage({ params, searchParams }: PageProps<"/fl
   return (
     <RequirePermission me={me.value} permission="items:read" role="VIEWER">
       <div className="flex min-w-0 flex-col gap-3">
-        <h1 className="text-lg font-semibold tracking-tight">{humanizeEnum(tile)}</h1>
+        <TopBar title={humanizeEnum(tile)} crumb="Flow" />
         {items.ok ? (
           <StageItemsTable
             key={`${tile}-${state ?? "all"}-${page}`}

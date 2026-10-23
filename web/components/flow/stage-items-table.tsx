@@ -4,8 +4,8 @@ import { LockIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { createDataTableColumns, DataTable } from "@/components/common/data-table";
-import { EmptyState } from "@/components/common/empty-state";
 import { Money } from "@/components/common/money";
+import { StateCard } from "@/components/common/state-card";
 import { StatusBadge } from "@/components/common/status-badge";
 import { useFlowStream } from "@/components/shell/flow-stream";
 import type { Schemas } from "@/lib/api/types";
@@ -81,7 +81,7 @@ const columns = (tile: Tile) =>
       header: "Lock",
       cell: ({ row }) =>
         row.original.lock ? (
-          <span className="flex items-center gap-1 text-status-locked" data-slot="lock-owner">
+          <span className="flex items-center gap-1 text-locked-ink" data-slot="lock-owner">
             <LockIcon aria-hidden className="size-3.5" />
             {row.original.lock.owner_name}
           </span>
@@ -143,7 +143,7 @@ export function StageItemsTable({
       pagination={{ page: data.page, pageSize: data.page_size, total: data.total, hrefForPage }}
       densityStorageKey="cashapp.table-density"
       caption={`${humanizeEnum(tile)} items`}
-      emptyState={<EmptyState title="Nothing here." description="No items are at this stage." />}
+      emptyState={<StateCard kind="empty" headline="Nothing here." body="No items are at this stage." />}
     />
   );
 }
