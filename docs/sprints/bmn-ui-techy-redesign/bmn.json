@@ -166,11 +166,17 @@
    "at": "2026-10-23",
    "step": "research",
    "text": "oh one other thing we need to take into consideration...we need a control panel for the processing engine.  a way to control the flow of the data through the engine (Kafka)."
+  },
+  {
+   "at": "2026-10-23",
+   "step": "design",
+   "text": "so in short, what we need are 1. control panel to monitor and manage the processor 2. the lab in 48 3. all settings other than database connection information stored in the database like we always do. 4. real-time reporting on progress and status 5. exportable html reports on progress to users"
   }
  ],
  "assumptions": [
   "Merges to dev go through a PR from the sprint branch (gh pr create --base dev; gh pr merge --merge), because dev is protected in this repo.",
-  "Repo is not Vercel/Supabase; deploys are OCI and happen only at release."
+  "Repo is not Vercel/Supabase; deploys are OCI and happen only at release.",
+  "'the lab in 48' = the matching test console from issue #49, folded into this run."
  ],
  "blocker": null,
  "updated": "2026-10-23T00:00:00Z"

@@ -19,3 +19,10 @@ Local rule: `dev` is protected in this repo. Never push dev. Land work on dev by
 "oh one other thing we need to take into consideration... we need a control panel for the processing engine. a way to control the flow of the data through the engine (Kafka)."
 
 Treated as part of this story: an engine control panel in the UI (admin/operator permission, enforced in the API, audited with the Principal) to control flow through the stations and the bus behind the `EventBus` interface: per-station pause/resume, drain, consumer lag and throughput per topic, concurrency/throttle (Fusion apply back-pressure), retry and dead-letter queues with replay/requeue. No scheduler, and no third poller (CLAUDE.md non-negotiables 4 and 5): this controls event flow, it does not add polling.
+
+## Scope summary from Jonathan (mid-run, during DESIGN)
+
+"so in short, what we need are 1. control panel to monitor and manage the processor 2. the lab in 48 3. all settings other than database connection information stored in the database like we always do. 4. real-time reporting on progress and status 5. exportable html reports on progress to users"
+
+Interpretation recorded as an assumption: "the lab" = the matching test console (issue #49: refine matching through chat, replay changed matching read-only against real past data, show before/after, promote only by permission-checked audited action). It is folded into this run (#48) instead of waiting. #49 stays open as a pointer until this run ships it.
+Plus: (3) every setting except database connection info lives in the database (config service, admin-editable in the UI); no new env/file settings. (4) real-time reporting on progress and status via SSE. (5) exportable, self-contained HTML progress reports for users.
