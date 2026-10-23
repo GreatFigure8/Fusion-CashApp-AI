@@ -48,3 +48,4 @@ class FixHints(TypedDict, total=False):
     gl_date_floor: str
     widen_window_days: int
     match_on_creation_date: bool
+    narrow: bool
