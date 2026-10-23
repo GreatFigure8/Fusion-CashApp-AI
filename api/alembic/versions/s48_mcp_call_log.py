@@ -1,7 +1,7 @@
 """s48: MCP_CALL_LOG (one row per Fusion MCP tool call: hashes and counts, never SQL or bodies).
 
 Revision ID: s48_mcp_call_log
-Revises: s45_retention_purge
+Revises: ui48_engine_control
 
 The `mcp.*` config keys need no seed row: the registry default is in effect until an admin saves
 a value.
@@ -15,7 +15,7 @@ from cashapp.data.types import UtcDateTime
 revision = "s48_mcp_call_log"
 # The head when this was coded; the merger re-points this to the engine-control-api revision
 # (split.md merge order) and checks for a single head.
-down_revision = "s45_retention_purge"
+down_revision = "ui48_engine_control"
 branch_labels = None
 depends_on = None
 

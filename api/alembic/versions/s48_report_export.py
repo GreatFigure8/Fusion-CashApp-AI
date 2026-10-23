@@ -1,7 +1,7 @@
 """s48: REPORT_EXPORT (log of exported HTML progress reports).
 
 Revision ID: s48_report_export
-Revises: s45_retention_purge
+Revises: s48_mcp_call_log
 """
 
 import sqlalchemy as sa
@@ -11,7 +11,7 @@ from cashapp.data.types import JsonDoc, UtcDateTime
 
 revision = "s48_report_export"
 # The head when this was coded; the merger re-points this and checks for a single head.
-down_revision = "s45_retention_purge"
+down_revision = "s48_mcp_call_log"
 branch_labels = None
 depends_on = None
 

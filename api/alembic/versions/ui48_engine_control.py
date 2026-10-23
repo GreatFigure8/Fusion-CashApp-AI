@@ -1,7 +1,7 @@
 """ui48: ENGINE_AUDIT and ENGINE_DLQ_REPLAY (engine control: pause, throttle, dead-letter replay).
 
 Revision ID: ui48_engine_control
-Revises: s45_retention_purge
+Revises: s48_db_stored_settings
 """
 
 import sqlalchemy as sa
@@ -11,7 +11,7 @@ from cashapp.data.types import JsonDoc, UtcDateTime
 
 revision = "ui48_engine_control"
 # The head when this was coded; the merger re-points this and checks for a single head.
-down_revision = "s45_retention_purge"
+down_revision = "s48_db_stored_settings"
 branch_labels = None
 depends_on = None
 

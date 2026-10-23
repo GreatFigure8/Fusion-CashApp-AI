@@ -7,7 +7,7 @@ naming every missing or plain-text value, rather than seed an empty one. Re-runn
 that already have a row.
 
 Revision ID: s48_db_stored_settings
-Revises: s41_report_run
+Revises: ui01_chat_agent_tool_registry
 """
 
 import logging
@@ -24,7 +24,7 @@ from cashapp.settings import legacy_env_name, read_legacy_seed, seed_key_names
 
 revision: str = "s48_db_stored_settings"
 # The head when this was coded; the merger re-points this and checks for a single head.
-down_revision: str | None = "s41_report_run"
+down_revision: str | None = "ui01_chat_agent_tool_registry"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

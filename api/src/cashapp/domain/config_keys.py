@@ -944,7 +944,8 @@ def _check_flags(key: ConfigKey[Any]) -> None:
             raise RuntimeError(f"secret key {key.name} must be typed SecretRef")
         if not key.name.endswith("_ref"):
             raise RuntimeError(f"secret_ref key {key.name} must be named *_ref")
-    elif any(word in key.name for word in _SECRET_WORDS):
+    elif not key.name.endswith("_url") and any(word in key.name for word in _SECRET_WORDS):
+        # An endpoint URL (for example mcp.token_url) names a secret's issuer, never holds one.
         raise RuntimeError(f"config key {key.name} looks secret but is not a secret_ref key")
 
 

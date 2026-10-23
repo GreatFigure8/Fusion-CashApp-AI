@@ -1,7 +1,7 @@
 """ui01: assistant chat threads, messages, pending tool calls and the tool-run audit.
 
 Revision ID: ui01_chat_agent_tool_registry
-Revises: s45_retention_purge
+Revises: s41_report_run
 """
 
 import sqlalchemy as sa
@@ -11,7 +11,7 @@ from cashapp.data.types import JsonDoc, UtcDateTime
 
 revision = "ui01_chat_agent_tool_registry"
 # The head when this was coded; the merger re-points this and checks for a single head.
-down_revision = "s45_retention_purge"
+down_revision = "s41_report_run"
 branch_labels = None
 depends_on = None
 
