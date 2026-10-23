@@ -41,6 +41,37 @@
         "title": "ActionData",
         "type": "object"
       },
+      "ActorKind": {
+        "enum": [
+          "SYSTEM",
+          "USER"
+        ],
+        "title": "ActorKind",
+        "type": "string"
+      },
+      "AgingBucketOut": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "count"
+        ],
+        "title": "AgingBucketOut",
+        "type": "object"
+      },
       "AliasOut": {
         "properties": {
           "alias_text": {
@@ -159,6 +190,131 @@
         "title": "AliasPage",
         "type": "object"
       },
+      "AppliedMoneyOut": {
+        "properties": {
+          "amount": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency",
+            "type": "string"
+          }
+        },
+        "required": [
+          "currency",
+          "amount"
+        ],
+        "title": "AppliedMoneyOut",
+        "type": "object"
+      },
+      "AutofixAttemptOut": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorCode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision"
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit"
+          },
+          "reasoning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reasoning"
+          }
+        },
+        "required": [
+          "at",
+          "code",
+          "decision",
+          "attempt",
+          "limit",
+          "reasoning"
+        ],
+        "title": "AutofixAttemptOut",
+        "type": "object"
+      },
+      "AwaitingBucketsOut": {
+        "description": "Awaiting-receipt items by whole days waited.",
+        "properties": {
+          "0-2d": {
+            "title": "0-2D",
+            "type": "integer"
+          },
+          "3-7d": {
+            "title": "3-7D",
+            "type": "integer"
+          },
+          "8-30d": {
+            "title": "8-30D",
+            "type": "integer"
+          },
+          ">30d": {
+            "title": ">30D",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "0-2d",
+          "3-7d",
+          "8-30d",
+          ">30d"
+        ],
+        "title": "AwaitingBucketsOut",
+        "type": "object"
+      },
       "BBox": {
         "additionalProperties": false,
         "properties": {
@@ -194,6 +350,383 @@
           "h"
         ],
         "title": "BBox",
+        "type": "object"
+      },
+      "BacklogBatchCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "dry_run": {
+            "default": false,
+            "title": "Dry Run",
+            "type": "boolean"
+          },
+          "folder": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Folder",
+            "type": "string"
+          },
+          "name": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$",
+            "title": "Name",
+            "type": "string"
+          },
+          "rate_limit_per_minute": {
+            "anyOf": [
+              {
+                "maximum": 10000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate Limit Per Minute"
+          }
+        },
+        "required": [
+          "name",
+          "folder"
+        ],
+        "title": "BacklogBatchCreate",
+        "type": "object"
+      },
+      "BacklogBatchOut": {
+        "properties": {
+          "applied": {
+            "title": "Applied",
+            "type": "integer"
+          },
+          "awaiting": {
+            "title": "Awaiting",
+            "type": "integer"
+          },
+          "created_by": {
+            "title": "Created By",
+            "type": "string"
+          },
+          "dry_run": {
+            "title": "Dry Run",
+            "type": "boolean"
+          },
+          "escalated": {
+            "title": "Escalated",
+            "type": "integer"
+          },
+          "eta_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta Minutes"
+          },
+          "failed": {
+            "title": "Failed",
+            "type": "integer"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "import_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Import Error"
+          },
+          "in_flight": {
+            "title": "In Flight",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "processed": {
+            "title": "Processed",
+            "type": "integer"
+          },
+          "promoted_from_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promoted From Id"
+          },
+          "rate_limit_per_minute": {
+            "title": "Rate Limit Per Minute",
+            "type": "integer"
+          },
+          "source_kind": {
+            "$ref": "#/components/schemas/BacklogSourceKind"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/BacklogStatus"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "dry_run",
+          "source_kind",
+          "total",
+          "processed",
+          "applied",
+          "escalated",
+          "failed",
+          "awaiting",
+          "in_flight",
+          "rate_limit_per_minute",
+          "eta_minutes",
+          "started_at",
+          "finished_at",
+          "created_by",
+          "promoted_from_id",
+          "import_error"
+        ],
+        "title": "BacklogBatchOut",
+        "type": "object"
+      },
+      "BacklogProgressOut": {
+        "properties": {
+          "eta_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta Minutes"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "processed": {
+            "title": "Processed",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "processed",
+          "total",
+          "eta_minutes",
+          "status"
+        ],
+        "title": "BacklogProgressOut",
+        "type": "object"
+      },
+      "BacklogPromote": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$",
+            "title": "Name",
+            "type": "string"
+          },
+          "rate_limit_per_minute": {
+            "anyOf": [
+              {
+                "maximum": 10000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate Limit Per Minute"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "BacklogPromote",
+        "type": "object"
+      },
+      "BacklogSourceKind": {
+        "enum": [
+          "FOLDER",
+          "MAILBOX_FOLDER"
+        ],
+        "title": "BacklogSourceKind",
+        "type": "string"
+      },
+      "BacklogStatus": {
+        "enum": [
+          "IMPORTING",
+          "RUNNING",
+          "PAUSED",
+          "DONE",
+          "CANCELLED"
+        ],
+        "title": "BacklogStatus",
+        "type": "string"
+      },
+      "CandidateReceiptOut": {
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "examples": [
+                  "12480.00"
+                ],
+                "pattern": "^-?\\d+\\.\\d{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "chosen": {
+            "title": "Chosen",
+            "type": "boolean"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "customer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer"
+          },
+          "qualifies": {
+            "title": "Qualifies",
+            "type": "boolean"
+          },
+          "receipt_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receipt Date"
+          },
+          "receipt_id": {
+            "title": "Receipt Id",
+            "type": "integer"
+          },
+          "receipt_number": {
+            "title": "Receipt Number",
+            "type": "string"
+          },
+          "remaining": {
+            "anyOf": [
+              {
+                "examples": [
+                  "12480.00"
+                ],
+                "pattern": "^-?\\d+\\.\\d{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remaining"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "stale": {
+            "title": "Stale",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "receipt_number",
+          "receipt_id",
+          "receipt_date",
+          "amount",
+          "remaining",
+          "currency",
+          "customer",
+          "score",
+          "qualifies",
+          "chosen",
+          "stale"
+        ],
+        "title": "CandidateReceiptOut",
         "type": "object"
       },
       "ChatContextIn": {
@@ -679,6 +1212,366 @@
         "title": "ConfigUpdate",
         "type": "object"
       },
+      "ContextWarningOut": {
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "section": {
+            "enum": [
+              "customer",
+              "invoices",
+              "credit_memos",
+              "receipts"
+            ],
+            "title": "Section",
+            "type": "string"
+          }
+        },
+        "required": [
+          "section",
+          "code",
+          "message"
+        ],
+        "title": "ContextWarningOut",
+        "type": "object"
+      },
+      "CreditMemoApplicationOut": {
+        "properties": {
+          "amount_applied": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Amount Applied",
+            "type": "string"
+          },
+          "application_id": {
+            "title": "Application Id",
+            "type": "integer"
+          },
+          "apply_date": {
+            "format": "date",
+            "title": "Apply Date",
+            "type": "string"
+          },
+          "receipt_id": {
+            "title": "Receipt Id",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "application_id",
+          "receipt_id",
+          "amount_applied",
+          "apply_date",
+          "status"
+        ],
+        "title": "CreditMemoApplicationOut",
+        "type": "object"
+      },
+      "CreditMemoHistoryOut": {
+        "properties": {
+          "applications": {
+            "items": {
+              "$ref": "#/components/schemas/CreditMemoApplicationOut"
+            },
+            "title": "Applications",
+            "type": "array"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "customer_trx_id": {
+            "title": "Customer Trx Id",
+            "type": "integer"
+          },
+          "number": {
+            "title": "Number",
+            "type": "string"
+          },
+          "original": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Original",
+            "type": "string"
+          },
+          "remaining": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Remaining",
+            "type": "string"
+          }
+        },
+        "required": [
+          "number",
+          "customer_trx_id",
+          "original",
+          "remaining",
+          "currency",
+          "applications"
+        ],
+        "title": "CreditMemoHistoryOut",
+        "type": "object"
+      },
+      "CurrencyAmountOut": {
+        "properties": {
+          "amount": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency",
+            "type": "string"
+          }
+        },
+        "required": [
+          "currency",
+          "amount"
+        ],
+        "title": "CurrencyAmountOut",
+        "type": "object"
+      },
+      "CustomerContextOut": {
+        "properties": {
+          "account_number": {
+            "title": "Account Number",
+            "type": "string"
+          },
+          "bill_to_site": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CustomerSiteOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "relationships": {
+            "items": {
+              "$ref": "#/components/schemas/RelationshipOut"
+            },
+            "title": "Relationships",
+            "type": "array"
+          }
+        },
+        "required": [
+          "account_number",
+          "name",
+          "bill_to_site",
+          "location",
+          "relationships"
+        ],
+        "title": "CustomerContextOut",
+        "type": "object"
+      },
+      "CustomerSiteOut": {
+        "properties": {
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "purpose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Purpose"
+          },
+          "site_number": {
+            "title": "Site Number",
+            "type": "string"
+          }
+        },
+        "required": [
+          "site_number",
+          "purpose",
+          "location",
+          "address"
+        ],
+        "title": "CustomerSiteOut",
+        "type": "object"
+      },
+      "DailySummaryOut": {
+        "properties": {
+          "aging_buckets": {
+            "items": {
+              "$ref": "#/components/schemas/AgingBucketOut"
+            },
+            "title": "Aging Buckets",
+            "type": "array"
+          },
+          "applied_by_currency": {
+            "items": {
+              "$ref": "#/components/schemas/CurrencyAmountOut"
+            },
+            "title": "Applied By Currency",
+            "type": "array"
+          },
+          "auto_applied": {
+            "title": "Auto Applied",
+            "type": "integer"
+          },
+          "auto_applied_pct": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Applied Pct"
+          },
+          "completed": {
+            "title": "Completed",
+            "type": "integer"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "escalations": {
+            "title": "Escalations",
+            "type": "integer"
+          },
+          "failures_by_error_code": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorCodeCountOut"
+            },
+            "title": "Failures By Error Code",
+            "type": "array"
+          },
+          "has_activity": {
+            "title": "Has Activity",
+            "type": "boolean"
+          },
+          "items_in": {
+            "title": "Items In",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "date",
+          "items_in",
+          "completed",
+          "auto_applied",
+          "auto_applied_pct",
+          "applied_by_currency",
+          "failures_by_error_code",
+          "aging_buckets",
+          "escalations",
+          "has_activity"
+        ],
+        "title": "DailySummaryOut",
+        "type": "object"
+      },
+      "DailySummaryResponse": {
+        "properties": {
+          "cutover": {
+            "title": "Cutover",
+            "type": "string"
+          },
+          "emailed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emailed At"
+          },
+          "emailed_to": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Emailed To",
+            "type": "array"
+          },
+          "last_generated": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LastGeneratedOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "summary": {
+            "$ref": "#/components/schemas/DailySummaryOut"
+          }
+        },
+        "required": [
+          "summary",
+          "last_generated",
+          "emailed_to",
+          "emailed_at",
+          "cutover"
+        ],
+        "title": "DailySummaryResponse",
+        "type": "object"
+      },
       "DailyUsageOut": {
         "properties": {
           "calls": {
@@ -797,6 +1690,61 @@
         "title": "DateKind",
         "type": "string"
       },
+      "Disagreement": {
+        "additionalProperties": false,
+        "properties": {
+          "chosen": {
+            "enum": [
+              "A",
+              "B",
+              "both",
+              "human"
+            ],
+            "title": "Chosen",
+            "type": "string"
+          },
+          "field_path": {
+            "title": "Field Path",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 300,
+            "title": "Reason",
+            "type": "string"
+          },
+          "value_a": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value A"
+          },
+          "value_b": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value B"
+          }
+        },
+        "required": [
+          "field_path",
+          "value_a",
+          "value_b",
+          "chosen",
+          "reason"
+        ],
+        "title": "Disagreement",
+        "type": "object"
+      },
       "DoneData": {
         "properties": {
           "usage": {
@@ -807,6 +1755,67 @@
           "usage"
         ],
         "title": "DoneData",
+        "type": "object"
+      },
+      "EmailRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "recipients": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 254,
+                  "pattern": "^[^@\\s,;<>]+@[^@\\s,;<>]+\\.[^@\\s,;<>]+$",
+                  "type": "string"
+                },
+                "maxItems": 50,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recipients"
+          }
+        },
+        "required": [
+          "date"
+        ],
+        "title": "EmailRequest",
+        "type": "object"
+      },
+      "EmailResponse": {
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "emailed_at": {
+            "format": "date-time",
+            "title": "Emailed At",
+            "type": "string"
+          },
+          "emailed_to": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Emailed To",
+            "type": "array"
+          }
+        },
+        "required": [
+          "date",
+          "emailed_to",
+          "emailed_at"
+        ],
+        "title": "EmailResponse",
         "type": "object"
       },
       "ErrorBody": {
@@ -841,6 +1850,66 @@
         "title": "ErrorBody",
         "type": "object"
       },
+      "ErrorCode": {
+        "enum": [
+          "RECEIPT_NOT_YET_AVAILABLE",
+          "RECEIPT_AMBIGUOUS",
+          "RECEIPT_RESERVED",
+          "AMOUNT_VARIANCE",
+          "CUSTOMER_NOT_FOUND",
+          "CUSTOMER_MULTIPLE_ACCOUNTS",
+          "INVOICE_NOT_FOUND",
+          "INVOICE_CLOSED",
+          "INVOICE_CURRENCY_MISMATCH",
+          "INVOICE_STATUS_INVALID",
+          "INVALID_INVOICE_NUMBER",
+          "INVALID_DATE",
+          "INVALID_CURRENCY",
+          "MISSING_PAYMENT_DATE",
+          "ZERO_AMOUNT_LINE",
+          "LOW_EXTRACTION_CONFIDENCE",
+          "EXTRACTION_FAILED",
+          "CLASSIFICATION_FAILED",
+          "LLM_REFUSAL",
+          "LLM_TRANSIENT",
+          "UNSUPPORTED_ARTIFACT",
+          "FUSION_OVERAPPLY",
+          "FUSION_ALREADY_APPLIED",
+          "FUSION_LOCKED",
+          "FUSION_TRANSIENT",
+          "FUSION_GL_DATE",
+          "FUSION_FAULT",
+          "FUSION_DISCOUNT_REJECTED",
+          "FUSION_WRITE_DISABLED",
+          "WRITE_BACK_FAILED",
+          "REVERSAL_FAILED",
+          "AGED_OUT",
+          "PREPAYMENT",
+          "PO_SO_ERS_ONLY",
+          "DUAL_CURRENCY",
+          "UNGROUNDED",
+          "SYSTEM_DEAD_LETTER"
+        ],
+        "title": "ErrorCode",
+        "type": "string"
+      },
+      "ErrorCodeCountOut": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          }
+        },
+        "required": [
+          "error_code",
+          "count"
+        ],
+        "title": "ErrorCodeCountOut",
+        "type": "object"
+      },
       "ErrorEnvelope": {
         "properties": {
           "error": {
@@ -851,6 +1920,159 @@
           "error"
         ],
         "title": "ErrorEnvelope",
+        "type": "object"
+      },
+      "ExceptionListOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ExceptionRowOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "ExceptionListOut",
+        "type": "object"
+      },
+      "ExceptionRowOut": {
+        "properties": {
+          "age_s": {
+            "title": "Age S",
+            "type": "integer"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "examples": [
+                  "12480.00"
+                ],
+                "pattern": "^-?\\d+\\.\\d{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "autofix_limit": {
+            "title": "Autofix Limit",
+            "type": "integer"
+          },
+          "autofix_tried": {
+            "title": "Autofix Tried",
+            "type": "integer"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorCode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "lock": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LockInfoOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payer Name"
+          },
+          "payment_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Date"
+          },
+          "payment_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaymentStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stage": {
+            "$ref": "#/components/schemas/Stage"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ItemState"
+          }
+        },
+        "required": [
+          "id",
+          "payer_name",
+          "amount",
+          "currency",
+          "payment_date",
+          "error_code",
+          "autofix_tried",
+          "autofix_limit",
+          "age_s",
+          "stage",
+          "state",
+          "payment_status",
+          "lock"
+        ],
+        "title": "ExceptionRowOut",
         "type": "object"
       },
       "ExtractedLine": {
@@ -1165,6 +2387,92 @@
         "title": "Extracted[str]",
         "type": "object"
       },
+      "ExtractionOut": {
+        "description": "The adjudicated extraction and where each value came from.\n\n``provenance`` maps a field path (``payer_name``, ``lines[2]``) to ``A``, ``B``, ``both`` or\n``human``. Line entries are keyed by the line's index in ``final.lines``.",
+        "properties": {
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "disagreements": {
+            "items": {
+              "$ref": "#/components/schemas/Disagreement"
+            },
+            "title": "Disagreements",
+            "type": "array"
+          },
+          "final": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RemittanceExtraction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "missing_reader": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReaderSlot"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "provenance": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Provenance",
+            "type": "object"
+          },
+          "purged": {
+            "title": "Purged",
+            "type": "boolean"
+          },
+          "reader_a": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReadingOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reader_b": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReadingOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "final",
+          "provenance",
+          "disagreements",
+          "confidence",
+          "reader_a",
+          "reader_b",
+          "missing_reader",
+          "purged"
+        ],
+        "title": "ExtractionOut",
+        "type": "object"
+      },
       "FieldChangeOut": {
         "properties": {
           "after": {
@@ -1184,6 +2492,205 @@
         "title": "FieldChangeOut",
         "type": "object"
       },
+      "FlowKpisOut": {
+        "properties": {
+          "applied_by_currency": {
+            "items": {
+              "$ref": "#/components/schemas/AppliedMoneyOut"
+            },
+            "title": "Applied By Currency",
+            "type": "array"
+          },
+          "auto_applied_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Applied Pct"
+          },
+          "in_today": {
+            "title": "In Today",
+            "type": "integer"
+          },
+          "needs_person": {
+            "title": "Needs Person",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "in_today",
+          "auto_applied_pct",
+          "applied_by_currency",
+          "needs_person"
+        ],
+        "title": "FlowKpisOut",
+        "type": "object"
+      },
+      "FlowStreamFrameOut": {
+        "description": "Documents the two SSE event payloads (``summary`` and ``item_changed``) for OpenAPI.",
+        "properties": {
+          "item_changed": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ItemChangedOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FlowSummaryOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "FlowStreamFrameOut",
+        "type": "object"
+      },
+      "FlowSummaryOut": {
+        "properties": {
+          "backlog": {
+            "items": {
+              "$ref": "#/components/schemas/BacklogProgressOut"
+            },
+            "title": "Backlog",
+            "type": "array"
+          },
+          "cohere_utilisation_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cohere Utilisation Pct"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "kpis": {
+            "$ref": "#/components/schemas/FlowKpisOut"
+          },
+          "pollers": {
+            "items": {
+              "$ref": "#/components/schemas/PollerOut"
+            },
+            "title": "Pollers",
+            "type": "array"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/FlowTileOut"
+            },
+            "title": "Stages",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kpis",
+          "stages",
+          "pollers",
+          "cohere_utilisation_pct",
+          "backlog",
+          "generated_at"
+        ],
+        "title": "FlowSummaryOut",
+        "type": "object"
+      },
+      "FlowTile": {
+        "description": "One tile per stage, with the awaiting-receipt shelf right after receipt matching.",
+        "enum": [
+          "INTAKE",
+          "CLASSIFY",
+          "EXTRACT",
+          "ADJUDICATE",
+          "VALIDATE",
+          "RESOLVE_CUSTOMER",
+          "FAST_PATH",
+          "MATCH_RECEIPT",
+          "AWAITING_RECEIPT",
+          "MATCH_LINES",
+          "APPLY",
+          "WRITE_BACK",
+          "DONE"
+        ],
+        "title": "FlowTile",
+        "type": "string"
+      },
+      "FlowTileOut": {
+        "properties": {
+          "awaiting_buckets": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AwaitingBucketsOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "errors": {
+            "title": "Errors",
+            "type": "integer"
+          },
+          "in_progress": {
+            "title": "In Progress",
+            "type": "integer"
+          },
+          "in_queue": {
+            "title": "In Queue",
+            "type": "integer"
+          },
+          "p95_dwell_s": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P95 Dwell S"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/FlowTile"
+          },
+          "throughput_per_min": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 60,
+            "minItems": 60,
+            "title": "Throughput Per Min",
+            "type": "array"
+          }
+        },
+        "required": [
+          "stage",
+          "in_queue",
+          "in_progress",
+          "errors",
+          "throughput_per_min",
+          "p95_dwell_s",
+          "awaiting_buckets"
+        ],
+        "title": "FlowTileOut",
+        "type": "object"
+      },
       "ForceTakeIn": {
         "properties": {
           "reason": {
@@ -1197,6 +2704,99 @@
           "reason"
         ],
         "title": "ForceTakeIn",
+        "type": "object"
+      },
+      "FusionContextOut": {
+        "properties": {
+          "applications": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerApplicationOut"
+            },
+            "title": "Applications",
+            "type": "array"
+          },
+          "autofix_attempts": {
+            "items": {
+              "$ref": "#/components/schemas/AutofixAttemptOut"
+            },
+            "title": "Autofix Attempts",
+            "type": "array"
+          },
+          "built_at": {
+            "format": "date-time",
+            "title": "Built At",
+            "type": "string"
+          },
+          "candidate_receipts": {
+            "items": {
+              "$ref": "#/components/schemas/CandidateReceiptOut"
+            },
+            "title": "Candidate Receipts",
+            "type": "array"
+          },
+          "credit_memo_history": {
+            "items": {
+              "$ref": "#/components/schemas/CreditMemoHistoryOut"
+            },
+            "title": "Credit Memo History",
+            "type": "array"
+          },
+          "customer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CustomerContextOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "invoices": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceContextOut"
+            },
+            "title": "Invoices",
+            "type": "array"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/ContextWarningOut"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "item_id",
+          "customer",
+          "invoices",
+          "credit_memo_history",
+          "candidate_receipts",
+          "autofix_attempts",
+          "applications",
+          "warnings",
+          "built_at"
+        ],
+        "title": "FusionContextOut",
+        "type": "object"
+      },
+      "GenerateRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date"
+        ],
+        "title": "GenerateRequest",
         "type": "object"
       },
       "GroupRoleMappingModel": {
@@ -1301,6 +2901,496 @@
         "title": "HealthResponse",
         "type": "object"
       },
+      "HistoryAction": {
+        "enum": [
+          "STAGE_TRANSITION",
+          "AUTOFIX_ATTEMPT",
+          "HUMAN_ACTION",
+          "FUSION_WRITE",
+          "DECISION",
+          "LOCK"
+        ],
+        "title": "HistoryAction",
+        "type": "string"
+      },
+      "HistoryOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/HistoryRowOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "HistoryOut",
+        "type": "object"
+      },
+      "HistoryRowOut": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/HistoryAction"
+          },
+          "actor_id": {
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "actor_kind": {
+            "$ref": "#/components/schemas/ActorKind"
+          },
+          "actor_name": {
+            "title": "Actor Name",
+            "type": "string"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorCode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "from_stage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Stage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "from_state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ItemState"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload"
+          },
+          "purged": {
+            "title": "Purged",
+            "type": "boolean"
+          },
+          "reasoning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reasoning"
+          },
+          "to_stage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Stage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "to_state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ItemState"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "at",
+          "action",
+          "actor_kind",
+          "actor_id",
+          "actor_name",
+          "from_stage",
+          "to_stage",
+          "from_state",
+          "to_state",
+          "error_code",
+          "reasoning",
+          "payload",
+          "purged"
+        ],
+        "title": "HistoryRowOut",
+        "type": "object"
+      },
+      "InvoiceContextOut": {
+        "properties": {
+          "bill_to_customer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bill To Customer"
+          },
+          "bill_to_site": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bill To Site"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "customer_trx_id": {
+            "title": "Customer Trx Id",
+            "type": "integer"
+          },
+          "number": {
+            "title": "Number",
+            "type": "string"
+          },
+          "original_amount": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Original Amount",
+            "type": "string"
+          },
+          "remaining": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Remaining",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "number",
+          "customer_trx_id",
+          "bill_to_customer",
+          "bill_to_site",
+          "original_amount",
+          "remaining",
+          "currency",
+          "status"
+        ],
+        "title": "InvoiceContextOut",
+        "type": "object"
+      },
+      "ItemChangedOut": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "lock": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LockInfoOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payment_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaymentStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stage": {
+            "$ref": "#/components/schemas/Stage"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ItemState"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "stage",
+          "state",
+          "lock",
+          "payment_status",
+          "updated_at"
+        ],
+        "title": "ItemChangedOut",
+        "type": "object"
+      },
+      "ItemDetailOut": {
+        "properties": {
+          "extraction": {
+            "$ref": "#/components/schemas/ExtractionOut"
+          },
+          "item": {
+            "$ref": "#/components/schemas/ItemOut"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/LineOut"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "lock": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LockInfoOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "parts": {
+            "items": {
+              "$ref": "#/components/schemas/PartOut"
+            },
+            "title": "Parts",
+            "type": "array"
+          },
+          "receipt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReceiptOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResolutionOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "item",
+          "lock",
+          "extraction",
+          "parts",
+          "lines",
+          "resolution",
+          "receipt"
+        ],
+        "title": "ItemDetailOut",
+        "type": "object"
+      },
+      "ItemOut": {
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "examples": [
+                  "12480.00"
+                ],
+                "pattern": "^-?\\d+\\.\\d{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "customer_account_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Account Number"
+          },
+          "escalation_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Escalation Summary"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "info_flags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Info Flags",
+            "type": "array"
+          },
+          "last_error_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorCode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payer Name"
+          },
+          "payment_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Date"
+          },
+          "payment_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaymentStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "received_at": {
+            "format": "date-time",
+            "title": "Received At",
+            "type": "string"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/Stage"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ItemState"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "stage",
+          "state",
+          "payment_status",
+          "payer_name",
+          "amount",
+          "currency",
+          "payment_date",
+          "customer_account_number",
+          "received_at",
+          "updated_at",
+          "attempts",
+          "last_error_code",
+          "escalation_summary",
+          "info_flags",
+          "version"
+        ],
+        "title": "ItemOut",
+        "type": "object"
+      },
       "ItemState": {
         "enum": [
           "PENDING",
@@ -1314,6 +3404,162 @@
         "type": "string"
       },
       "JsonValue": {},
+      "LastGeneratedOut": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "by": {
+            "title": "By",
+            "type": "string"
+          },
+          "by_kind": {
+            "enum": [
+              "user",
+              "cutover"
+            ],
+            "title": "By Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "at",
+          "by",
+          "by_kind"
+        ],
+        "title": "LastGeneratedOut",
+        "type": "object"
+      },
+      "LedgerApplicationOut": {
+        "properties": {
+          "amount": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "applied_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applied At"
+          },
+          "customer_trx_id": {
+            "title": "Customer Trx Id",
+            "type": "integer"
+          },
+          "fusion_application_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fusion Application Id"
+          },
+          "ledger_id": {
+            "title": "Ledger Id",
+            "type": "integer"
+          },
+          "line_no": {
+            "title": "Line No",
+            "type": "integer"
+          },
+          "receipt_id": {
+            "title": "Receipt Id",
+            "type": "integer"
+          },
+          "receipt_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receipt Number"
+          },
+          "reversal_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reversal Reason"
+          },
+          "reversed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reversed At"
+          },
+          "reversed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reversed By"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "transaction_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction Number"
+          }
+        },
+        "required": [
+          "ledger_id",
+          "line_no",
+          "receipt_id",
+          "receipt_number",
+          "customer_trx_id",
+          "transaction_number",
+          "amount",
+          "status",
+          "fusion_application_id",
+          "applied_at",
+          "reversed_at",
+          "reversed_by",
+          "reversal_reason"
+        ],
+        "title": "LedgerApplicationOut",
+        "type": "object"
+      },
       "LineKind": {
         "enum": [
           "INVOICE",
@@ -1324,6 +3570,122 @@
           "DISCOUNT"
         ],
         "title": "LineKind",
+        "type": "string"
+      },
+      "LineOut": {
+        "properties": {
+          "applied_amount": {
+            "anyOf": [
+              {
+                "examples": [
+                  "12480.00"
+                ],
+                "pattern": "^-?\\d+\\.\\d{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applied Amount"
+          },
+          "fusion_balance": {
+            "anyOf": [
+              {
+                "examples": [
+                  "12480.00"
+                ],
+                "pattern": "^-?\\d+\\.\\d{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fusion Balance"
+          },
+          "fusion_result_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fusion Result Code"
+          },
+          "line_no": {
+            "title": "Line No",
+            "type": "integer"
+          },
+          "line_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LineStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stated_amount": {
+            "anyOf": [
+              {
+                "examples": [
+                  "12480.00"
+                ],
+                "pattern": "^-?\\d+\\.\\d{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stated Amount"
+          },
+          "transaction_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction Number"
+          }
+        },
+        "required": [
+          "line_no",
+          "transaction_number",
+          "stated_amount",
+          "fusion_balance",
+          "applied_amount",
+          "line_status",
+          "fusion_result_code"
+        ],
+        "title": "LineOut",
+        "type": "object"
+      },
+      "LineStatus": {
+        "enum": [
+          "allocation-applied",
+          "allocation-applied-short-pay",
+          "allocation-applied-less-than-instruction",
+          "allocation-applied-with-discount",
+          "allocation-previously-applied",
+          "allocation-invoice-not-found",
+          "allocation-customer-not-found",
+          "allocation-no-remaining-balance",
+          "allocation-zero-amount",
+          "allocation-missing-payment-date",
+          "allocation-no-receipt-match",
+          "allocation-apply-failed",
+          "allocation-reversed",
+          "allocation-dry-run"
+        ],
+        "title": "LineStatus",
         "type": "string"
       },
       "LlmRole": {
@@ -1561,6 +3923,180 @@
         "title": "NotificationLogPage",
         "type": "object"
       },
+      "PartKind": {
+        "description": "Values match the ARTIFACT_PART.KIND column exactly.",
+        "enum": [
+          "TEXT",
+          "PDF",
+          "IMAGE",
+          "TABLE",
+          "DOCX"
+        ],
+        "title": "PartKind",
+        "type": "string"
+      },
+      "PartOut": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/PartKind"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          },
+          "part_no": {
+            "title": "Part No",
+            "type": "integer"
+          },
+          "purged": {
+            "title": "Purged",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "part_no",
+          "kind",
+          "media_type",
+          "purged"
+        ],
+        "title": "PartOut",
+        "type": "object"
+      },
+      "PartiallyPaidResponse": {
+        "properties": {
+          "from": {
+            "format": "date",
+            "title": "From",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/PartiallyPaidRowOut"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "to": {
+            "format": "date",
+            "title": "To",
+            "type": "string"
+          },
+          "truncated": {
+            "title": "Truncated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "rows",
+          "truncated"
+        ],
+        "title": "PartiallyPaidResponse",
+        "type": "object"
+      },
+      "PartiallyPaidRowOut": {
+        "properties": {
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency",
+            "type": "string"
+          },
+          "customer_account_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Account Number"
+          },
+          "customer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Name"
+          },
+          "invoice_number": {
+            "title": "Invoice Number",
+            "type": "string"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "line_status": {
+            "$ref": "#/components/schemas/LineStatus"
+          },
+          "original": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Original",
+            "type": "string"
+          },
+          "paid": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Paid",
+            "type": "string"
+          },
+          "remaining": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Remaining",
+            "type": "string"
+          },
+          "short_pay_reason": {
+            "title": "Short Pay Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invoice_number",
+          "customer_account_number",
+          "customer_name",
+          "currency",
+          "original",
+          "paid",
+          "remaining",
+          "short_pay_reason",
+          "line_status",
+          "item_id"
+        ],
+        "title": "PartiallyPaidRowOut",
+        "type": "object"
+      },
+      "PaymentStatus": {
+        "enum": [
+          "payment-success",
+          "payment-less-than-total-due-success",
+          "payment-more-than-total-due-success",
+          "payment-previously-applied",
+          "invoice-not-found",
+          "customer-not-found",
+          "missing-payment-date",
+          "receipt-not-found",
+          "zero-amount",
+          "payment-apply-failed-system",
+          "payment-apply-failed-receipt-closed",
+          "payment-apply-failed-zero-balance"
+        ],
+        "title": "PaymentStatus",
+        "type": "string"
+      },
       "Permission": {
         "enum": [
           "items:read",
@@ -1575,6 +4111,32 @@
         ],
         "title": "Permission",
         "type": "string"
+      },
+      "PollerOut": {
+        "properties": {
+          "last_cycle_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Cycle At"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "last_cycle_at"
+        ],
+        "title": "PollerOut",
+        "type": "object"
       },
       "PromptKey": {
         "enum": [
@@ -1661,6 +4223,147 @@
           "dry_run"
         ],
         "title": "PurgeRequest",
+        "type": "object"
+      },
+      "ReaderSlot": {
+        "enum": [
+          "A",
+          "B"
+        ],
+        "title": "ReaderSlot",
+        "type": "string"
+      },
+      "ReadingOut": {
+        "properties": {
+          "attempt": {
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "output": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RemittanceExtraction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReadingStatus"
+          }
+        },
+        "required": [
+          "status",
+          "model_id",
+          "attempt",
+          "output",
+          "created_at"
+        ],
+        "title": "ReadingOut",
+        "type": "object"
+      },
+      "ReadingStatus": {
+        "enum": [
+          "OK",
+          "FAILED",
+          "TIMEOUT",
+          "REFUSED"
+        ],
+        "title": "ReadingStatus",
+        "type": "string"
+      },
+      "ReceiptOut": {
+        "properties": {
+          "decided_by": {
+            "title": "Decided By",
+            "type": "string"
+          },
+          "receipt_id": {
+            "title": "Receipt Id",
+            "type": "integer"
+          },
+          "receipt_number": {
+            "title": "Receipt Number",
+            "type": "string"
+          },
+          "reservation_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reservation Status"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          }
+        },
+        "required": [
+          "receipt_id",
+          "receipt_number",
+          "decided_by",
+          "score",
+          "reservation_status"
+        ],
+        "title": "ReceiptOut",
+        "type": "object"
+      },
+      "RelationshipOut": {
+        "properties": {
+          "account_number": {
+            "title": "Account Number",
+            "type": "string"
+          },
+          "directions": {
+            "items": {
+              "enum": [
+                "INBOUND",
+                "OUTBOUND"
+              ],
+              "type": "string"
+            },
+            "title": "Directions",
+            "type": "array"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "required": [
+          "account_number",
+          "name",
+          "directions"
+        ],
+        "title": "RelationshipOut",
         "type": "object"
       },
       "RemittanceExtraction": {
@@ -1879,6 +4582,61 @@
         "title": "RequeueOut",
         "type": "object"
       },
+      "ResolutionMethod": {
+        "enum": [
+          "alias",
+          "invoice",
+          "human"
+        ],
+        "title": "ResolutionMethod",
+        "type": "string"
+      },
+      "ResolutionOut": {
+        "properties": {
+          "anchor_customer_number": {
+            "title": "Anchor Customer Number",
+            "type": "string"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "flags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Flags",
+            "type": "array"
+          },
+          "method": {
+            "$ref": "#/components/schemas/ResolutionMethod"
+          },
+          "related_customer_numbers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Related Customer Numbers",
+            "type": "array"
+          }
+        },
+        "required": [
+          "anchor_customer_number",
+          "related_customer_numbers",
+          "method",
+          "currency",
+          "flags"
+        ],
+        "title": "ResolutionOut",
+        "type": "object"
+      },
       "RetireAliasIn": {
         "properties": {
           "reason": {
@@ -1894,6 +4652,64 @@
         "title": "RetireAliasIn",
         "type": "object"
       },
+      "ReverseIn": {
+        "properties": {
+          "confirm_receipt_number": {
+            "maxLength": 100,
+            "title": "Confirm Receipt Number",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "confirm_receipt_number"
+        ],
+        "title": "ReverseIn",
+        "type": "object"
+      },
+      "ReverseOut": {
+        "properties": {
+          "item_stage": {
+            "$ref": "#/components/schemas/Stage"
+          },
+          "item_state": {
+            "$ref": "#/components/schemas/ItemState"
+          },
+          "ledger_id": {
+            "title": "Ledger Id",
+            "type": "integer"
+          },
+          "payment_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaymentStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "const": "REVERSED",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ledger_id",
+          "status",
+          "item_state",
+          "item_stage",
+          "payment_status"
+        ],
+        "title": "ReverseOut",
+        "type": "object"
+      },
       "Role": {
         "enum": [
           "ADMIN",
@@ -1903,6 +4719,58 @@
         ],
         "title": "Role",
         "type": "string"
+      },
+      "SearchHitOut": {
+        "properties": {
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "item",
+              "receipt",
+              "invoice"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "match": {
+            "title": "Match",
+            "type": "string"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/Stage"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ItemState"
+          }
+        },
+        "required": [
+          "item_id",
+          "kind",
+          "match",
+          "stage",
+          "state"
+        ],
+        "title": "SearchHitOut",
+        "type": "object"
+      },
+      "SearchOut": {
+        "properties": {
+          "hits": {
+            "items": {
+              "$ref": "#/components/schemas/SearchHitOut"
+            },
+            "title": "Hits",
+            "type": "array"
+          }
+        },
+        "required": [
+          "hits"
+        ],
+        "title": "SearchOut",
+        "type": "object"
       },
       "SourceLocation": {
         "additionalProperties": false,
@@ -1973,6 +4841,132 @@
         ],
         "title": "Stage",
         "type": "string"
+      },
+      "StageItemOut": {
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "examples": [
+                  "12480.00"
+                ],
+                "pattern": "^-?\\d+\\.\\d{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "lock": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LockInfoOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payer Name"
+          },
+          "payment_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaymentStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "received_at": {
+            "format": "date-time",
+            "title": "Received At",
+            "type": "string"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/Stage"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ItemState"
+          }
+        },
+        "required": [
+          "id",
+          "payer_name",
+          "amount",
+          "currency",
+          "received_at",
+          "attempts",
+          "stage",
+          "state",
+          "payment_status",
+          "lock"
+        ],
+        "title": "StageItemOut",
+        "type": "object"
+      },
+      "StageItemsOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/StageItemOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "StageItemsOut",
+        "type": "object"
       },
       "StreamErrorData": {
         "properties": {
@@ -2219,7 +5213,7 @@
   },
   "info": {
     "title": "Fusion CashApp API",
-    "version": "0.0.0"
+    "version": "0.1.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -2615,6 +5609,438 @@
         ]
       }
     },
+    "/backlog/batches": {
+      "get": {
+        "operationId": "list_batches_backlog_batches_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/BacklogStatus"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BacklogBatchOut"
+                  },
+                  "title": "Response List Batches Backlog Batches Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Batches",
+        "tags": [
+          "backlog"
+        ]
+      },
+      "post": {
+        "operationId": "create_batch_backlog_batches_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BacklogBatchCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BacklogBatchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Batch",
+        "tags": [
+          "backlog"
+        ]
+      }
+    },
+    "/backlog/batches/{batch_id}": {
+      "get": {
+        "operationId": "get_batch_backlog_batches__batch_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "batch_id",
+            "required": true,
+            "schema": {
+              "title": "Batch Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BacklogBatchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Batch",
+        "tags": [
+          "backlog"
+        ]
+      }
+    },
+    "/backlog/batches/{batch_id}/cancel": {
+      "post": {
+        "operationId": "cancel_batch_backlog_batches__batch_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "batch_id",
+            "required": true,
+            "schema": {
+              "title": "Batch Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BacklogBatchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Cancel Batch",
+        "tags": [
+          "backlog"
+        ]
+      }
+    },
+    "/backlog/batches/{batch_id}/pause": {
+      "post": {
+        "operationId": "pause_batch_backlog_batches__batch_id__pause_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "batch_id",
+            "required": true,
+            "schema": {
+              "title": "Batch Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BacklogBatchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Pause Batch",
+        "tags": [
+          "backlog"
+        ]
+      }
+    },
+    "/backlog/batches/{batch_id}/promote": {
+      "post": {
+        "operationId": "promote_batch_backlog_batches__batch_id__promote_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "batch_id",
+            "required": true,
+            "schema": {
+              "title": "Batch Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BacklogPromote"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BacklogBatchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Promote Batch",
+        "tags": [
+          "backlog"
+        ]
+      }
+    },
+    "/backlog/batches/{batch_id}/resume": {
+      "post": {
+        "operationId": "resume_batch_backlog_batches__batch_id__resume_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "batch_id",
+            "required": true,
+            "schema": {
+              "title": "Batch Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BacklogBatchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Resume Batch",
+        "tags": [
+          "backlog"
+        ]
+      }
+    },
     "/chat/stream": {
       "post": {
         "operationId": "chat_stream_chat_stream_post",
@@ -2868,6 +6294,440 @@
         ]
       }
     },
+    "/exceptions": {
+      "get": {
+        "operationId": "list_exceptions_exceptions_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "amount_min",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "examples": [
+                    "12480.00"
+                  ],
+                  "pattern": "^-?\\d+\\.\\d{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Amount Min"
+            }
+          },
+          {
+            "in": "query",
+            "name": "amount_max",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "examples": [
+                    "12480.00"
+                  ],
+                  "pattern": "^-?\\d+\\.\\d{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Amount Max"
+            }
+          },
+          {
+            "in": "query",
+            "name": "date_from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "date_to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            }
+          },
+          {
+            "in": "query",
+            "name": "error_codes",
+            "required": false,
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/ErrorCode"
+              },
+              "title": "Error Codes",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "stage",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Stage"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Stage"
+            }
+          },
+          {
+            "in": "query",
+            "name": "locked_by_me",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Locked By Me",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_auto_applied",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Auto Applied",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_archived",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Archived",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "-age",
+              "enum": [
+                "age",
+                "-age",
+                "amount",
+                "-amount",
+                "payment_date",
+                "-payment_date",
+                "id",
+                "-id"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionListOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Exceptions",
+        "tags": [
+          "exceptions"
+        ]
+      }
+    },
+    "/flow/stages/{tile}/items": {
+      "get": {
+        "operationId": "get_stage_items_flow_stages__tile__items_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tile",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/FlowTile"
+            }
+          },
+          {
+            "in": "query",
+            "name": "state",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ItemState"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StageItemsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Stage Items",
+        "tags": [
+          "flow"
+        ]
+      }
+    },
+    "/flow/stream": {
+      "get": {
+        "operationId": "stream_flow_flow_stream_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Last-Event-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Last-Event-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlowStreamFrameOut"
+                }
+              },
+              "text/event-stream": {}
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Stream Flow",
+        "tags": [
+          "flow"
+        ]
+      }
+    },
+    "/flow/summary": {
+      "get": {
+        "operationId": "get_flow_summary_flow_summary_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlowSummaryOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Flow Summary",
+        "tags": [
+          "flow"
+        ]
+      }
+    },
     "/health": {
       "get": {
         "operationId": "health_health_get",
@@ -2906,6 +6766,139 @@
         "summary": "Health",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/items/{item_id}": {
+      "get": {
+        "operationId": "get_item_items__item_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDetailOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Item",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/items/{item_id}/applications/{ledger_id}/reverse": {
+      "post": {
+        "operationId": "reverseApplication",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "ledger_id",
+            "required": true,
+            "schema": {
+              "title": "Ledger Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReverseIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReverseOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reverse Application",
+        "tags": [
+          "reversal"
         ]
       }
     },
@@ -3034,6 +7027,131 @@
         "summary": "List Classifications",
         "tags": [
           "classification"
+        ]
+      }
+    },
+    "/items/{item_id}/fusion-context": {
+      "get": {
+        "operationId": "get_fusion_context_items__item_id__fusion_context_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FusionContextOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Fusion Context",
+        "tags": [
+          "exceptions"
+        ]
+      }
+    },
+    "/items/{item_id}/history": {
+      "get": {
+        "operationId": "get_item_history_items__item_id__history_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistoryOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Item History",
+        "tags": [
+          "items"
         ]
       }
     },
@@ -3326,6 +7444,83 @@
         "summary": "Renew Lock",
         "tags": [
           "locks"
+        ]
+      }
+    },
+    "/items/{item_id}/parts/{part_no}": {
+      "get": {
+        "description": "Stream one stored part inline. Neither the bytes nor the object key are ever logged.",
+        "operationId": "get_item_part_items__item_id__parts__part_no__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "part_no",
+            "required": true,
+            "schema": {
+              "title": "Part No",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "variant",
+            "required": false,
+            "schema": {
+              "default": "original",
+              "enum": [
+                "original",
+                "text"
+              ],
+              "title": "Variant",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {}
+            },
+            "description": "The part's bytes."
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Item Part",
+        "tags": [
+          "items"
         ]
       }
     },
@@ -3776,6 +7971,354 @@
         "summary": "Get Notification Log",
         "tags": [
           "notifications"
+        ]
+      }
+    },
+    "/reports/daily-summary": {
+      "get": {
+        "operationId": "get_daily_summary_reports_daily_summary_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "default": "json",
+              "enum": [
+                "json",
+                "csv",
+                "xlsx"
+              ],
+              "title": "Format",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailySummaryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Daily Summary",
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/reports/daily-summary/email": {
+      "post": {
+        "operationId": "email_daily_summary_reports_daily_summary_email_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Email Daily Summary",
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/reports/daily-summary/generate": {
+      "post": {
+        "operationId": "generate_daily_summary_reports_daily_summary_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailySummaryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Generate Daily Summary",
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/reports/partially-paid": {
+      "get": {
+        "operationId": "get_partially_paid_reports_partially_paid_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "default": "json",
+              "enum": [
+                "json",
+                "csv",
+                "xlsx"
+              ],
+              "title": "Format",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartiallyPaidResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Partially Paid",
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/search": {
+      "get": {
+        "operationId": "search_search_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "maxLength": 100,
+              "minLength": 1,
+              "title": "Q",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Search",
+        "tags": [
+          "items"
         ]
       }
     }

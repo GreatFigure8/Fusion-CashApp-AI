@@ -86,6 +86,109 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/backlog/batches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Batches */
+        get: operations["list_batches_backlog_batches_get"];
+        put?: never;
+        /** Create Batch */
+        post: operations["create_batch_backlog_batches_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/backlog/batches/{batch_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Batch */
+        get: operations["get_batch_backlog_batches__batch_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/backlog/batches/{batch_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Batch */
+        post: operations["cancel_batch_backlog_batches__batch_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/backlog/batches/{batch_id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pause Batch */
+        post: operations["pause_batch_backlog_batches__batch_id__pause_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/backlog/batches/{batch_id}/promote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Promote Batch */
+        post: operations["promote_batch_backlog_batches__batch_id__promote_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/backlog/batches/{batch_id}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resume Batch */
+        post: operations["resume_batch_backlog_batches__batch_id__resume_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/chat/stream": {
         parameters: {
             query?: never;
@@ -154,6 +257,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/exceptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Exceptions */
+        get: operations["list_exceptions_exceptions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/flow/stages/{tile}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Stage Items */
+        get: operations["get_stage_items_flow_stages__tile__items_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/flow/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stream Flow */
+        get: operations["stream_flow_flow_stream_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/flow/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Flow Summary */
+        get: operations["get_flow_summary_flow_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -165,6 +336,40 @@ export interface paths {
         get: operations["health_health_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Item */
+        get: operations["get_item_items__item_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{item_id}/applications/{ledger_id}/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reverse Application */
+        post: operations["reverseApplication"];
         delete?: never;
         options?: never;
         head?: never;
@@ -197,6 +402,40 @@ export interface paths {
         };
         /** List Classifications */
         get: operations["list_classifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{item_id}/fusion-context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Fusion Context */
+        get: operations["get_fusion_context_items__item_id__fusion_context_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{item_id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Item History */
+        get: operations["get_item_history_items__item_id__history_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -252,6 +491,26 @@ export interface paths {
         put?: never;
         /** Renew Lock */
         post: operations["renew_lock_items__item_id__lock_renew_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/{item_id}/parts/{part_no}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Item Part
+         * @description Stream one stored part inline. Neither the bytes nor the object key are ever logged.
+         */
+        get: operations["get_item_part_items__item_id__parts__part_no__get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -360,6 +619,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/daily-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Daily Summary */
+        get: operations["get_daily_summary_reports_daily_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/daily-summary/email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Email Daily Summary */
+        post: operations["email_daily_summary_reports_daily_summary_email_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/daily-summary/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate Daily Summary */
+        post: operations["generate_daily_summary_reports_daily_summary_generate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/partially-paid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Partially Paid */
+        get: operations["get_partially_paid_reports_partially_paid_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search */
+        get: operations["search_search_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -372,6 +716,20 @@ export interface components {
             };
             /** Id */
             id: string;
+            /** Label */
+            label: string;
+        };
+        /**
+         * ActorKind
+         * @enum {string}
+         */
+        ActorKind: "SYSTEM" | "USER";
+        /** AgingBucketOut */
+        AgingBucketOut: {
+            /** Count */
+            count: number;
+            /** Key */
+            key: string;
             /** Label */
             label: string;
         };
@@ -415,6 +773,132 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** AppliedMoneyOut */
+        AppliedMoneyOut: {
+            /**
+             * Amount
+             * @example 12480.00
+             */
+            amount: string;
+            /** Currency */
+            currency: string;
+        };
+        /** AutofixAttemptOut */
+        AutofixAttemptOut: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Attempt */
+            attempt: number | null;
+            code: components["schemas"]["ErrorCode"] | null;
+            /** Decision */
+            decision: string | null;
+            /** Limit */
+            limit: number | null;
+            /** Reasoning */
+            reasoning: string | null;
+        };
+        /**
+         * AwaitingBucketsOut
+         * @description Awaiting-receipt items by whole days waited.
+         */
+        AwaitingBucketsOut: {
+            /** >30D */
+            ">30d": number;
+            /** 0-2D */
+            "0-2d": number;
+            /** 3-7D */
+            "3-7d": number;
+            /** 8-30D */
+            "8-30d": number;
+        };
+        /** BacklogBatchCreate */
+        BacklogBatchCreate: {
+            /**
+             * Dry Run
+             * @default false
+             */
+            dry_run?: boolean;
+            /** Folder */
+            folder: string;
+            /** Name */
+            name: string;
+            /** Rate Limit Per Minute */
+            rate_limit_per_minute?: number | null;
+        };
+        /** BacklogBatchOut */
+        BacklogBatchOut: {
+            /** Applied */
+            applied: number;
+            /** Awaiting */
+            awaiting: number;
+            /** Created By */
+            created_by: string;
+            /** Dry Run */
+            dry_run: boolean;
+            /** Escalated */
+            escalated: number;
+            /** Eta Minutes */
+            eta_minutes: number | null;
+            /** Failed */
+            failed: number;
+            /** Finished At */
+            finished_at: string | null;
+            /** Id */
+            id: number;
+            /** Import Error */
+            import_error: string | null;
+            /** In Flight */
+            in_flight: number;
+            /** Name */
+            name: string;
+            /** Processed */
+            processed: number;
+            /** Promoted From Id */
+            promoted_from_id: number | null;
+            /** Rate Limit Per Minute */
+            rate_limit_per_minute: number;
+            source_kind: components["schemas"]["BacklogSourceKind"];
+            /** Started At */
+            started_at: string | null;
+            status: components["schemas"]["BacklogStatus"];
+            /** Total */
+            total: number;
+        };
+        /** BacklogProgressOut */
+        BacklogProgressOut: {
+            /** Eta Minutes */
+            eta_minutes: number | null;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Processed */
+            processed: number;
+            /** Status */
+            status: string;
+            /** Total */
+            total: number;
+        };
+        /** BacklogPromote */
+        BacklogPromote: {
+            /** Name */
+            name: string;
+            /** Rate Limit Per Minute */
+            rate_limit_per_minute?: number | null;
+        };
+        /**
+         * BacklogSourceKind
+         * @enum {string}
+         */
+        BacklogSourceKind: "FOLDER" | "MAILBOX_FOLDER";
+        /**
+         * BacklogStatus
+         * @enum {string}
+         */
+        BacklogStatus: "IMPORTING" | "RUNNING" | "PAUSED" | "DONE" | "CANCELLED";
         /** BBox */
         BBox: {
             /** H */
@@ -425,6 +909,31 @@ export interface components {
             x: number;
             /** Y */
             y: number;
+        };
+        /** CandidateReceiptOut */
+        CandidateReceiptOut: {
+            /** Amount */
+            amount: string | null;
+            /** Chosen */
+            chosen: boolean;
+            /** Currency */
+            currency: string | null;
+            /** Customer */
+            customer: string | null;
+            /** Qualifies */
+            qualifies: boolean;
+            /** Receipt Date */
+            receipt_date: string | null;
+            /** Receipt Id */
+            receipt_id: number;
+            /** Receipt Number */
+            receipt_number: string;
+            /** Remaining */
+            remaining: string | null;
+            /** Score */
+            score: number;
+            /** Stale */
+            stale: boolean;
         };
         /** ChatContextIn */
         ChatContextIn: {
@@ -581,6 +1090,127 @@ export interface components {
             reason: string;
             value: components["schemas"]["JsonValue"];
         };
+        /** ContextWarningOut */
+        ContextWarningOut: {
+            code: components["schemas"]["ErrorCode"];
+            /** Message */
+            message: string;
+            /**
+             * Section
+             * @enum {string}
+             */
+            section: "customer" | "invoices" | "credit_memos" | "receipts";
+        };
+        /** CreditMemoApplicationOut */
+        CreditMemoApplicationOut: {
+            /**
+             * Amount Applied
+             * @example 12480.00
+             */
+            amount_applied: string;
+            /** Application Id */
+            application_id: number;
+            /**
+             * Apply Date
+             * Format: date
+             */
+            apply_date: string;
+            /** Receipt Id */
+            receipt_id: number;
+            /** Status */
+            status: string;
+        };
+        /** CreditMemoHistoryOut */
+        CreditMemoHistoryOut: {
+            /** Applications */
+            applications: components["schemas"]["CreditMemoApplicationOut"][];
+            /** Currency */
+            currency: string;
+            /** Customer Trx Id */
+            customer_trx_id: number;
+            /** Number */
+            number: string;
+            /**
+             * Original
+             * @example 12480.00
+             */
+            original: string;
+            /**
+             * Remaining
+             * @example 12480.00
+             */
+            remaining: string;
+        };
+        /** CurrencyAmountOut */
+        CurrencyAmountOut: {
+            /**
+             * Amount
+             * @example 12480.00
+             */
+            amount: string;
+            /** Currency */
+            currency: string;
+        };
+        /** CustomerContextOut */
+        CustomerContextOut: {
+            /** Account Number */
+            account_number: string;
+            bill_to_site: components["schemas"]["CustomerSiteOut"] | null;
+            /** Location */
+            location: string | null;
+            /** Name */
+            name: string;
+            /** Relationships */
+            relationships: components["schemas"]["RelationshipOut"][];
+        };
+        /** CustomerSiteOut */
+        CustomerSiteOut: {
+            /** Address */
+            address: string | null;
+            /** Location */
+            location: string | null;
+            /** Purpose */
+            purpose: string | null;
+            /** Site Number */
+            site_number: string;
+        };
+        /** DailySummaryOut */
+        DailySummaryOut: {
+            /** Aging Buckets */
+            aging_buckets: components["schemas"]["AgingBucketOut"][];
+            /** Applied By Currency */
+            applied_by_currency: components["schemas"]["CurrencyAmountOut"][];
+            /** Auto Applied */
+            auto_applied: number;
+            /** Auto Applied Pct */
+            auto_applied_pct: string | null;
+            /** Completed */
+            completed: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Escalations */
+            escalations: number;
+            /** Failures By Error Code */
+            failures_by_error_code: components["schemas"]["ErrorCodeCountOut"][];
+            /** Has Activity */
+            has_activity: boolean;
+            /** Items In */
+            items_in: number;
+        };
+        /** DailySummaryResponse */
+        DailySummaryResponse: {
+            /** Cutover */
+            cutover: string;
+            /** Emailed At */
+            emailed_at: string | null;
+            /** Emailed To */
+            emailed_to: string[];
+            last_generated: components["schemas"]["LastGeneratedOut"] | null;
+            summary: components["schemas"]["DailySummaryOut"];
+        };
         /** DailyUsageOut */
         DailyUsageOut: {
             /** Calls */
@@ -629,9 +1259,50 @@ export interface components {
          * @enum {string}
          */
         DateKind: "payment" | "issue" | "order" | "deposit" | "other";
+        /** Disagreement */
+        Disagreement: {
+            /**
+             * Chosen
+             * @enum {string}
+             */
+            chosen: "A" | "B" | "both" | "human";
+            /** Field Path */
+            field_path: string;
+            /** Reason */
+            reason: string;
+            /** Value A */
+            value_a: string | null;
+            /** Value B */
+            value_b: string | null;
+        };
         /** DoneData */
         DoneData: {
             usage: components["schemas"]["UsageData"];
+        };
+        /** EmailRequest */
+        EmailRequest: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Recipients */
+            recipients?: string[] | null;
+        };
+        /** EmailResponse */
+        EmailResponse: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Emailed At
+             * Format: date-time
+             */
+            emailed_at: string;
+            /** Emailed To */
+            emailed_to: string[];
         };
         /** ErrorBody */
         ErrorBody: {
@@ -649,9 +1320,55 @@ export interface components {
             /** Request Id */
             request_id: string;
         };
+        /**
+         * ErrorCode
+         * @enum {string}
+         */
+        ErrorCode: "RECEIPT_NOT_YET_AVAILABLE" | "RECEIPT_AMBIGUOUS" | "RECEIPT_RESERVED" | "AMOUNT_VARIANCE" | "CUSTOMER_NOT_FOUND" | "CUSTOMER_MULTIPLE_ACCOUNTS" | "INVOICE_NOT_FOUND" | "INVOICE_CLOSED" | "INVOICE_CURRENCY_MISMATCH" | "INVOICE_STATUS_INVALID" | "INVALID_INVOICE_NUMBER" | "INVALID_DATE" | "INVALID_CURRENCY" | "MISSING_PAYMENT_DATE" | "ZERO_AMOUNT_LINE" | "LOW_EXTRACTION_CONFIDENCE" | "EXTRACTION_FAILED" | "CLASSIFICATION_FAILED" | "LLM_REFUSAL" | "LLM_TRANSIENT" | "UNSUPPORTED_ARTIFACT" | "FUSION_OVERAPPLY" | "FUSION_ALREADY_APPLIED" | "FUSION_LOCKED" | "FUSION_TRANSIENT" | "FUSION_GL_DATE" | "FUSION_FAULT" | "FUSION_DISCOUNT_REJECTED" | "FUSION_WRITE_DISABLED" | "WRITE_BACK_FAILED" | "REVERSAL_FAILED" | "AGED_OUT" | "PREPAYMENT" | "PO_SO_ERS_ONLY" | "DUAL_CURRENCY" | "UNGROUNDED" | "SYSTEM_DEAD_LETTER";
+        /** ErrorCodeCountOut */
+        ErrorCodeCountOut: {
+            /** Count */
+            count: number;
+            error_code: components["schemas"]["ErrorCode"];
+        };
         /** ErrorEnvelope */
         ErrorEnvelope: {
             error: components["schemas"]["ErrorBody"];
+        };
+        /** ExceptionListOut */
+        ExceptionListOut: {
+            /** Items */
+            items: components["schemas"]["ExceptionRowOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /** ExceptionRowOut */
+        ExceptionRowOut: {
+            /** Age S */
+            age_s: number;
+            /** Amount */
+            amount: string | null;
+            /** Autofix Limit */
+            autofix_limit: number;
+            /** Autofix Tried */
+            autofix_tried: number;
+            /** Currency */
+            currency: string | null;
+            error_code: components["schemas"]["ErrorCode"] | null;
+            /** Id */
+            id: number;
+            lock: components["schemas"]["LockInfoOut"] | null;
+            /** Payer Name */
+            payer_name: string | null;
+            /** Payment Date */
+            payment_date: string | null;
+            payment_status: components["schemas"]["PaymentStatus"] | null;
+            stage: components["schemas"]["Stage"];
+            state: components["schemas"]["ItemState"];
         };
         /** Extracted[Annotated[Decimal, BeforeValidator, PlainSerializer, WithJsonSchema]] */
         Extracted_Annotated_Decimal__BeforeValidator__PlainSerializer__WithJsonSchema__: {
@@ -770,6 +1487,29 @@ export interface components {
              */
             transaction_number: string;
         };
+        /**
+         * ExtractionOut
+         * @description The adjudicated extraction and where each value came from.
+         *
+         *     ``provenance`` maps a field path (``payer_name``, ``lines[2]``) to ``A``, ``B``, ``both`` or
+         *     ``human``. Line entries are keyed by the line's index in ``final.lines``.
+         */
+        ExtractionOut: {
+            /** Confidence */
+            confidence: number | null;
+            /** Disagreements */
+            disagreements: components["schemas"]["Disagreement"][];
+            final: components["schemas"]["RemittanceExtraction"] | null;
+            missing_reader: components["schemas"]["ReaderSlot"] | null;
+            /** Provenance */
+            provenance: {
+                [key: string]: string;
+            };
+            /** Purged */
+            purged: boolean;
+            reader_a: components["schemas"]["ReadingOut"] | null;
+            reader_b: components["schemas"]["ReadingOut"] | null;
+        };
         /** FieldChangeOut */
         FieldChangeOut: {
             /** After */
@@ -779,10 +1519,98 @@ export interface components {
             /** Path */
             path: string;
         };
+        /** FlowKpisOut */
+        FlowKpisOut: {
+            /** Applied By Currency */
+            applied_by_currency: components["schemas"]["AppliedMoneyOut"][];
+            /** Auto Applied Pct */
+            auto_applied_pct: number | null;
+            /** In Today */
+            in_today: number;
+            /** Needs Person */
+            needs_person: number;
+        };
+        /**
+         * FlowStreamFrameOut
+         * @description Documents the two SSE event payloads (``summary`` and ``item_changed``) for OpenAPI.
+         */
+        FlowStreamFrameOut: {
+            item_changed?: components["schemas"]["ItemChangedOut"] | null;
+            summary?: components["schemas"]["FlowSummaryOut"] | null;
+        };
+        /** FlowSummaryOut */
+        FlowSummaryOut: {
+            /** Backlog */
+            backlog: components["schemas"]["BacklogProgressOut"][];
+            /** Cohere Utilisation Pct */
+            cohere_utilisation_pct: number | null;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            kpis: components["schemas"]["FlowKpisOut"];
+            /** Pollers */
+            pollers: components["schemas"]["PollerOut"][];
+            /** Stages */
+            stages: components["schemas"]["FlowTileOut"][];
+        };
+        /**
+         * FlowTile
+         * @description One tile per stage, with the awaiting-receipt shelf right after receipt matching.
+         * @enum {string}
+         */
+        FlowTile: "INTAKE" | "CLASSIFY" | "EXTRACT" | "ADJUDICATE" | "VALIDATE" | "RESOLVE_CUSTOMER" | "FAST_PATH" | "MATCH_RECEIPT" | "AWAITING_RECEIPT" | "MATCH_LINES" | "APPLY" | "WRITE_BACK" | "DONE";
+        /** FlowTileOut */
+        FlowTileOut: {
+            awaiting_buckets: components["schemas"]["AwaitingBucketsOut"] | null;
+            /** Errors */
+            errors: number;
+            /** In Progress */
+            in_progress: number;
+            /** In Queue */
+            in_queue: number;
+            /** P95 Dwell S */
+            p95_dwell_s: number | null;
+            stage: components["schemas"]["FlowTile"];
+            /** Throughput Per Min */
+            throughput_per_min: number[];
+        };
         /** ForceTakeIn */
         ForceTakeIn: {
             /** Reason */
             reason: string;
+        };
+        /** FusionContextOut */
+        FusionContextOut: {
+            /** Applications */
+            applications: components["schemas"]["LedgerApplicationOut"][];
+            /** Autofix Attempts */
+            autofix_attempts: components["schemas"]["AutofixAttemptOut"][];
+            /**
+             * Built At
+             * Format: date-time
+             */
+            built_at: string;
+            /** Candidate Receipts */
+            candidate_receipts: components["schemas"]["CandidateReceiptOut"][];
+            /** Credit Memo History */
+            credit_memo_history: components["schemas"]["CreditMemoHistoryOut"][];
+            customer: components["schemas"]["CustomerContextOut"] | null;
+            /** Invoices */
+            invoices: components["schemas"]["InvoiceContextOut"][];
+            /** Item Id */
+            item_id: number;
+            /** Warnings */
+            warnings: components["schemas"]["ContextWarningOut"][];
+        };
+        /** GenerateRequest */
+        GenerateRequest: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
         };
         /** GroupRoleMappingModel */
         GroupRoleMappingModel: {
@@ -817,16 +1645,213 @@ export interface components {
             version: string;
         };
         /**
+         * HistoryAction
+         * @enum {string}
+         */
+        HistoryAction: "STAGE_TRANSITION" | "AUTOFIX_ATTEMPT" | "HUMAN_ACTION" | "FUSION_WRITE" | "DECISION" | "LOCK";
+        /** HistoryOut */
+        HistoryOut: {
+            /** Items */
+            items: components["schemas"]["HistoryRowOut"][];
+            /** Total */
+            total: number;
+        };
+        /** HistoryRowOut */
+        HistoryRowOut: {
+            action: components["schemas"]["HistoryAction"];
+            /** Actor Id */
+            actor_id: string;
+            actor_kind: components["schemas"]["ActorKind"];
+            /** Actor Name */
+            actor_name: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            error_code: components["schemas"]["ErrorCode"] | null;
+            from_stage: components["schemas"]["Stage"] | null;
+            from_state: components["schemas"]["ItemState"] | null;
+            /** Id */
+            id: number;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            } | null;
+            /** Purged */
+            purged: boolean;
+            /** Reasoning */
+            reasoning: string | null;
+            to_stage: components["schemas"]["Stage"] | null;
+            to_state: components["schemas"]["ItemState"] | null;
+        };
+        /** InvoiceContextOut */
+        InvoiceContextOut: {
+            /** Bill To Customer */
+            bill_to_customer: string | null;
+            /** Bill To Site */
+            bill_to_site: string | null;
+            /** Currency */
+            currency: string;
+            /** Customer Trx Id */
+            customer_trx_id: number;
+            /** Number */
+            number: string;
+            /**
+             * Original Amount
+             * @example 12480.00
+             */
+            original_amount: string;
+            /**
+             * Remaining
+             * @example 12480.00
+             */
+            remaining: string;
+            /** Status */
+            status: string;
+        };
+        /** ItemChangedOut */
+        ItemChangedOut: {
+            /** Id */
+            id: number;
+            lock: components["schemas"]["LockInfoOut"] | null;
+            payment_status: components["schemas"]["PaymentStatus"] | null;
+            stage: components["schemas"]["Stage"];
+            state: components["schemas"]["ItemState"];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** ItemDetailOut */
+        ItemDetailOut: {
+            extraction: components["schemas"]["ExtractionOut"];
+            item: components["schemas"]["ItemOut"];
+            /** Lines */
+            lines: components["schemas"]["LineOut"][];
+            lock: components["schemas"]["LockInfoOut"] | null;
+            /** Parts */
+            parts: components["schemas"]["PartOut"][];
+            receipt: components["schemas"]["ReceiptOut"] | null;
+            resolution: components["schemas"]["ResolutionOut"] | null;
+        };
+        /** ItemOut */
+        ItemOut: {
+            /** Amount */
+            amount: string | null;
+            /** Attempts */
+            attempts: number;
+            /** Currency */
+            currency: string | null;
+            /** Customer Account Number */
+            customer_account_number: string | null;
+            /** Escalation Summary */
+            escalation_summary: string | null;
+            /** Id */
+            id: number;
+            /** Info Flags */
+            info_flags: string[];
+            last_error_code: components["schemas"]["ErrorCode"] | null;
+            /** Payer Name */
+            payer_name: string | null;
+            /** Payment Date */
+            payment_date: string | null;
+            payment_status: components["schemas"]["PaymentStatus"] | null;
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+            stage: components["schemas"]["Stage"];
+            state: components["schemas"]["ItemState"];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Version */
+            version: number;
+        };
+        /**
          * ItemState
          * @enum {string}
          */
         ItemState: "PENDING" | "IN_PROGRESS" | "AWAITING_RECEIPT" | "ESCALATED" | "DONE" | "ARCHIVED";
         JsonValue: unknown;
+        /** LastGeneratedOut */
+        LastGeneratedOut: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** By */
+            by: string;
+            /**
+             * By Kind
+             * @enum {string}
+             */
+            by_kind: "user" | "cutover";
+        };
+        /** LedgerApplicationOut */
+        LedgerApplicationOut: {
+            /**
+             * Amount
+             * @example 12480.00
+             */
+            amount: string;
+            /** Applied At */
+            applied_at: string | null;
+            /** Customer Trx Id */
+            customer_trx_id: number;
+            /** Fusion Application Id */
+            fusion_application_id: number | null;
+            /** Ledger Id */
+            ledger_id: number;
+            /** Line No */
+            line_no: number;
+            /** Receipt Id */
+            receipt_id: number;
+            /** Receipt Number */
+            receipt_number: string | null;
+            /** Reversal Reason */
+            reversal_reason: string | null;
+            /** Reversed At */
+            reversed_at: string | null;
+            /** Reversed By */
+            reversed_by: string | null;
+            /** Status */
+            status: string;
+            /** Transaction Number */
+            transaction_number: string | null;
+        };
         /**
          * LineKind
          * @enum {string}
          */
         LineKind: "INVOICE" | "CREDIT_MEMO" | "UNKNOWN" | "BANK_FEE" | "TARIFF" | "DISCOUNT";
+        /** LineOut */
+        LineOut: {
+            /** Applied Amount */
+            applied_amount: string | null;
+            /** Fusion Balance */
+            fusion_balance: string | null;
+            /** Fusion Result Code */
+            fusion_result_code: string | null;
+            /** Line No */
+            line_no: number;
+            line_status: components["schemas"]["LineStatus"] | null;
+            /** Stated Amount */
+            stated_amount: string | null;
+            /** Transaction Number */
+            transaction_number: string | null;
+        };
+        /**
+         * LineStatus
+         * @enum {string}
+         */
+        LineStatus: "allocation-applied" | "allocation-applied-short-pay" | "allocation-applied-less-than-instruction" | "allocation-applied-with-discount" | "allocation-previously-applied" | "allocation-invoice-not-found" | "allocation-customer-not-found" | "allocation-no-remaining-balance" | "allocation-zero-amount" | "allocation-missing-payment-date" | "allocation-no-receipt-match" | "allocation-apply-failed" | "allocation-reversed" | "allocation-dry-run";
         /**
          * LlmRole
          * @enum {string}
@@ -918,11 +1943,87 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** PartiallyPaidResponse */
+        PartiallyPaidResponse: {
+            /**
+             * From
+             * Format: date
+             */
+            from: string;
+            /** Rows */
+            rows: components["schemas"]["PartiallyPaidRowOut"][];
+            /**
+             * To
+             * Format: date
+             */
+            to: string;
+            /** Truncated */
+            truncated: boolean;
+        };
+        /** PartiallyPaidRowOut */
+        PartiallyPaidRowOut: {
+            /** Currency */
+            currency: string;
+            /** Customer Account Number */
+            customer_account_number: string | null;
+            /** Customer Name */
+            customer_name: string | null;
+            /** Invoice Number */
+            invoice_number: string;
+            /** Item Id */
+            item_id: number;
+            line_status: components["schemas"]["LineStatus"];
+            /**
+             * Original
+             * @example 12480.00
+             */
+            original: string;
+            /**
+             * Paid
+             * @example 12480.00
+             */
+            paid: string;
+            /**
+             * Remaining
+             * @example 12480.00
+             */
+            remaining: string;
+            /** Short Pay Reason */
+            short_pay_reason: string;
+        };
+        /**
+         * PartKind
+         * @description Values match the ARTIFACT_PART.KIND column exactly.
+         * @enum {string}
+         */
+        PartKind: "TEXT" | "PDF" | "IMAGE" | "TABLE" | "DOCX";
+        /** PartOut */
+        PartOut: {
+            kind: components["schemas"]["PartKind"];
+            /** Media Type */
+            media_type: string;
+            /** Part No */
+            part_no: number;
+            /** Purged */
+            purged: boolean;
+        };
+        /**
+         * PaymentStatus
+         * @enum {string}
+         */
+        PaymentStatus: "payment-success" | "payment-less-than-total-due-success" | "payment-more-than-total-due-success" | "payment-previously-applied" | "invoice-not-found" | "customer-not-found" | "missing-payment-date" | "receipt-not-found" | "zero-amount" | "payment-apply-failed-system" | "payment-apply-failed-receipt-closed" | "payment-apply-failed-zero-balance";
         /**
          * Permission
          * @enum {string}
          */
         Permission: "items:read" | "items:work" | "apply:reverse" | "classification:override" | "config:read" | "config:write" | "reports:read" | "backlog:run" | "chat:use";
+        /** PollerOut */
+        PollerOut: {
+            /** Last Cycle At */
+            last_cycle_at: string | null;
+            /** Name */
+            name: string;
+        };
         /**
          * PromptKey
          * @enum {string}
@@ -963,6 +2064,52 @@ export interface components {
         PurgeRequest: {
             /** Dry Run */
             dry_run: boolean;
+        };
+        /**
+         * ReaderSlot
+         * @enum {string}
+         */
+        ReaderSlot: "A" | "B";
+        /** ReadingOut */
+        ReadingOut: {
+            /** Attempt */
+            attempt: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Model Id */
+            model_id: string;
+            output: components["schemas"]["RemittanceExtraction"] | null;
+            status: components["schemas"]["ReadingStatus"];
+        };
+        /**
+         * ReadingStatus
+         * @enum {string}
+         */
+        ReadingStatus: "OK" | "FAILED" | "TIMEOUT" | "REFUSED";
+        /** ReceiptOut */
+        ReceiptOut: {
+            /** Decided By */
+            decided_by: string;
+            /** Receipt Id */
+            receipt_id: number;
+            /** Receipt Number */
+            receipt_number: string;
+            /** Reservation Status */
+            reservation_status: string | null;
+            /** Score */
+            score: number | null;
+        };
+        /** RelationshipOut */
+        RelationshipOut: {
+            /** Account Number */
+            account_number: string;
+            /** Directions */
+            directions: ("INBOUND" | "OUTBOUND")[];
+            /** Name */
+            name: string | null;
         };
         /** RemittanceExtraction */
         RemittanceExtraction: {
@@ -1048,16 +2195,72 @@ export interface components {
             stage: components["schemas"]["Stage"];
             state: components["schemas"]["ItemState"];
         };
+        /**
+         * ResolutionMethod
+         * @enum {string}
+         */
+        ResolutionMethod: "alias" | "invoice" | "human";
+        /** ResolutionOut */
+        ResolutionOut: {
+            /** Anchor Customer Number */
+            anchor_customer_number: string;
+            /** Currency */
+            currency: string | null;
+            /** Flags */
+            flags: string[];
+            method: components["schemas"]["ResolutionMethod"];
+            /** Related Customer Numbers */
+            related_customer_numbers: string[];
+        };
         /** RetireAliasIn */
         RetireAliasIn: {
             /** Reason */
             reason: string;
+        };
+        /** ReverseIn */
+        ReverseIn: {
+            /** Confirm Receipt Number */
+            confirm_receipt_number: string;
+            /** Reason */
+            reason: string;
+        };
+        /** ReverseOut */
+        ReverseOut: {
+            item_stage: components["schemas"]["Stage"];
+            item_state: components["schemas"]["ItemState"];
+            /** Ledger Id */
+            ledger_id: number;
+            payment_status: components["schemas"]["PaymentStatus"] | null;
+            /**
+             * Status
+             * @constant
+             */
+            status: "REVERSED";
         };
         /**
          * Role
          * @enum {string}
          */
         Role: "ADMIN" | "OPERATOR" | "REVERSER" | "VIEWER";
+        /** SearchHitOut */
+        SearchHitOut: {
+            /** Item Id */
+            item_id: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "item" | "receipt" | "invoice";
+            /** Match */
+            match: string;
+            stage: components["schemas"]["Stage"];
+            state: components["schemas"]["ItemState"];
+        };
+        /** SearchOut */
+        SearchOut: {
+            /** Hits */
+            hits: components["schemas"]["SearchHitOut"][];
+        };
         /** SourceLocation */
         SourceLocation: {
             /** @description The region of the page holding the value, as fractions of the page width and height (x, y of the top-left corner, w, h of the box), each from 0 to 1. null when unknown. */
@@ -1083,6 +2286,39 @@ export interface components {
          * @enum {string}
          */
         Stage: "INTAKE" | "CLASSIFY" | "EXTRACT" | "ADJUDICATE" | "VALIDATE" | "RESOLVE_CUSTOMER" | "FAST_PATH" | "MATCH_RECEIPT" | "MATCH_LINES" | "APPLY" | "WRITE_BACK" | "DONE";
+        /** StageItemOut */
+        StageItemOut: {
+            /** Amount */
+            amount: string | null;
+            /** Attempts */
+            attempts: number;
+            /** Currency */
+            currency: string | null;
+            /** Id */
+            id: number;
+            lock: components["schemas"]["LockInfoOut"] | null;
+            /** Payer Name */
+            payer_name: string | null;
+            payment_status: components["schemas"]["PaymentStatus"] | null;
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+            stage: components["schemas"]["Stage"];
+            state: components["schemas"]["ItemState"];
+        };
+        /** StageItemsOut */
+        StageItemsOut: {
+            /** Items */
+            items: components["schemas"]["StageItemOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
         /** StreamErrorData */
         StreamErrorData: {
             /**
@@ -1414,6 +2650,293 @@ export interface operations {
             };
         };
     };
+    list_batches_backlog_batches_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                status?: components["schemas"]["BacklogStatus"][] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacklogBatchOut"][];
+                };
+            };
+        };
+    };
+    create_batch_backlog_batches_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BacklogBatchCreate"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacklogBatchOut"];
+                };
+            };
+        };
+    };
+    get_batch_backlog_batches__batch_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batch_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacklogBatchOut"];
+                };
+            };
+        };
+    };
+    cancel_batch_backlog_batches__batch_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batch_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacklogBatchOut"];
+                };
+            };
+        };
+    };
+    pause_batch_backlog_batches__batch_id__pause_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batch_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacklogBatchOut"];
+                };
+            };
+        };
+    };
+    promote_batch_backlog_batches__batch_id__promote_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batch_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BacklogPromote"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacklogBatchOut"];
+                };
+            };
+        };
+    };
+    resume_batch_backlog_batches__batch_id__resume_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batch_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacklogBatchOut"];
+                };
+            };
+        };
+    };
     chat_stream_chat_stream_post: {
         parameters: {
             query?: never;
@@ -1581,6 +3104,180 @@ export interface operations {
             };
         };
     };
+    list_exceptions_exceptions_get: {
+        parameters: {
+            query?: {
+                amount_max?: string | null;
+                amount_min?: string | null;
+                date_from?: string | null;
+                date_to?: string | null;
+                error_codes?: components["schemas"]["ErrorCode"][];
+                include_archived?: boolean;
+                include_auto_applied?: boolean;
+                locked_by_me?: boolean;
+                page?: number;
+                page_size?: number;
+                q?: string | null;
+                sort?: "age" | "-age" | "amount" | "-amount" | "payment_date" | "-payment_date" | "id" | "-id";
+                stage?: components["schemas"]["Stage"] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExceptionListOut"];
+                };
+            };
+        };
+    };
+    get_stage_items_flow_stages__tile__items_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                state?: components["schemas"]["ItemState"] | null;
+            };
+            header?: never;
+            path: {
+                tile: components["schemas"]["FlowTile"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StageItemsOut"];
+                };
+            };
+        };
+    };
+    stream_flow_flow_stream_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Last-Event-ID"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FlowStreamFrameOut"];
+                    "text/event-stream": unknown;
+                };
+            };
+        };
+    };
+    get_flow_summary_flow_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FlowSummaryOut"];
+                };
+            };
+        };
+    };
     health_health_get: {
         parameters: {
             query?: never;
@@ -1615,6 +3312,91 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    get_item_items__item_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailOut"];
+                };
+            };
+        };
+    };
+    reverseApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+                ledger_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReverseIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReverseOut"];
                 };
             };
         };
@@ -1699,6 +3481,88 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ClassificationOut"][];
+                };
+            };
+        };
+    };
+    get_fusion_context_items__item_id__fusion_context_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FusionContextOut"];
+                };
+            };
+        };
+    };
+    get_item_history_items__item_id__history_get: {
+        parameters: {
+            query?: {
+                page?: number;
+            };
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HistoryOut"];
                 };
             };
         };
@@ -1901,6 +3765,49 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LockInfoOut"];
+                };
+            };
+        };
+    };
+    get_item_part_items__item_id__parts__part_no__get: {
+        parameters: {
+            query?: {
+                variant?: "original" | "text";
+            };
+            header?: never;
+            path: {
+                item_id: number;
+                part_no: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description The part's bytes. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": unknown;
                 };
             };
         };
@@ -2149,6 +4056,213 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NotificationLogPage"];
+                };
+            };
+        };
+    };
+    get_daily_summary_reports_daily_summary_get: {
+        parameters: {
+            query?: {
+                date?: string | null;
+                format?: "json" | "csv" | "xlsx";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailySummaryResponse"];
+                };
+            };
+        };
+    };
+    email_daily_summary_reports_daily_summary_email_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailRequest"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailResponse"];
+                };
+            };
+        };
+    };
+    generate_daily_summary_reports_daily_summary_generate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerateRequest"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailySummaryResponse"];
+                };
+            };
+        };
+    };
+    get_partially_paid_reports_partially_paid_get: {
+        parameters: {
+            query?: {
+                format?: "json" | "csv" | "xlsx";
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartiallyPaidResponse"];
+                };
+            };
+        };
+    };
+    search_search_get: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchOut"];
                 };
             };
         };

@@ -11,7 +11,7 @@ from cashapp.data.types import JsonDoc, UtcDateTime
 
 revision = "s41_report_run"
 # The head when this was coded; the merger re-points this and checks for a single head.
-down_revision = "s45_retention_purge"
+down_revision = "s35_backlog_batch"
 branch_labels = None
 depends_on = None
 

@@ -14,7 +14,14 @@ async function authenticated() {
 }
 
 const SESSION_EXPIRED = () =>
-  err(apiError(401, "session_expired", "Your session has expired. Sign in again.", null));
+  err(
+    apiError(
+      401,
+      "session_expired",
+      "Your session has expired. Sign in again.",
+      null,
+    ),
+  );
 
 /** Re-reads the summary for the Retry button when the live stream has not delivered one. */
 export const refreshFlowSummary = apiAction(async () => {
@@ -27,6 +34,8 @@ const pauseSchema = z.number().int().positive();
 /** Pause a running backlog batch. The API enforces `backlog:run`. */
 export const pauseBacklogBatch = apiAction(pauseSchema, async (id) => {
   if (!(await authenticated())) return SESSION_EXPIRED();
-  const result = await api("post", "/backlog/batches/{id}/pause", { params: { id } });
+  const result = await api("post", "/backlog/batches/{batch_id}/pause", {
+    params: { batch_id: id },
+  });
   return result.ok ? ok(undefined) : result;
 });

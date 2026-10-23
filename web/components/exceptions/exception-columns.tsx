@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColumnDef, StockFeatures } from "@tanstack/react-table";
+import type { DataTableColumn } from "@/components/common/data-table";
 import { Lock, MoreHorizontal } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
@@ -26,7 +26,11 @@ function RowMenu({
   row,
   canWork,
   onOpen,
-}: Readonly<{ row: ExceptionRow; canWork: boolean; onOpen: (id: number) => void }>) {
+}: Readonly<{
+  row: ExceptionRow;
+  canWork: boolean;
+  onOpen: (id: number) => void;
+}>) {
   const [pending, startTransition] = useTransition();
 
   const dequeue = () =>
@@ -67,12 +71,14 @@ function RowMenu({
 export function buildExceptionColumns(options: {
   canWork: boolean;
   onOpen: (id: number) => void;
-}): ColumnDef<StockFeatures, ExceptionRow>[] {
+}): DataTableColumn<ExceptionRow>[] {
   return [
     {
       id: "id",
       header: "WI",
-      cell: ({ row }) => <span className="font-mono">{formatWorkItemId(row.original.id)}</span>,
+      cell: ({ row }) => (
+        <span className="font-mono">{formatWorkItemId(row.original.id)}</span>
+      ),
     },
     {
       id: "payer",
@@ -82,7 +88,9 @@ export function buildExceptionColumns(options: {
     {
       id: "amount",
       header: "Amount",
-      cell: ({ row }) => <Money amount={row.original.amount} currency={row.original.currency} />,
+      cell: ({ row }) => (
+        <Money amount={row.original.amount} currency={row.original.currency} />
+      ),
     },
     {
       id: "payment_date",
@@ -130,7 +138,11 @@ export function buildExceptionColumns(options: {
       id: "actions",
       header: () => <span className="sr-only">Actions</span>,
       cell: ({ row }) => (
-        <RowMenu row={row.original} canWork={options.canWork} onOpen={options.onOpen} />
+        <RowMenu
+          row={row.original}
+          canWork={options.canWork}
+          onOpen={options.onOpen}
+        />
       ),
     },
   ];

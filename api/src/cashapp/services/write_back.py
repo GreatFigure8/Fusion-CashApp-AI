@@ -10,7 +10,7 @@ import mimetypes
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Self
+from typing import Self, cast
 
 from cashapp.data.models.work_item import WorkItem, WorkItemHistory
 from cashapp.data.repositories.applications import (
@@ -29,7 +29,7 @@ from cashapp.integrations.storage.base import ObjectNotFound, ObjectStore
 from cashapp.pipeline.errors import StageError
 from cashapp.pipeline.roles import Container
 from cashapp.services.history import HistoryEntry, record_history
-from cashapp.services.receipt_note import NoteLine, WriteBackMode, compose_receipt_note
+from cashapp.services.receipt_note import NoteItem, NoteLine, WriteBackMode, compose_receipt_note
 
 __all__ = [
     "OBJECT_STORE_ERROR",
@@ -260,7 +260,7 @@ async def _note(
     try:
         existing = (await deps.fusion.get_receipt(receipt_id)).comments
         text = compose_receipt_note(
-            item,
+            cast("NoteItem", item),
             line_results,
             note_max_chars,
             existing=existing,
@@ -322,7 +322,7 @@ async def write_back(
         uow,
         item,
         receipt_id,
-        line_results,
+        cast("Sequence[NoteLine]", line_results),
         mode=mode,
         deps=deps,
         note_max_chars=note_max_chars,
