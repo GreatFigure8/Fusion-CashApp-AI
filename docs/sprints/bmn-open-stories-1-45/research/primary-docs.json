@@ -1,0 +1,79 @@
+{
+  "lens": "primary-docs",
+  "model": "sonnet",
+  "note": "Written from vendor-doc knowledge, no live doc fetch this run. Items marked VERIFY must be confirmed against the vendor page or a live tenant before code depends on them.",
+  "approaches": [
+    {
+      "name": "Vendor-native thin stack",
+      "summary": "Use each vendor's documented async-capable path directly (oracledb_async dialect, aiokafka on the Kafka endpoint, PyJWT JWKS, Next.js route-handler BFF with a sealed cookie) and keep every integration behind the CLAUDE.md interfaces. Fewest moving parts, closest to the docs.",
+      "how": [
+        "DB (#1,#2): create_async_engine('oracle+oracledb_async://...') with python-oracledb thin mode; ATP via TLS connect string or wallet (config_dir, wallet_location, wallet_password); Identity() PKs, native JSON, with_for_update(skip_locked=True) for claims; Alembic async template; repositories never commit.",
+        "Bus (#3): aiokafka, SASL_SSL + PLAIN, username 'tenancy/user/streamPoolOcid' with an auth-token password from Vault; bootstrap cell-1.streaming.us-ashburn-1.oci.oraclecloud.com:9092; enable_auto_commit=False, commit after the DB transaction. Retry and DLQ are separate streams (partitions fixed at creation).",
+        "Auth (#4,#31): identity-domain confidential app, auth code + PKCE in Next.js (openid-client or Auth.js v5 custom OIDC provider); sealed httpOnly cookie via jose/iron-session; API validates with PyJWT PyJWKClient (iss, aud, exp) and reads the groups claim.",
+        "LLM (#7,#8,#9): Anthropic messages.parse with a Pydantic model / output_config.format json_schema, Decimal fields as strings, check stop_reason=='refusal' first. Cohere via oci GenerativeAiInferenceClient with DedicatedServingMode(endpoint_id) and CohereChatRequestV2 image parts, called through asyncio.to_thread because the OCI SDK is sync.",
+        "Web (#19-#22,#31): App Router, Server Components default, route handlers as thin proxies, SSE passed through as a ReadableStream (dynamic='force-dynamic', no buffering), types from the API OpenAPI schema (openapi-typescript)."
+      ],
+      "merit": 8,
+      "confidence": 0.7,
+      "evidence": [
+        "SQLAlchemy 2.0 Oracle dialect docs: oracledb_async dialect, thin mode default in python-oracledb 2+, Identity columns, JSON type, with_for_update(skip_locked=True) (VERIFY min SQLAlchemy version for oracledb_async).",
+        "OCI Streaming 'Using Kafka APIs': SASL_SSL/PLAIN, username tenancy/user/streamPoolOcid, auth-token password, port 9092, stream = topic, partitions set at creation; no Kafka transactions or exactly-once, so DB idempotency guard + outbox (#3) is the right design.",
+        "Anthropic structured outputs docs: output_config.format json_schema and SDK .parse() with Pydantic; schema limits (no recursion, additionalProperties false, restricted numeric constraints); refusals can break schema conformance so check stop_reason.",
+        "OCI Generative AI docs: DedicatedServingMode takes endpoint_id; CohereChatRequestV2 supports image content; on-demand Cohere vision retired in Ashburn (matches CLAUDE.md).",
+        "Next.js docs: cookies()/headers()/params are async in 15+; next typegen generates route/param types; streaming route handlers return a ReadableStream."
+      ],
+      "risks": [
+        "OCI Streaming retention is 24h to 7 days, so the bus cannot be a source of truth; stuck-item recovery needs the outbox relay to re-emit from the DB.",
+        "Kafka compatibility is partial (no transactions, limited admin); stream, retry and DLQ streams must exist in infra/ (#25) before #3 can be integration-tested.",
+        "Identity-domain JWKS endpoint (/admin/v1/SigningCert/jwk) may need anonymous signing-cert access enabled; access-token iss/aud and the groups claim (get_groups scope or custom claim) vary by domain config. VERIFY on the real domain before #4 is finalised.",
+        "python-oracledb async pools must be bounded per process; ATP session limits across workers must be budgeted (#30).",
+        "Oracle quirks: empty string equals NULL, no native boolean before 23ai, Alembic autogenerate misses some Oracle types; review every migration by hand."
+      ]
+    },
+    {
+      "name": "DB-authoritative eventing with the bus as a wake-up only",
+      "summary": "Because Streaming retention is short and Kafka semantics are partial, make work_item plus FOR UPDATE SKIP LOCKED the real queue and treat OCI Streaming as a low-latency notification channel. Loss, expiry or redelivery of a message never loses work.",
+      "how": [
+        "Claim with SELECT ... WHERE stage=:s AND status='READY' AND lease expired ... FETCH FIRST n ROWS ONLY FOR UPDATE SKIP LOCKED, then set locked_by/locked_until.",
+        "Outbox row written in the same transaction as the state change; relay publishes then marks sent (at-least-once); consumers check stage+status so duplicates are no-ops.",
+        "Commit Kafka offsets only after the DB commit; on worker startup run a one-time DB scan for READY items past their lease so a message expired from the stream is still processed.",
+        "Retry via next_attempt_at in the DB rather than retry topics; DLQ is a status plus a dead-letter stream for visibility. Lag from consumer-group offsets and DLQ depth from a count query feed #29.",
+        "Human lock (#40) uses the same lease columns with a user principal, so automation and humans share one mechanism."
+      ],
+      "merit": 7,
+      "confidence": 0.6,
+      "evidence": [
+        "OCI Streaming docs: retention 24h-168h, no Kafka transactions, ordering only within a partition.",
+        "Oracle SELECT ... FOR UPDATE SKIP LOCKED is supported; SQLAlchemy exposes it as with_for_update(skip_locked=True).",
+        "CLAUDE.md already mandates database as system of record and a transactional outbox, consistent with these vendor limits."
+      ],
+      "risks": [
+        "A startup scan or lease sweep is effectively a poller; non-negotiable 5 allows exactly two. Frame it only as crash recovery inside worker startup and get Jonathan's ruling.",
+        "Deviates from CLAUDE.md's 'each stage has a retry path and a dead-letter path' if retry streams are replaced by DB delay; either ship retry streams or record the refinement in CLAUDE.md.",
+        "SKIP LOCKED with ORDER BY and row limits has ordering/starvation caveats on Oracle; load-test on ATP."
+      ]
+    },
+    {
+      "name": "Vendor-unknowns probes first, then build",
+      "summary": "Front-load small live-tenant probes for every vendor behaviour the design assumes but docs do not settle, so stage stories are written against facts. Runs ahead of #3, #4 and #8.",
+      "how": [
+        "Order: #1 scaffold, #25 infra (stream pool, streams, ATP, Vault), #27 settings; then three probes: (a) aiokafka produce/consume with offset commit on the real pool; (b) identity-domain token decode confirming iss, aud, groups claim, JWKS reachability; (c) one Cohere vision call on the dedicated endpoint and one Opus parse() with a Decimal-as-string schema.",
+        "Record each result in docs/reference so later stories cite facts, not assumptions.",
+        "Then #2, #3, #4, #5 in parallel (against fakes where infra lags), then stations #7-#11 using proven call shapes.",
+        "Pin versions in uv.lock and package-lock (sqlalchemy, oracledb, alembic, aiokafka, anthropic, oci, next) and re-read changelogs for the pinned versions before use."
+      ],
+      "merit": 7,
+      "confidence": 0.75,
+      "evidence": [
+        "CLAUDE.md cites a live test that disproved on-demand Cohere in Ashburn; vendor docs lag reality, so probes pay off.",
+        "Identity Domains groups-in-token and JWKS anonymous access are tenant settings, not fixed API behaviour.",
+        "Existing spikes #12 and #33 show the repo already uses the spike pattern."
+      ],
+      "risks": [
+        "Needs real OCI credentials and incurs cost (dedicated cluster bills hourly); needs Jonathan to provision, and nothing may be deployed from a run.",
+        "Probe scripts must hold no secrets and not drift into production use.",
+        "Delays visible feature work if infra provisioning is slow; mitigate by building #2, #5, #10 against fakes in parallel."
+      ]
+    }
+  ]
+}
