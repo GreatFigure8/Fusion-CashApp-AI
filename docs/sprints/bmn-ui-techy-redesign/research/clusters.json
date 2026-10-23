@@ -1,0 +1,46 @@
+{
+  "researchers": [
+    {"name": "reuse", "model": "haiku"},
+    {"name": "prior-art", "model": "sonnet"},
+    {"name": "primary-docs", "model": "sonnet"},
+    {"name": "simplest", "model": "fable"},
+    {"name": "risk", "model": "opus"}
+  ],
+  "approaches": [
+    {"id": "a1", "concern": "theme-dashboard", "name": "Token-first dark retheme in globals.css (payroll-compare tokens, defaultTheme dark) + dedicated /dashboard of KpiCard + shadcn chart over reports/llm_usage with one new aggregate endpoint (money by currency, honest model-efficiency metrics)",
+     "votes": [
+      {"researcher": "reuse", "merit": 9, "confidence": 0.8},
+      {"researcher": "prior-art", "merit": 8, "confidence": 0.8},
+      {"researcher": "primary-docs", "merit": 9, "confidence": 0.8},
+      {"researcher": "simplest", "merit": 9, "confidence": 0.8},
+      {"researcher": "risk", "merit": 8, "confidence": 0.8}]},
+    {"id": "a2", "concern": "theme-dashboard", "name": "Progress tab inside /reports, no new API, global chat sheet in the app-shell header",
+     "votes": [{"researcher": "simplest", "merit": 6, "confidence": 0.7}]},
+    {"id": "a3", "concern": "chat", "name": "Extend the single shared llm-chat via props: restyle its parts to the payroll-compare look, new matching/rules PromptKey (Haiku), propose-only config-change action confirmed by an admin through the audited PUT /config/{key}",
+     "votes": [
+      {"researcher": "reuse", "merit": 9, "confidence": 0.8},
+      {"researcher": "prior-art", "merit": 8, "confidence": 0.75},
+      {"researcher": "primary-docs", "merit": 9, "confidence": 0.8},
+      {"researcher": "simplest", "merit": 9, "confidence": 0.8},
+      {"researcher": "risk", "merit": 8, "confidence": 0.8}]},
+    {"id": "a4", "concern": "chat", "name": "Replace the chat with the payroll-compare feature / an npm chat runtime (@assistant-ui/react, AI SDK)",
+     "votes": [
+      {"researcher": "reuse", "merit": 5, "confidence": 0.5},
+      {"researcher": "simplest", "merit": 3, "confidence": 0.6}]},
+    {"id": "a5", "concern": "chat", "name": "Shadow-replay matching lab: chat proposals scored by an in-memory replay of the matcher over stored items before promotion",
+     "votes": [{"researcher": "risk", "merit": 7, "confidence": 0.55}]},
+    {"id": "a6", "concern": "chat+upload", "name": "Minimal surface: read-only advisory chat, uploads written to the drop-folder prefix for the intake poller",
+     "votes": [{"researcher": "risk", "merit": 5, "confidence": 0.75}]},
+    {"id": "a7", "concern": "upload-review", "name": "Shared multi-file dropzone -> thin Next route handler -> new FastAPI multipart router (size cap, magic bytes, EXIF strip) -> ObjectStore -> existing ingest() as SourceKind.MANUAL; review result on /items/[id]",
+     "votes": [
+      {"researcher": "reuse", "merit": 9, "confidence": 0.8},
+      {"researcher": "prior-art", "merit": 7, "confidence": 0.7},
+      {"researcher": "primary-docs", "merit": 9, "confidence": 0.8},
+      {"researcher": "simplest", "merit": 9, "confidence": 0.8},
+      {"researcher": "risk", "merit": 8, "confidence": 0.8}]},
+    {"id": "a8", "concern": "upload-review", "name": "Direct browser-to-OCI upload with Object Storage pre-authenticated requests (PAR)",
+     "votes": [{"researcher": "primary-docs", "merit": 6, "confidence": 0.55}]},
+    {"id": "a9", "concern": "upload-review", "name": "Server Action upload with raised bodySizeLimit and client polling",
+     "votes": [{"researcher": "primary-docs", "merit": 5, "confidence": 0.6}]}
+  ]
+}
