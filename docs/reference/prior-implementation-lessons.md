@@ -216,6 +216,14 @@ Another 19 messages were fatal: SOAP, REST 401/404 and SFTP failures.
 | Dual currency | 1% | A person. |
 | Anchor never resolved (prepaid, very old receipt) | 2% | A person. |
 
+The AR team hand-triaged that day's 122 failed payments and 331 failed lines into four buckets:
+- receipt was found in Fusion
+- receipt not yet entered on the current day
+- not in Fusion
+- receipt expected in the future
+
+Each line also carries the amount Fusion actually held. That makes the day a **labelled failure set**, a ready-made test set for the matcher and the auto-fix engine once it's anonymised.
+
 **About 67% of failures fixed themselves given time.** A re-match triggered when the receipt arrives is the single biggest lever on the automation rate.
 
 **Guardrails stated by the business**
