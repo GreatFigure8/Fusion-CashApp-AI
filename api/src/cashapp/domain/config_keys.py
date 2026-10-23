@@ -273,6 +273,12 @@ REPORTS_DAILY_SUMMARY_CUTOVER = _key(
 DISCOUNT_ENABLED = _key(
     "discount.enabled", bool, False, "Take earned discounts when the remittance references them."
 )
+FUSION_RECEIPT_NOTE_MAX_CHARS = _key(
+    "fusion.receipt_note_max_chars",
+    Annotated[int, Field(ge=60, le=2000)],
+    240,
+    "Maximum characters of the note written to a Fusion receipt's Comments field.",
+)
 
 _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     INTAKE_POLL_INTERVAL_SECONDS,
@@ -306,6 +312,7 @@ _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     NOTIFICATIONS_APP_BASE_URL,
     REPORTS_DAILY_SUMMARY_CUTOVER,
     DISCOUNT_ENABLED,
+    FUSION_RECEIPT_NOTE_MAX_CHARS,
 )
 
 

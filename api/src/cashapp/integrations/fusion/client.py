@@ -85,6 +85,8 @@ class FusionClient(Protocol):
         self, receipt_id: int, filename: str, content: bytes, content_type: str, title: str
     ) -> AttachmentRef: ...
 
+    async def list_receipt_attachments(self, receipt_id: int) -> list[AttachmentRef]: ...
+
     async def run_report(self, path: str, params: Mapping[str, str], fmt: str = "xml") -> bytes: ...
 
     async def rest_get(
@@ -357,6 +359,23 @@ class HttpFusionClient:
         )
         return [_map_application(row, customer_trx_id=customer_trx_id) for row in rows]
 
+    async def list_receipt_attachments(self, receipt_id: int) -> list[AttachmentRef]:
+        # UNVERIFIED (s17): child resource name and fields (describe lists them; no read probe yet).
+        rows = await self._http.get_json_paged(
+            self._url(f"standardReceipts/{int(receipt_id)}/child/attachments"),
+            op="list_receipt_attachments",
+            fields=query.FIELDS_ATTACHMENTS,
+        )
+        return [
+            AttachmentRef(
+                receipt_id=receipt_id,
+                attachment_id=_opt_str(row.get("AttachedDocumentId")),
+                filename=_str(row.get("FileName")),
+                title=_opt_str(row.get("Title")),
+            )
+            for row in rows
+        ]
+
     async def get_customer_account(self, account_number: str) -> FusionCustomer:
         # UNVERIFIED: resource, filter and every field name.
         rows = await self._http.get_json_paged(
@@ -475,6 +494,7 @@ class HttpFusionClient:
             receipt_id=receipt_id,
             attachment_id=_opt_str(body.get("AttachedDocumentId")),
             filename=filename,
+            title=title,
         )
 
     async def rest_post(self, path: str, json: Mapping[str, Any]) -> dict[str, Any]:

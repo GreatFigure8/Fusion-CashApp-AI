@@ -21,8 +21,9 @@ carries an `# UNVERIFIED:` comment in code. The fake models this contract; it do
 | `standardReceipts/{id}/child/receiptApplications` and its fields | client | UNVERIFIED | falls back to a BIP data model (s32) |
 | `receivablesInvoices/{id}/child/receiptApplications` and its fields | client | UNVERIFIED | falls back to a BIP data model (s32) |
 | Customer account resource `/crmRestApi/resources/11.13.18.05/accounts` and its fields | client | UNVERIFIED | |
-| `PATCH standardReceipts/{id}` body `{"Comments": ...}`, size limit | client | UNVERIFIED | confirmed by s17 |
-| `POST standardReceipts/{id}/child/attachments` body and `AttachedDocumentId` | client | UNVERIFIED | confirmed by s17 |
+| `PATCH standardReceipts/{id}` body `{"Comments": ...}`, size limit | client | UNVERIFIED | describe-confirmed (`Comments` string, maxLength 2000, updatable; non-prod pod 2026-10-23), write UNVERIFIED; confirmed by the s17 live probe |
+| `POST standardReceipts/{id}/child/attachments` body and `AttachedDocumentId` | client | UNVERIFIED | describe-confirmed (`DatatypeCode`, `FileName`, `Title`, `UploadedFileContentType`, `FileContents`, `AttachedDocumentId`, `CreationDate`), write UNVERIFIED; confirmed by the s17 live probe |
+| `GET standardReceipts/{id}/child/attachments` fields `AttachedDocumentId,FileName,Title,CreationDate` (`list_receipt_attachments`) | client | UNVERIFIED | s17 live probe |
 | SOAP namespaces, `SOAPAction` values, `ReceiptCurrency`, `DiscountTaken`, `ReceivableApplicationId` | soap | UNVERIFIED | |
 | SOAP unapply operation `createUnapplyReceipt` and its elements | soap | UNVERIFIED | confirmed by s38 |
 | BIP namespace `PublicReportService`, request element names, HTTP basic auth | bip | UNVERIFIED | |

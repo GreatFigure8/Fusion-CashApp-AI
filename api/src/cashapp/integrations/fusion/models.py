@@ -132,3 +132,4 @@ class AttachmentRef:
     receipt_id: int
     attachment_id: str | None
     filename: str
+    title: str | None = None
