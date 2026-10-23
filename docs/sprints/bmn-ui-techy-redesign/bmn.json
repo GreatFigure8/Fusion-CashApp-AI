@@ -1,19 +1,166 @@
 {
-  "run": "bmn-ui-techy-redesign", "estimate": null,
-  "phase": "intake",
-  "integration": "sprint/ui-techy-redesign", "worktree": "D:/Fusion-CashApp-AI-ui-techy-redesign", "live": "dev", "dev_base": "5eb174a6d52dd4a1ea730ab2289127c0329762fb",
-  "tests": {"wanted": null, "cycles": 0, "cycle": 0, "runs": []},
-  "stack": {"kind": "mixed", "ui": true, "supabase": false, "vercel": false, "vercel_json": [], "dev_push_deploys": false, "supabase_dev_ref": null, "supabase_main_ref": null},
-  "stories": [], "temp_refs": [], "integration_pushed": false,
-  "cleanup": {"deleted": [], "left": []}, "repo_policy": null,
-  "deploy_pending": {"vercel": [], "supabase_migrations": [], "env": []},
-  "supabase_dev_applied": [],
-  "research": {"lenses": [], "roster": [], "files": [], "winner": null, "overridden": false},
-  "design": {"needed": false, "project_id": null, "url": null, "round": 0, "options": [], "picked": null, "feedback": []},
-  "release": {"status": "pending", "version": null, "tag": null, "bump": "none", "at": null, "steps": []},
-  "handoff": null, "speed": {"requested": false, "skipped_gates": []},
-  "lessons": {"served": [], "retro": null},
-  "feedback": [{"at": "2026-10-23", "step": "intake", "text": "dev is protected: never push dev; branch and open a PR into dev (memory dev-branch-protected, 2026-10-23)"}],
-  "assumptions": ["Merges to dev go through a PR from the sprint branch (gh pr create --base dev; gh pr merge --merge), because dev is protected in this repo.", "Repo is not Vercel/Supabase; deploys are OCI and happen only at release."],
-  "blocker": null, "updated": "2026-10-23T00:00:00Z"
+ "run": "bmn-ui-techy-redesign",
+ "estimate": null,
+ "phase": "research",
+ "integration": "sprint/ui-techy-redesign",
+ "worktree": "D:/Fusion-CashApp-AI-ui-techy-redesign",
+ "live": "dev",
+ "dev_base": "5eb174a6d52dd4a1ea730ab2289127c0329762fb",
+ "tests": {
+  "wanted": null,
+  "cycles": 0,
+  "cycle": 0,
+  "runs": []
+ },
+ "stack": {
+  "kind": "mixed",
+  "ui": true,
+  "supabase": false,
+  "vercel": false,
+  "vercel_json": [],
+  "dev_push_deploys": false,
+  "supabase_dev_ref": null,
+  "supabase_main_ref": null
+ },
+ "stories": [],
+ "temp_refs": [],
+ "integration_pushed": false,
+ "cleanup": {
+  "deleted": [],
+  "left": []
+ },
+ "repo_policy": {
+  "repo": "GreatFigure8/Fusion-CashApp-AI",
+  "status": "changed",
+  "changes": {
+   "allow_squash_merge": {
+    "old": true,
+    "new": false
+   },
+   "delete_branch_on_merge": {
+    "old": false,
+    "new": true
+   }
+  },
+  "reason": null
+ },
+ "deploy_pending": {
+  "vercel": [],
+  "supabase_migrations": [],
+  "env": []
+ },
+ "supabase_dev_applied": [],
+ "research": {
+  "lenses": [
+   "reuse",
+   "prior-art",
+   "primary-docs",
+   "simplest",
+   "risk"
+  ],
+  "roster": [
+   {
+    "lens": "reuse",
+    "model": "haiku"
+   },
+   {
+    "lens": "prior-art",
+    "model": "sonnet"
+   },
+   {
+    "lens": "primary-docs",
+    "model": "sonnet"
+   },
+   {
+    "lens": "simplest",
+    "model": "fable"
+   },
+   {
+    "lens": "risk",
+    "model": "opus"
+   }
+  ],
+  "files": [],
+  "winner": null,
+  "overridden": false
+ },
+ "design": {
+  "needed": true,
+  "project_id": null,
+  "url": null,
+  "round": 0,
+  "options": [],
+  "picked": null,
+  "feedback": []
+ },
+ "release": {
+  "status": "pending",
+  "version": null,
+  "tag": null,
+  "bump": "none",
+  "at": null,
+  "steps": []
+ },
+ "handoff": null,
+ "speed": {
+  "requested": false,
+  "skipped_gates": []
+ },
+ "lessons": {
+  "served": [
+   "F-chat-2026-10-20-close-issues-on-approve-1",
+   "F-chat-framework-1",
+   "F-conversation-skills-500-0",
+   "F-conversation-skills-500-1",
+   "F-conversation-title-overwrite-3",
+   "F-customer-conversion-1",
+   "F-customer-conversion-2",
+   "F-customer-conversion-4",
+   "F-customer-conversion-5",
+   "F-customer-conversion-6",
+   "F-fill-template-atp-source-2",
+   "F-fusion-register-background-pull-0",
+   "F-fusion-result-jobs-0",
+   "F-guided-compare-flow-0",
+   "F-guided-compare-flow-2",
+   "F-guided-compare-flow-3",
+   "F-guided-compare-flow-6",
+   "F-guided-compare-flow-7",
+   "F-legacy-data-crosswalk-0",
+   "F-legacy-data-crosswalk-1",
+   "F-regal-chat-issue-fixes-3",
+   "F-review-leftovers-1",
+   "L-admin-act-for-absent-owner-1",
+   "L-admin-act-for-absent-owner-2",
+   "L-chat-authored-quality-checks-4",
+   "L-comparison-wizard-from-fusion-2",
+   "L-console-text-field-1",
+   "L-conversation-title-overwrite-4",
+   "L-employee-level-fixes-1",
+   "L-generic-components-2",
+   "L-guided-compare-flow-2",
+   "L-guided-compare-flow-3",
+   "L-guided-compare-flow-4",
+   "L-one-element-crosswalk-1",
+   "L-open-stories-1-45-3",
+   "L-open-stories-1-45-4",
+   "L-open-stories-1-45-5",
+   "L-pre-payroll-quality-checks-1",
+   "L-regal-chat-issue-fixes-3"
+  ],
+  "retro": null
+ },
+ "feedback": [
+  {
+   "at": "2026-10-23",
+   "step": "intake",
+   "text": "dev is protected: never push dev; branch and open a PR into dev (memory dev-branch-protected, 2026-10-23)"
+  }
+ ],
+ "assumptions": [
+  "Merges to dev go through a PR from the sprint branch (gh pr create --base dev; gh pr merge --merge), because dev is protected in this repo.",
+  "Repo is not Vercel/Supabase; deploys are OCI and happen only at release."
+ ],
+ "blocker": null,
+ "updated": "2026-10-23T00:00:00Z"
 }
