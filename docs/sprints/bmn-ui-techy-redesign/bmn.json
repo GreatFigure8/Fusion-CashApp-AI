@@ -80,7 +80,13 @@
     "model": "opus"
    }
   ],
-  "files": [],
+  "files": [
+   "research/reuse.json",
+   "research/prior-art.json",
+   "research/primary-docs.json",
+   "research/simplest.json",
+   "research/risk.json"
+  ],
   "winner": null,
   "overridden": false
  },

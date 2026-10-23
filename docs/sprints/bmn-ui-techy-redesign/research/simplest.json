@@ -1,0 +1,80 @@
+{
+  "lens": "simplest",
+  "model": "fable",
+  "approaches": [
+    {
+      "name": "Retoken, reuse, one new router",
+      "summary": "Keep every existing component and endpoint. Port aix-payroll-compare's design tokens (--bg/--s1..s3/--acc/--ok/--warn/--err, shadows, radius) into web/app/globals.css mapped onto the existing shadcn variables, force dark as the default, add a /dashboard page composed of KpiCard + recharts over the reports and llm_usage endpoints plus one new GET /dashboard aggregate, restyle LlmChat's four small parts (composer box, user bubble, start cards) to payroll-compare's classes, add a `rules` PromptKey with a `config.set` action that PUTs matching.* keys, and a POST /items/submit multipart router that calls the existing `ingest()` with SourceKind.MANUAL so the file becomes an ordinary work item.",
+      "how": "1. globals.css: replace :root/.dark oklch greys with payroll-compare's token block (light+dark, same shadcn mapping); ThemeProvider defaultTheme=\"dark\"; app-shell header/sidebar pick up the new vars automatically. No per-page CSS.\n2. api: new routers/dashboard.py (auto-discovered) returning {receipts_matched, applied_by_currency, per-model {calls, cost_usd, outcome ok%}, adjudicator_agreement (adjudication.disagreements empty / total), autofix_rate} from ReportQueryRepository + LlmUsageRepository.daily(group_by=MODEL) + one new AdjudicationRepository count. web: app/(shell)/dashboard/page.tsx = KpiCard grid + 2 recharts (bar by currency, line cost/day), nav entry.\n3. chat: PromptKey.RULES in prompts.py with the matching.* config snapshot as its context; action id `config.set` whose onAction server-action calls PUT /config/{key}; LlmChat composer/message-list/suggestions get payroll-compare's BOX_CLASS/start-card classes; variant \"panel\" rendered on /rules page.\n4. intake: routers/submit.py POST /items/submit (multipart, ≤N files, image/pdf allowlist) → ingest(..., source_kind=MANUAL, priority=PRIORITY_LIVE); returns item ids; UI dialog on /exceptions links to /items/[id] where artifact-viewer + history + adjudication already show the 'in-depth review' result.\n5. exceptions: no structural change; the retheme restyles it. Default filter already hides applied items (list is exceptions-only).",
+      "merit": 9,
+      "confidence": 0.8,
+      "evidence": [
+        "web/app/globals.css:57-136 (neutral oklch tokens; same shadcn var names payroll-compare maps onto)",
+        "D:/AIX-Payroll-Compare/webapp/src/app/globals.css:100-205 (token block --bg/--s1/--acc/--ok plus shadcn mapping, light and dark)",
+        "web/app/layout.tsx:32 (ThemeProvider defaultTheme=\"system\")",
+        "web/components/common/kpi-card.tsx:6-30; web/components/reports/failures-by-code-chart.tsx (recharts already in use)",
+        "api/src/cashapp/data/repositories/reports.py:63,90 (completions, applied_by_currency)",
+        "api/src/cashapp/data/repositories/llm_usage.py:30 (daily, group_by model) and api/src/cashapp/domain/llm_usage.py UsageGroupBy",
+        "api/src/cashapp/data/models/adjudication.py:50-51 (disagreements, confidence columns)",
+        "api/src/cashapp/services/flow_query.py:298-300 (auto_applied_pct, needs_person already computed)",
+        "web/components/common/llm-chat.tsx:32-44 (props: context, systemPromptKey, actions, onAction, variant)",
+        "api/src/cashapp/services/chat/prompts.py:23-25,67-72 (PromptKey enum + PROMPTS map: add RULES)",
+        "api/src/cashapp/services/chat/actions.py:79-113 (allow-listed action ids already parsed fail-closed)",
+        "api/src/cashapp/api/routers/config.py:51 (PUT /config/{key} with expected_version)",
+        "api/src/cashapp/domain/config_keys.py:112-141 (MATCHING_DATE_WINDOW_DAYS, TOLERANCES, BANK_FEE_BANDS, SCORER_WEIGHTS, MIN_SCORE)",
+        "api/src/cashapp/pollers/intake/ingest.py:52-62 (ingest(uow_factory, object_store, artifact, source_kind=...) reusable by any caller)",
+        "api/src/cashapp/domain/work_item.py:7-11 (SourceKind.MANUAL already exists)",
+        "api/src/cashapp/domain/artifacts.py:14-24 (IncomingArtifact fields a multipart upload fills)",
+        "api/src/cashapp/api/routers/items.py:64-99 (GET parts streams the stored image back for the review view)",
+        "web/components/common/llm-chat/composer.tsx:33-61 vs D:/AIX-Payroll-Compare/webapp/src/features/chat/ui/composer/composer.tsx:27-32 (BOX_CLASS/INPUT_CLASS to copy)",
+        "D:/AIX-Payroll-Compare/webapp/src/features/chat/ui/thread/thread-welcome.tsx:107 (start-card pill classes)",
+        "web/app/(shell)/exceptions/page.tsx:126-140 (page already exceptions-only, filter bar in place)"
+      ],
+      "risks": [
+        "Tailwind utility names like border-line-strong / bg-surface-2 used in payroll-compare need @theme inline aliases in globals.css or must be translated to border-border / bg-muted; mixing both would duplicate tokens.",
+        "config.set from chat touches admin-only keys; the action handler must go through the normal PUT with the user's token so the API enforces CONFIG_WRITE, and the UI must surface the 409 on expected_version mismatch.",
+        "'Receipts matched' has no single column; counting ReceiptReservation/MatchCandidate.chosen vs completions needs one agreed definition or the KPI will drift from the daily summary.",
+        "Multipart upload size/type limits and virus-free assumption are new attack surface; must reuse normalise()'s sniffing and cap body size at the proxy route as well.",
+        "In-depth review = the normal pipeline; if Jonathan expected a separate heavier read (higher effort), that is a follow-up setting (priority or effort override on MANUAL items), not in this slice."
+      ]
+    },
+    {
+      "name": "Dashboard-as-report tab, chat sheet everywhere",
+      "summary": "Smaller still: no new pages. Add a 'Progress' tab to the existing /reports page fed by the existing daily-summary and llm-usage endpoints (no new API), retheme via tokens as in approach 1, put the LlmChat sheet in the app-shell header so the `rules` chat is reachable from any screen, and ship image submission as a drop-zone in the exception sheet that posts to the same new POST /items/submit.",
+      "how": "1. Same globals.css token port + defaultTheme dark.\n2. web/components/reports/progress-view.tsx: calls GET /reports/daily-summary (applied_by_currency, auto_applied_pct) and GET /llm-usage/daily?group_by=model; adjudicator agreement omitted until an endpoint exists (shown as 'n/a').\n3. app-shell.tsx header: <LlmChat variant=\"sheet\" systemPromptKey={pageKey} …/>, key derived from pathname; `rules` key + config.set action as in approach 1.\n4. POST /items/submit router via ingest(); drop-zone component in components/common used by the exception sheet and the flow page empty state.",
+      "merit": 6,
+      "confidence": 0.7,
+      "evidence": [
+        "web/app/(shell)/reports/page.tsx:21-49 (tab switch pattern to extend)",
+        "web/components/reports/reports-tabs.tsx (existing tabs shell)",
+        "api/src/cashapp/api/routers/reports.py:67-86 (daily summary already returns applied_by_currency, auto_applied_pct)",
+        "api/src/cashapp/api/routers/llm_usage.py:37-53 (daily usage grouped by model)",
+        "web/components/shell/app-shell.tsx:98-109 (header slot for a global Ask sheet)",
+        "web/components/common/llm-chat.tsx:120-145 (sheet variant already exists)"
+      ],
+      "risks": [
+        "Model efficiency without adjudicator agreement and per-model accuracy misses two of the four named metrics; the acceptance criterion reads as inferred but is explicit.",
+        "A header-level chat whose context changes with the route must reset state on navigation or it will answer about the previous page.",
+        "A dashboard buried under /reports is less visible than Jonathan's 'primarily report on progress' asks; nav entry probably wanted anyway."
+      ]
+    },
+    {
+      "name": "Port payroll-compare chat wholesale",
+      "summary": "Replace components/common/llm-chat with the assistant-ui based chat feature from AIX-Payroll-Compare (ChatPanel, Composer, thread, plugins) for pixel-identical styling, keep theme/dashboard/submission as in approach 1.",
+      "how": "1. Add @assistant-ui/react, react-markdown deps; copy features/chat/ui/{composer,thread,activity} and adapt the runtime adapter to the existing SSE frames (token/action/done/stream-error).\n2. Map payroll-compare plugin slots to CashApp props (context chips = ChatContextRef, actions = proposals).\n3. Rest as approach 1.",
+      "merit": 3,
+      "confidence": 0.6,
+      "evidence": [
+        "D:/AIX-Payroll-Compare/webapp/package.json:29-31 (@assistant-ui/react, react-ai-sdk, react-markdown)",
+        "D:/AIX-Payroll-Compare/webapp/src/features/chat/ui/composer/composer.tsx:116-211 (plugin/bridge machinery the port drags in)",
+        "web/components/common/llm-chat/use-chat.ts, chat-reducer.ts (working SSE client that would be thrown away)",
+        "web/components/common/llm-chat/chat-schemas.ts:5-6 (stream proxy allow-list tied to the current protocol)"
+      ],
+      "risks": [
+        "Violates KISS: the brief wants the look, not the plugin system, side panel, dictation, proposals or conversation persistence.",
+        "assistant-ui runtime expects the Vercel AI SDK stream shape; adapting to the existing sse_starlette frames is a bespoke adapter plus a second client to maintain.",
+        "Second chat implementation during the switch breaks the 'one chat component' rule until the old one is deleted."
+      ]
+    }
+  ]
+}
