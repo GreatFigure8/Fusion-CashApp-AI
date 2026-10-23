@@ -5,7 +5,6 @@ import type { Route } from "next";
 import Link from "next/link";
 import { ArrowUpIcon, SquareIcon } from "lucide-react";
 
-import { MonoLabel } from "@/components/common/mono-label";
 import { Pill } from "@/components/common/pill";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -114,7 +113,7 @@ export function Composer({
       size="icon"
       aria-label="Send"
       disabled={text.trim().length === 0 || showPrompts}
-      className={form === "dock" ? "size-8 rounded-lg shadow-[0_0_24px_-8px_var(--acc)]" : undefined}
+      className={form === "dock" ? "size-8 rounded-full" : undefined}
     >
       <ArrowUpIcon />
     </Button>
@@ -135,7 +134,7 @@ export function Composer({
       className={cn(
         "resize-none",
         form === "dock"
-          ? "min-h-8 flex-1 border-0 bg-transparent px-0 py-1 shadow-none focus-visible:ring-0"
+          ? "max-h-48 min-h-12 w-full border-0 bg-transparent px-1 py-1 text-[15px] shadow-none focus-visible:ring-0"
           : form === "full"
             ? "max-h-48 min-h-12 border-0 bg-transparent px-0 text-[15px] shadow-none focus-visible:ring-0"
             : "max-h-32 min-h-9",
@@ -152,17 +151,32 @@ export function Composer({
     return (
       <form
         onSubmit={onSubmit}
-        className="relative flex items-center gap-3 rounded-2xl border border-line-strong bg-surface-2 px-3.5 py-2 shadow-[0_0_0_4px_#4f7cff1f,0_12px_32px_-12px_#000a]"
+        className="relative flex flex-col gap-1 rounded-[22px] border border-line bg-surface-2 px-3 pb-2.5 pt-3 shadow-[0_8px_30px_-12px_#000a] transition-colors focus-within:border-line-strong"
       >
         {showPrompts ? <PromptList query={text.slice(1)} onPick={pickPrompt} /> : null}
-        <MonoLabel className="text-acc">{COPY.dockLabel}</MonoLabel>
         {input}
-        {fullScreenHref ? (
-          <Link href={fullScreenHref as Route} className="shrink-0 text-[12px] text-soft hover:text-foreground">
-            {COPY.fullScreen}
-          </Link>
-        ) : null}
-        {send}
+        <div className="flex items-center gap-1.5">
+          <Attach
+            staged={staged}
+            onStaged={(added) => setStaged((s) => [...s, ...added])}
+            onRemove={(id) => setStaged((s) => s.filter((x) => x.id !== id))}
+            limits={uploadLimits}
+            disabled={streaming}
+          />
+          {toolLabels.length > 0 ? (
+            <Pill tone="muted" mono title="Tool groups you may use">
+              {toolLabels.join(" · ")}
+            </Pill>
+          ) : null}
+          <span className="ml-auto flex items-center gap-2">
+            {fullScreenHref ? (
+              <Link href={fullScreenHref as Route} className="shrink-0 text-[12px] text-soft hover:text-foreground">
+                {COPY.fullScreen}
+              </Link>
+            ) : null}
+            {send}
+          </span>
+        </div>
       </form>
     );
   }
