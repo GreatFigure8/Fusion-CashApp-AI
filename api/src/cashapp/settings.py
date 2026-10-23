@@ -153,6 +153,8 @@ class FusionSettings(_Group):
     pods: dict[str, FusionPodSettings]
     default_pod: str
     write_enabled: bool = False
+    # Deploy-time gate: the unapply SOAP contract is UNVERIFIED until a live probe confirms it.
+    unapply_verified: bool = False
     relationships_report_path: str
 
     @field_validator("pods", mode="before")
