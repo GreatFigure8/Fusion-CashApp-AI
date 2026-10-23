@@ -36,3 +36,10 @@ from cashapp.services.retention.hook import RetentionCycleHook  # noqa: E402
 
 if not any(isinstance(hook, RetentionCycleHook) for hook in CYCLE_HOOKS):
     CYCLE_HOOKS.append(RetentionCycleHook())
+
+
+# s35: batch completion and the cancel sweep for backlog reprocessing.
+from cashapp.services.backlog.hook import BacklogCycleHook  # noqa: E402
+
+if not any(isinstance(hook, BacklogCycleHook) for hook in CYCLE_HOOKS):
+    CYCLE_HOOKS.append(BacklogCycleHook())
