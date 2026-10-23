@@ -20,6 +20,7 @@ from pydantic import (
     field_validator,
 )
 
+from cashapp.domain.engine import Station
 from cashapp.domain.error_codes import ErrorCode
 from cashapp.domain.money import CurrencyCode, MoneyStr
 
@@ -280,6 +281,38 @@ FUSION_RECEIPT_NOTE_MAX_CHARS = _key(
     "Maximum characters of the note written to a Fusion receipt's Comments field.",
 )
 
+ENGINE_PAUSED_STATIONS = _key(
+    "engine.paused_stations",
+    list[Station],
+    list[Station](),
+    "Stations held by a person: their consumers take no new delivery until resumed.",
+)
+ENGINE_DRAINING_STATIONS = _key(
+    "engine.draining_stations",
+    list[Station],
+    list[Station](),
+    "Stations being drained: paused, and reported drained once nothing is in flight.",
+)
+ENGINE_STATUS_CACHE_SECONDS = _key(
+    "engine.status_cache_seconds",
+    _Seconds,
+    5,
+    "How long one computed engine status is shared by every reader in a process.",
+)
+ENGINE_STREAM_TICK_SECONDS = _key(
+    "engine.stream_tick_seconds",
+    _Seconds,
+    2,
+    "How often an open engine stream checks whether the status changed.",
+)
+ENGINE_AUDIT_PAGE_SIZE = _key(
+    "engine.audit_page_size",
+    Annotated[int, Field(ge=1, le=200)],
+    50,
+    "Default page size of the engine audit log.",
+)
+
+
 _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     INTAKE_POLL_INTERVAL_SECONDS,
     RECEIPT_WATCHER_POLL_INTERVAL_SECONDS,
@@ -313,6 +346,11 @@ _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     REPORTS_DAILY_SUMMARY_CUTOVER,
     DISCOUNT_ENABLED,
     FUSION_RECEIPT_NOTE_MAX_CHARS,
+    ENGINE_PAUSED_STATIONS,
+    ENGINE_DRAINING_STATIONS,
+    ENGINE_STATUS_CACHE_SECONDS,
+    ENGINE_STREAM_TICK_SECONDS,
+    ENGINE_AUDIT_PAGE_SIZE,
 )
 
 

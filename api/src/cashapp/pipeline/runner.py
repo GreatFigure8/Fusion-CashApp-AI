@@ -20,6 +20,7 @@ from uuid import UUID
 from cashapp.data.models.work_item import WorkItem
 from cashapp.data.uow import UnitOfWork, UowFactory
 from cashapp.domain.clock import Clock
+from cashapp.domain.engine import ConsumerRef
 from cashapp.domain.error_codes import ErrorCode
 from cashapp.domain.principal import SYSTEM_PRINCIPAL, Principal
 from cashapp.domain.stages import ItemState, Stage
@@ -43,6 +44,7 @@ from cashapp.pipeline.failures import (
 from cashapp.pipeline.outcomes import Advance, Archive, Finish, Park, StageOutcome
 from cashapp.pipeline.roles import Container, RoleSpec, RoleState
 from cashapp.services.config import ConfigSnapshot, RuntimeConfig
+from cashapp.services.engine.pause_gate import PauseGate
 from cashapp.services.history import HistoryEntry, record_history
 
 logger = get_logger(__name__)
@@ -81,6 +83,7 @@ class RunnerDeps:
     failure_handler: FailureHandler
     namer: TopicNamer
     claim_ttl: timedelta = timedelta(minutes=10)
+    pause_gate: PauseGate | None = None
 
     @classmethod
     def from_container(cls, container: Container) -> Self:
@@ -91,6 +94,7 @@ class RunnerDeps:
             clock=container.clock,
             failure_handler=container.failure_handler,
             namer=TopicNamer.from_settings(container.settings.streaming),
+            pause_gate=PauseGate(container.config),
         )
 
 
@@ -554,6 +558,12 @@ class StageConsumer:
                     await asyncio.wait(set(in_flight), return_when=asyncio.FIRST_COMPLETED)
                 if stop.is_set():
                     break
+                gate = runner.deps.pause_gate
+                if gate is not None:
+                    # A paused station takes no new delivery; its offsets stay uncommitted.
+                    await gate.wait_while_paused(ConsumerRef.for_stage(runner.stage), stop)
+                    if stop.is_set():
+                        break
                 delivery = await next_or_stop(stream, stop)
                 if delivery is None:
                     break
