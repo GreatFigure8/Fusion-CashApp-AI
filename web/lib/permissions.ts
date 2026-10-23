@@ -13,4 +13,8 @@ export const ROUTE_PERMISSIONS = {
   "/exceptions": { permission: "items:read", role: "VIEWER" },
   "/reports": { permission: "reports:read", role: "VIEWER" },
   "/config": { permission: "config:read", role: "VIEWER" },
+  "/engine": { permission: "reports:read", role: "VIEWER" },
 } as const;
+
+/** The permission the Engine mutations need. Must equal the API enum; the API is the control. */
+export const ENGINE_CONTROL = "engine:control" as const satisfies Schemas["Permission"];
