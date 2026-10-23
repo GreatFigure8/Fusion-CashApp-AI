@@ -102,7 +102,7 @@ export const DEFAULT_UPLOADS = {
 } as const;
 
 export const COPY = {
-  placeholder: "Ask or tell CashApp to do something…",
+  placeholder: "How can I help with the cash app today?",
   fullPlaceholder: "Ask, or tell CashApp what to do. / for prompts, + for images.",
   dockHint: "Acts with your permissions · every change asks you to confirm · ⌘K",
   fullHint: "Changes run only after you confirm",

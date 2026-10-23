@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PaperclipIcon, XIcon } from "lucide-react";
+import { PlusIcon, XIcon } from "lucide-react";
 
 import { DropZone, type RejectedFile } from "@/components/common/drop-zone";
 import { Button } from "@/components/ui/button";
@@ -70,7 +70,7 @@ export function Attach({ staged, onStaged, onRemove, limits = DEFAULT_UPLOADS, d
               aria-label="Attach images"
               disabled={disabled || busy || room === 0}
             >
-              <PaperclipIcon />
+              <PlusIcon />
             </Button>
           }
         />

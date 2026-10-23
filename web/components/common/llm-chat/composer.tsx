@@ -113,7 +113,7 @@ export function Composer({
       size="icon"
       aria-label="Send"
       disabled={text.trim().length === 0 || showPrompts}
-      className={form === "dock" ? "size-8 rounded-full" : undefined}
+      className={form === "dock" ? "size-9 rounded-xl bg-[#d97757] text-white hover:bg-[#c96442] disabled:bg-[#d97757] disabled:opacity-40" : undefined}
     >
       <ArrowUpIcon />
     </Button>
@@ -134,7 +134,7 @@ export function Composer({
       className={cn(
         "resize-none",
         form === "dock"
-          ? "max-h-48 min-h-12 w-full border-0 bg-transparent px-1 py-1 text-[15px] shadow-none focus-visible:ring-0"
+          ? "max-h-56 min-h-[3.5rem] w-full border-0 bg-transparent px-2 pt-1 text-base shadow-none focus-visible:ring-0 placeholder:text-muted-foreground"
           : form === "full"
             ? "max-h-48 min-h-12 border-0 bg-transparent px-0 text-[15px] shadow-none focus-visible:ring-0"
             : "max-h-32 min-h-9",
@@ -151,7 +151,7 @@ export function Composer({
     return (
       <form
         onSubmit={onSubmit}
-        className="relative flex flex-col gap-1 rounded-[22px] border border-line bg-surface-2 px-3 pb-2.5 pt-3 shadow-[0_8px_30px_-12px_#000a] transition-colors focus-within:border-line-strong"
+        className="relative flex flex-col gap-2 rounded-[24px] border border-white/10 bg-[#2b2b2d] px-3.5 pb-3 pt-3.5 shadow-[0_4px_24px_rgba(0,0,0,0.35)] transition-colors focus-within:border-white/20"
       >
         {showPrompts ? <PromptList query={text.slice(1)} onPick={pickPrompt} /> : null}
         {input}
