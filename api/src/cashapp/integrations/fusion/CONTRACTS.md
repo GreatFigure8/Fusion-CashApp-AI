@@ -31,3 +31,9 @@ carries an `# UNVERIFIED:` comment in code. The fake models this contract; it do
 | `GET standardReceipts/describe` lists an `attachments` child | preflight | UNVERIFIED | s32 |
 | BIP report paths `/Custom/CashApp/CashAppRelationships.xdo`, `/Custom/CashApp/CashAppReceiptSignals.xdo` | fusion/bip | UNVERIFIED | s32 |
 | SQL data models `relationships.sql`, `receipt_signals.sql` (HZ/AR/CE/IBY table and column names) | fusion/bip | UNVERIFIED | s32 |
+| Payment-terms resource `receivablesPaymentTerms`, `q=Name=` / `q=TermId=` filter | query | UNVERIFIED | s39 |
+| Payment-terms fields `TermId`, `Name`, `DiscountTiers` (`DiscountDays`, `DiscountPercent`) | query | UNVERIFIED | s39 |
+| Invoice field `TransactionDate` (start of the discount clock) | query | UNVERIFIED | s39 |
+| SOAP `DiscountTaken` sent with `AmountApplied` on one `createApplyReceipt` call | soap | UNVERIFIED | s39 |
+| Application discount field (`DiscountTaken` on `receiptApplications`) | client | UNVERIFIED | s39 |
+| Discount-rejection fault code(s) in `DISCOUNT_REJECT_CODES` (empty until probed) | errors | UNVERIFIED | s39 |

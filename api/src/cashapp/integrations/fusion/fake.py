@@ -28,12 +28,14 @@ from cashapp.integrations.fusion.models import (
     ApplyResult,
     AttachmentRef,
     CustomerRelationship,
+    DiscountTier,
     FusionApplication,
     FusionCustomer,
     FusionCustomerSite,
     FusionMessage,
     FusionReceipt,
     FusionTransaction,
+    PaymentTerms,
     RelationshipDirection,
     TransactionKind,
     UnapplyRequest,
@@ -71,6 +73,7 @@ class FakeFusionClient:
         receipts: Iterable[FusionReceipt] = (),
         applications: Iterable[FusionApplication] = (),
         customers: Iterable[FusionCustomer] = (),
+        payment_terms: Iterable[PaymentTerms] = (),
         relationships: Iterable[CustomerRelationship] = (),
         reports: Mapping[str, bytes] | None = None,
         raw: Mapping[str, bytes] | None = None,
@@ -85,6 +88,7 @@ class FakeFusionClient:
         self._applications: list[FusionApplication] = list(applications)
         self._customers: dict[str, FusionCustomer] = {c.account_number: c for c in customers}
         self._relationships: list[CustomerRelationship] = list(relationships)
+        self._payment_terms: list[PaymentTerms] = list(payment_terms)
         self._reports: dict[str, bytes] = dict(reports or {})
         self._raw: dict[str, bytes] = {**_default_raw(), **(raw or {})}
         self._guard = guard or WriteGuard.allow_all()
@@ -118,6 +122,7 @@ class FakeFusionClient:
             receipts=[_receipt_from_json(x) for x in doc.get("receipts", [])],
             applications=[_application_from_json(x) for x in doc.get("applications", [])],
             customers=[_customer_from_json(x) for x in doc.get("customers", [])],
+            payment_terms=[_terms_from_json(x) for x in doc.get("payment_terms", [])],
             relationships=[_relationship_from_json(x) for x in doc.get("relationships", [])],
             reports={k: str(v).encode("utf-8") for k, v in doc.get("reports", {}).items()},
             **kwargs,
@@ -155,6 +160,9 @@ class FakeFusionClient:
                     "bill_to_site": t.bill_to_site,
                     "business_unit": t.business_unit,
                     "payment_terms": t.payment_terms,
+                    "transaction_date": (
+                        t.transaction_date.isoformat() if t.transaction_date else None
+                    ),
                 }
                 for t in self._transactions.values()
             ],
@@ -183,8 +191,21 @@ class FakeFusionClient:
                     "amount_applied": f"{a.amount_applied:.2f}",
                     "apply_date": a.apply_date.isoformat(),
                     "status": a.status,
+                    "discount_amount": (
+                        None if a.discount_amount is None else f"{a.discount_amount:.2f}"
+                    ),
                 }
                 for a in self._applications
+            ],
+            "payment_terms": [
+                {
+                    "term_id": p.term_id,
+                    "name": p.name,
+                    "tiers": [
+                        {"days": t.days, "percent": f"{t.percent:.2f}"} for t in p.discount_tiers
+                    ],
+                }
+                for p in self._payment_terms
             ],
             "relationships": [
                 {
@@ -321,6 +342,14 @@ class FakeFusionClient:
                 ErrorCode.CUSTOMER_NOT_FOUND, "customer account not found", retryable=False
             ) from None
 
+    async def get_payment_terms(self, term: int | str) -> PaymentTerms | None:
+        self._record("get_payment_terms", term)
+        self._raise_if_injected("get_payment_terms")
+        for terms in self._payment_terms:
+            if (isinstance(term, int) and terms.term_id == term) or terms.name == term:
+                return terms
+        return None
+
     async def customer_relationships(
         self, account_numbers: Sequence[str]
     ) -> list[CustomerRelationship]:
@@ -445,10 +474,14 @@ class FakeFusionClient:
                 amount_applied=request.amount_applied,
                 apply_date=request.application_date,
                 status="APP",
+                discount_amount=request.discount_amount,
             )
         )
         self._transactions[txn.customer_trx_id] = replace(
-            txn, balance=to_money(txn.balance - request.amount_applied)
+            txn,
+            balance=to_money(
+                txn.balance - request.amount_applied - (request.discount_amount or Decimal(0))
+            ),
         )
         self._receipts[receipt.receipt_id] = replace(
             receipt, unapplied_amount=to_money(receipt.unapplied_amount - request.amount_applied)
@@ -486,12 +519,47 @@ class FakeFusionClient:
         ):
             return _fault("AR-856102", "receipt is already applied to this transaction")
         amount = request.amount_applied
+        discount = request.discount_amount
+        if discount is not None:
+            rejected = self._discount_fault(request, txn)
+            if rejected is not None:
+                return rejected
+            if amount + discount > txn.balance:
+                return _fault("AR-855287", "application exceeds the available balance")
         over_balance = amount > txn.balance if amount >= 0 else amount < txn.balance
         if over_balance or (amount > 0 and amount > receipt.unapplied_amount):
             return _fault("AR-855287", "application exceeds the available balance")
         if request.accounting_date < receipt.receipt_date:
             return _fault("AR-856089", "accounting date is before the receipt GL date")
         return None
+
+    def _discount_fault(self, request: ApplyRequest, txn: FusionTransaction) -> FusionFault | None:
+        """Model Fusion's rule: a discount needs an invoice on terms still within a tier."""
+        discount = request.discount_amount or Decimal("0.00")
+        reason: str | None = None
+        terms = next((p for p in self._payment_terms if p.name == txn.payment_terms), None)
+        if txn.kind is not TransactionKind.INVOICE or discount <= 0:
+            reason = "a discount cannot be taken on this application"
+        elif terms is None or txn.transaction_date is None:
+            reason = "the transaction has no payment terms or invoice date"
+        else:
+            elapsed = (request.application_date - txn.transaction_date).days
+            earned = [t for t in terms.discount_tiers if 0 <= elapsed <= t.days]
+            if not earned:
+                reason = "the payment is outside every discount tier"
+            else:
+                best = max(t.percent for t in earned)
+                if discount > to_money(txn.balance * best / 100) + Decimal("0.005"):
+                    reason = "the discount exceeds the earned discount"
+        if reason is None:
+            return None
+        message = FusionMessage(code=None, severity="ERROR", text=reason)
+        return FusionFault(
+            code=ErrorCode.FUSION_DISCOUNT_REJECTED,
+            fusion_code=None,
+            message=reason,
+            messages=(message,),
+        )
 
     async def unapply_receipt(self, request: UnapplyRequest) -> UnapplyResult:
         self._guard.check("unapply_receipt")
@@ -510,7 +578,10 @@ class FakeFusionClient:
                 txn = self._transactions[app.customer_trx_id]
                 receipt = self._receipts[app.receipt_id]
                 self._transactions[txn.customer_trx_id] = replace(
-                    txn, balance=to_money(txn.balance + app.amount_applied)
+                    txn,
+                    balance=to_money(
+                        txn.balance + app.amount_applied + (app.discount_amount or Decimal(0))
+                    ),
                 )
                 self._receipts[receipt.receipt_id] = replace(
                     receipt,
@@ -721,6 +792,7 @@ def _invoice_row(t: FusionTransaction) -> dict[str, Any]:
         "InvoiceCurrencyCode": t.currency,
         "InvoiceStatus": t.status,
         "PaymentTerms": t.payment_terms,
+        "TransactionDate": t.transaction_date.isoformat() if t.transaction_date else None,
     }
 
 
@@ -768,6 +840,9 @@ def _txn_from_json(x: Mapping[str, Any]) -> FusionTransaction:
         bill_to_site=_opt(x.get("bill_to_site")),
         business_unit=_opt(x.get("business_unit")),
         payment_terms=_opt(x.get("payment_terms")),
+        transaction_date=(
+            date.fromisoformat(str(x["transaction_date"])) if x.get("transaction_date") else None
+        ),
     )
 
 
@@ -796,6 +871,24 @@ def _application_from_json(x: Mapping[str, Any]) -> FusionApplication:
         amount_applied=to_money(str(x["amount_applied"])),
         apply_date=date.fromisoformat(str(x["apply_date"])),
         status=str(x["status"]),
+        discount_amount=(
+            to_money(str(x["discount_amount"])) if x.get("discount_amount") is not None else None
+        ),
+    )
+
+
+def _terms_from_json(x: Mapping[str, Any]) -> PaymentTerms:
+    tiers = sorted(
+        (
+            DiscountTier(days=int(t["days"]), percent=Decimal(str(t["percent"])))
+            for t in x.get("tiers", [])
+        ),
+        key=lambda t: t.days,
+    )
+    return PaymentTerms(
+        term_id=int(x["term_id"]) if x.get("term_id") is not None else None,
+        name=str(x["name"]),
+        discount_tiers=tuple(tiers),
     )
 
 

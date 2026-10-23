@@ -23,6 +23,7 @@ FIELDS_INVOICE = ",".join(
         "InvoiceCurrencyCode",
         "InvoiceStatus",
         "PaymentTerms",  # UNVERIFIED
+        "TransactionDate",  # UNVERIFIED: invoice date, the start of the discount clock
     ]
 )
 FIELDS_CREDIT_MEMO = ",".join(
@@ -57,6 +58,15 @@ FIELDS_REMITTANCE_REFERENCE = "ReferenceNumber"  # UNVERIFIED
 FIELDS_RECEIPT_APPLICATION = ",".join(  # UNVERIFIED: child resource and every field
     ["ReceivableApplicationId", "CustomerTransactionId", "AmountApplied", "ApplyDate", "Status"]
 )
+# UNVERIFIED: the payment-terms resource, its filter and every field below. Confirmed by the
+# `-m live` probe (s39) and recorded in CONTRACTS.md.
+PAYMENT_TERMS_RESOURCE = "receivablesPaymentTerms"  # UNVERIFIED: resource name
+PAYMENT_TERMS_NAME_FIELD = "Name"  # UNVERIFIED
+PAYMENT_TERMS_ID_FIELD = "TermId"  # UNVERIFIED
+FIELDS_PAYMENT_TERMS = ",".join(["TermId", "Name", "DiscountTiers"])  # UNVERIFIED
+PAYMENT_TERMS_TIERS_KEY = "DiscountTiers"  # UNVERIFIED
+PAYMENT_TERMS_TIER_DAYS = "DiscountDays"  # UNVERIFIED
+PAYMENT_TERMS_TIER_PERCENT = "DiscountPercent"  # UNVERIFIED
 FIELDS_CUSTOMER_ACCOUNT = ",".join(  # UNVERIFIED: resource and every field
     ["AccountNumber", "PartyName", "SiteNumber", "SitePurpose", "Location", "Address", "Currency"]
 )
