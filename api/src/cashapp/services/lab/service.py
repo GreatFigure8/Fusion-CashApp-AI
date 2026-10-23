@@ -392,6 +392,17 @@ class LabService:
             live_version=live,
         )
 
+    async def get_candidate(self, candidate_id: str, principal: Principal) -> Candidate:
+        _need(principal, Permission.LAB_RUN)
+        number = _candidate_number(candidate_id)
+        async with self._uow_factory() as uow:
+            row = await uow.repo(LabCandidateRepository).get(number)
+            if row is None:
+                raise LabCandidateNotFound(f"No candidate {candidate_id}")
+            latest = await uow.repo(LabReplayRepository).latest_for(number)
+            live = await self._live_version(uow)
+        return self._candidate_out(row, live, latest)
+
     async def discard(
         self, candidate_id: str, principal: Principal, reason: str | None = None
     ) -> Candidate:
