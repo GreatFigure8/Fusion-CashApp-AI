@@ -62,6 +62,7 @@ class _Tally:
     kept_shared: int = 0
     resumed: int = 0
     skipped: int = 0
+    lab_replay_items: int = 0
     deleted_keys: set[str] = field(default_factory=lambda: set[str]())
     would_delete_keys: set[str] = field(default_factory=lambda: set[str]())
 
@@ -102,6 +103,7 @@ class RetentionService:
                 )
             if history_cut is not None:
                 await self._purge_history(uow_factory, now, history_cut, limit, dry_run, tally)
+                await self._purge_lab_items(uow_factory, history_cut, limit, dry_run, tally)
         deleted = tally.would_delete_keys if dry_run else tally.deleted_keys
         report = PurgeReport(
             dry_run=dry_run,
@@ -115,6 +117,7 @@ class RetentionService:
             objects_kept_shared=tally.kept_shared,
             resumed=tally.resumed,
             skipped=tally.skipped,
+            lab_replay_items=tally.lab_replay_items,
         )
         logger.info(
             "retention purge: dry_run=%s artifacts=%d parts=%d readings=%d adjudications=%d "
@@ -409,6 +412,37 @@ class RetentionService:
                 purged = await retention.purge_history_payloads(ids, at=now)
                 await uow.commit()
             tally.history_payloads += purged
+            remaining -= len(ids)
+            if purged == 0:
+                return
+
+    async def _purge_lab_items(
+        self,
+        uow_factory: UowFactory,
+        cutoff: datetime,
+        limit: int,
+        dry_run: bool,
+        tally: _Tally,
+    ) -> None:
+        """Delete the per-item results of finished lab replays past the history cutoff.
+
+        Never a RUNNING replay and never without a cutoff: the candidate query and the DELETE
+        both require a terminal status and ``FINISHED_AT < cutoff`` (guard before any mutation).
+        """
+        remaining = limit
+        while remaining > 0:
+            size = remaining if dry_run else min(self._batch, remaining)
+            async with uow_factory() as uow:
+                retention = uow.repo(RetentionRepository)
+                ids = await retention.lab_item_candidates(cutoff, limit=size)
+                if not ids:
+                    return
+                if dry_run:
+                    tally.lab_replay_items += await retention.count_lab_items(ids)
+                    return
+                purged = await retention.purge_lab_items(ids, cutoff)
+                await uow.commit()
+            tally.lab_replay_items += purged
             remaining -= len(ids)
             if purged == 0:
                 return

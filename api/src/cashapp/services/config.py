@@ -8,7 +8,7 @@ import asyncio
 import copy
 import datetime
 import logging
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from types import MappingProxyType
@@ -564,6 +564,22 @@ def build_runtime_config(
 # --------------------------------------------------------------------------- audit + writer
 
 
+@dataclass(frozen=True, slots=True)
+class ChangeTag:
+    """Links change rows to one change set and, for a lab promote, to its candidate and replay."""
+
+    change_set_id: int | None = None
+    lab_candidate_id: int | None = None
+    lab_replay_id: int | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class KeyChange:
+    key: str
+    value: object
+    expected_version: int
+
+
 class ConfigAudit:
     """The change log. Public so other services can audit their own keys (a key need not be
     in the registry, e.g. "access.group_role_map")."""
@@ -578,6 +594,7 @@ class ConfigAudit:
         reason: str,
         *,
         clock: Clock | None = None,
+        tag: ChangeTag | None = None,
     ) -> None:
         now = (clock if clock is not None else SystemClock()).now()
         await uow.repo(ConfigChangeRepository).add(
@@ -589,6 +606,9 @@ class ConfigAudit:
                 changed_by_name=principal.display_name,
                 changed_at=now,
                 reason=normalize_reason(key, reason),
+                change_set_id=tag.change_set_id if tag is not None else None,
+                lab_candidate_id=tag.lab_candidate_id if tag is not None else None,
+                lab_replay_id=tag.lab_replay_id if tag is not None else None,
             )
         )
 
@@ -615,6 +635,36 @@ class ConfigWriter:
         expected_version: int,
     ) -> int:
         """Write `value` if the stored version is `expected_version`; return the new version."""
+        return await self._write_one(uow, key, value, principal, reason, expected_version, None)
+
+    async def set_many(
+        self,
+        uow: UnitOfWork,
+        changes: Sequence[KeyChange],
+        principal: Principal,
+        reason: str,
+        *,
+        tag: ChangeTag,
+    ) -> dict[str, int]:
+        """Write several keys in the caller's one transaction; any conflict raises and the
+        caller rolls everything back. Returns each key's new version."""
+        versions: dict[str, int] = {}
+        for change in changes:
+            versions[change.key] = await self._write_one(
+                uow, change.key, change.value, principal, reason, change.expected_version, tag
+            )
+        return versions
+
+    async def _write_one(
+        self,
+        uow: UnitOfWork,
+        key: ConfigKey[Any] | str,
+        value: object,
+        principal: Principal,
+        reason: str,
+        expected_version: int,
+        tag: ChangeTag | None,
+    ) -> int:
         registry_key = lookup_key(key if isinstance(key, str) else key.name)
         if not principal.can(Permission.CONFIG_WRITE):
             raise ConfigForbidden("Missing permission config:write")
@@ -655,7 +705,14 @@ class ConfigWriter:
                 updated_by=principal.subject,
             )
         await ConfigAudit.record(
-            uow, registry_key.name, old_json, new_json, principal, cleaned_reason, clock=self._clock
+            uow,
+            registry_key.name,
+            old_json,
+            new_json,
+            principal,
+            cleaned_reason,
+            clock=self._clock,
+            tag=tag,
         )
         return new_version
 
