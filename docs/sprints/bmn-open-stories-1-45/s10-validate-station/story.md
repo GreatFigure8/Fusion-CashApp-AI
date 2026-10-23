@@ -34,7 +34,6 @@ Customer and currency resolution (s11); fixes (s18).
 - s08-extraction-fan-out — `RemittanceExtraction`, `make_extraction`. plannable.
 - s02-data-layer-foundation — `InfoFlag`, `ErrorCode`, `money_eq`. plannable.
 - s03-pipeline-runtime — `StageRunner`. plannable.
-- s30-worker-host — `RoleSpec`. plannable.
 
 ## Assumptions
 

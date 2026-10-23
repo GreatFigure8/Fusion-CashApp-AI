@@ -22,7 +22,7 @@ CLAUDE.md *Business layer* and *The assembly line*; reference doc §7 (persist b
 6. [integration] Retry consumer: `RetryForwarder` reads `<stage>.retry`, waits until `not_before` (bounded sleep, no polling of external systems), re-publishes to the main topic, commits.
 7. [integration] `cashapp/pipeline/relay.py`: `OutboxRelay.run(stop)` claims unpublished rows `ORDER BY PRIORITY DESC, ID` with SKIP LOCKED in batches, publishes, marks `PUBLISHED_AT`; publish failure increments `ATTEMPTS` and keeps the row. It is woken by an in-process notify after each commit and otherwise idles on a bounded wait (crash recovery, not a third poller). A `PublishThrottle` Protocol `async def admit(row: OutboxRow) -> bool` hook (default allow-all) lets s35 rate-limit backlog rows.
 8. [unit] `consumer_lag` and `dlq_depth` are exposed through `cashapp/pipeline/health.py: BusHealth.snapshot() -> dict[Stage, {lag, dlq_depth}]` for s29 metrics.
-9. [unit] `cashapp/pipeline/__init__.py` exposes `RoleSpec` registration for the relay and retry forwarder (`ROLE` objects consumed by s30's discovery).
+9. [unit] `cashapp/pipeline/roles.py` (owned here so stations never depend on the host): `RoleSpec{name: str, kind: Literal["consumer","poller","relay"], build: Callable[[Container], Runnable]}`, `Runnable` Protocol `{async run(stop: asyncio.Event) -> None; state() -> RoleState}`, `RoleState{name, status: starting|running|degraded|stopping|stopped, last_activity_at, detail}`, and the `Container` Protocol `{settings, uow_factory, config: RuntimeConfig, bus: EventBus, clock: Clock, failure_handler: FailureHandler, resolve(key: type[T]) -> T}` (service lookup for integration types such as `FusionClient`, `LlmClients`, `ObjectStore`, `ReceiptApplyGate`, so this module imports none of them). `cashapp/pipeline/__init__.py` exposes `ROLES` for the relay and retry forwarder; a `StageRunner` subclass becomes a role via `consumer_role(RunnerCls) -> RoleSpec`.
 
 ## Out of scope
 
@@ -34,7 +34,6 @@ Concrete stations; auto-fix handlers (s18); worker process host (s30); metrics e
 - s27-settings-secrets-wiring — `Settings.streaming`. plannable.
 - s28-runtime-config-service — `RuntimeConfig.snapshot() -> ConfigSnapshot`, `retries()`. plannable.
 - s04-sign-in-authorization — `SYSTEM_PRINCIPAL`. plannable.
-- s30-worker-host — `RoleSpec{name, kind: "consumer"|"poller"|"relay", build(container) -> Runnable}` from `cashapp/workers/roles.py`; `Runnable{async run(stop: asyncio.Event), state() -> RoleState}`. plannable (same wave; s03 imports the pinned names).
 - s29-observability — `get_logger(__name__)`, `bind_item_context(work_item_id, stage, attempt, trace_id)`, `span(name, **attrs)`. plannable (same wave).
 
 ## Test-support files owned

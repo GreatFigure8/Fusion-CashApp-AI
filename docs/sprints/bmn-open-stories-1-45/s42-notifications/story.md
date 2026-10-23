@@ -30,7 +30,7 @@ Configuration UI for recipients (the configuration screen exposes the `notificat
 
 - s18-auto-fix-engine — `NotifyEvent`, notify topic name. plannable.
 - s03-pipeline-runtime — `EventBus.subscribe`, `emit`, `BusHealth`. plannable.
-- s30-worker-host — `RoleSpec`, health tick hook. plannable.
+- s30-worker-host — health tick hook (`HealthTickHook` list in `cashapp/workers/hooks.py`). plannable.
 - s28-runtime-config-service — `config.notifications()`. plannable.
 - s27-settings-secrets-wiring — `smtp` settings group (host, port, username, password: SecretStr, from_address) — add. plannable.
 

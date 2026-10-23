@@ -31,7 +31,6 @@ Validation (s10); usage rows (s36).
 - s08-extraction-fan-out — `EXTRACTION_READING` columns, `RemittanceExtraction`, `LlmClients.adjudicator`, `ReplayLlmClient`, `make_extraction`. plannable.
 - s03-pipeline-runtime — `StageRunner`, `StageError`, `Advance`. plannable.
 - s28-runtime-config-service — `config.models().adjudicator`, `config.escalation().min_extraction_confidence`. plannable.
-- s30-worker-host — `RoleSpec`. plannable.
 
 ## Assumptions
 

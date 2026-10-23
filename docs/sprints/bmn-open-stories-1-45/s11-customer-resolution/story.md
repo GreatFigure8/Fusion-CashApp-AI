@@ -34,7 +34,6 @@ Receipt search (s13); learning aliases (s37).
 - s37-payer-alias-learning — `AliasLookup` Protocol `lookup(payer_name: str|None, bank_account: str|None, references: Sequence[str]) -> AliasMatch{customer_numbers: tuple[str,...], alias_ids: tuple[int,...]}` from `cashapp/services/aliases.py`. plannable (same wave).
 - s09-adjudicate-fan-in — `AdjudicationRepository.latest_for`. plannable.
 - s03-pipeline-runtime — `StageRunner`, `StageError`. plannable.
-- s30-worker-host — `RoleSpec`. plannable.
 
 ## Assumptions
 

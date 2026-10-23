@@ -33,7 +33,6 @@ Scoring/choosing the receipt (s13); entering AWAITING_RECEIPT (s18).
 - s03-pipeline-runtime — `emit`, `StageEvent`, `EventBus.subscribe`. plannable.
 - s28-runtime-config-service — `receipt_watcher()`, `matching()`, `aging()`. plannable.
 - s40-item-locking — `is_locked_for_automation`. plannable.
-- s30-worker-host — `RoleSpec`. plannable.
 
 ## Assumptions
 

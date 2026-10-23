@@ -33,7 +33,6 @@ UI for the override (the workbench s20 calls this endpoint); extraction.
 - s40-item-locking — `LockService.is_locked_for_automation(item, now)` / lock check for the override. plannable.
 - s04-sign-in-authorization — `require_permission(Permission.CLASSIFICATION_OVERRIDE)`. plannable.
 - s28-runtime-config-service — `config.models().workhorse`. plannable.
-- s30-worker-host — `RoleSpec`. plannable.
 
 ## Assumptions
 

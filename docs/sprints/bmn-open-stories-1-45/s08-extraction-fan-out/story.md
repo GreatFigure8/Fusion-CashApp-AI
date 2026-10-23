@@ -37,7 +37,6 @@ Adjudication (s09); usage/cost rows (s36 wraps `LlmClient`); classification (s07
 - s28-runtime-config-service — `config.models()`, `config.extraction()`. plannable.
 - s02-data-layer-foundation — `MoneyStr`, `ErrorCode`, `Stage`. plannable.
 - s29-observability — `span("llm.<role>")` with token attributes. plannable (same wave).
-- s30-worker-host — `RoleSpec`. plannable (same wave).
 
 ## Test-support files owned
 
