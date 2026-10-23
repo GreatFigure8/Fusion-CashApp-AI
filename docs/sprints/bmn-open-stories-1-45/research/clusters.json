@@ -1,0 +1,35 @@
+{
+  "researchers": [
+    {"name": "reuse", "model": "haiku"},
+    {"name": "prior-art", "model": "sonnet"},
+    {"name": "primary-docs", "model": "sonnet"},
+    {"name": "simplest", "model": "fable"},
+    {"name": "risk", "model": "opus"}
+  ],
+  "approaches": [
+    {"id": "a1", "name": "Serialized spine with frozen shared registries, then waves by owned directory, every external system faked (real + fake impl), money path last",
+     "votes": [{"researcher": "risk", "merit": 9, "confidence": 0.8},
+               {"researcher": "simplest", "merit": 7, "confidence": 0.7}]},
+    {"id": "a2", "name": "Ledger-first vertical slice: thinnest end-to-end apply on an in-process bus before UI and ops",
+     "votes": [{"researcher": "simplest", "merit": 8, "confidence": 0.8}]},
+    {"id": "a3", "name": "Library-composed layered stack (SQLAlchemy async oracledb, Alembic, aiokafka, PyJWT, anthropic, OCI SDK, shadcn/openapi-typescript) with hand-rolled domain core (repository/UoW, outbox relay, StageRunner, status enum)",
+     "votes": [{"researcher": "reuse", "merit": 8, "confidence": 0.7},
+               {"researcher": "prior-art", "merit": 8, "confidence": 0.75},
+               {"researcher": "primary-docs", "merit": 8, "confidence": 0.7}]},
+    {"id": "a4", "name": "DB-authoritative queue (SKIP LOCKED) with OCI Streaming as wake-up only",
+     "votes": [{"researcher": "primary-docs", "merit": 7, "confidence": 0.6}]},
+    {"id": "a5", "name": "External-truth first: live probes / FusionClient and pod work before building stations",
+     "votes": [{"researcher": "primary-docs", "merit": 7, "confidence": 0.75},
+               {"researcher": "simplest", "merit": 5, "confidence": 0.6}]},
+    {"id": "a6", "name": "Rails-first: money and data safety guards as foundation code",
+     "votes": [{"researcher": "risk", "merit": 8, "confidence": 0.75}]},
+    {"id": "a7", "name": "FastStream as consumer framework behind EventBus",
+     "votes": [{"researcher": "prior-art", "merit": 6, "confidence": 0.55}]},
+    {"id": "a8", "name": "Temporal durable workflows instead of outbox + bus",
+     "votes": [{"researcher": "prior-art", "merit": 4, "confidence": 0.5}]},
+    {"id": "a9", "name": "Adopt a PyPI transactional-outbox library",
+     "votes": [{"researcher": "reuse", "merit": 3, "confidence": 0.8}]},
+    {"id": "a10", "name": "Maximum parallelism: one coder per story from day one",
+     "votes": [{"researcher": "risk", "merit": 3, "confidence": 0.85}]}
+  ]
+}
