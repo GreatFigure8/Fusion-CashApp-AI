@@ -280,6 +280,54 @@ FUSION_RECEIPT_NOTE_MAX_CHARS = _key(
     "Maximum characters of the note written to a Fusion receipt's Comments field.",
 )
 
+# --- mcp.* : the fusion-sql-mcp (Greenlight) connection (fusion-mcp-transport) ---------------
+# Hot: the client reconnects when the connection settings change, so none needs a restart.
+# TODO(merger): once db-stored-settings lands, pass secret_ref=True on MCP_CLIENT_SECRET_REF and
+# use its SecretRef type; the pattern below is the same Vault secret OCID check.
+_HttpsUrl = Annotated[str, StringConstraints(pattern=r"^(https://\S+)?$")]
+_VaultSecretRef = Annotated[str, StringConstraints(pattern=r"^(vault:)?ocid1\.vaultsecret\.\S+$")]
+
+MCP_SERVER_URL = _key(
+    "mcp.server_url",
+    _HttpsUrl,
+    "",
+    "Streamable HTTP endpoint of the fusion-sql-mcp server; empty means not configured.",
+)
+MCP_TOKEN_URL = _key(
+    "mcp.token_url",
+    _HttpsUrl,
+    "",
+    "OAuth token endpoint of the identity domain that issues the MCP client_credentials JWT.",
+)
+MCP_CLIENT_ID = _key(
+    "mcp.client_id", str, "", "OAuth client id the cash app uses for the MCP server."
+)
+MCP_CLIENT_SECRET_REF = _key(
+    "mcp.client_secret_ref",
+    _VaultSecretRef | None,
+    None,
+    "OCI Vault secret (OCID) holding the MCP OAuth client secret; never the secret itself.",
+)
+MCP_SCOPE = _key("mcp.scope", str, "greenlight/mcp", "OAuth scope requested for the MCP token.")
+MCP_FUSION_SOURCE = _key(
+    "mcp.fusion_source",
+    str,
+    "",
+    "The MCP server's Fusion source label used when a pod has no mcp_source of its own.",
+)
+MCP_TIMEOUT_SECONDS = _key(
+    "mcp.timeout_seconds",
+    Annotated[int, Field(ge=1, le=600)],
+    60,
+    "Seconds before one MCP tool call is abandoned.",
+)
+MCP_MAX_ROWS = _key(
+    "mcp.max_rows",
+    Annotated[int, Field(ge=1, le=50000)],
+    2000,
+    "Row cap of the assistant's Fusion query tool and the page size of run_query.",
+)
+
 _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     INTAKE_POLL_INTERVAL_SECONDS,
     RECEIPT_WATCHER_POLL_INTERVAL_SECONDS,
@@ -313,6 +361,14 @@ _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     REPORTS_DAILY_SUMMARY_CUTOVER,
     DISCOUNT_ENABLED,
     FUSION_RECEIPT_NOTE_MAX_CHARS,
+    MCP_SERVER_URL,
+    MCP_TOKEN_URL,
+    MCP_CLIENT_ID,
+    MCP_CLIENT_SECRET_REF,
+    MCP_SCOPE,
+    MCP_FUSION_SOURCE,
+    MCP_TIMEOUT_SECONDS,
+    MCP_MAX_ROWS,
 )
 
 

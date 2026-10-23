@@ -17,6 +17,7 @@ from cashapp.data.models.retention import RetentionPurge
 from cashapp.data.models.work_item import WorkItem
 from cashapp.data.repositories.adjudication import AdjudicationRepository
 from cashapp.data.repositories.artifacts import ArtifactPartRepository, is_unique_violation
+from cashapp.data.repositories.mcp_call_log import McpCallLogRepository
 from cashapp.data.repositories.readings import ExtractionReadingRepository
 from cashapp.data.repositories.retention import RetentionRepository
 from cashapp.data.uow import UnitOfWork, UowFactory
@@ -102,6 +103,8 @@ class RetentionService:
                 )
             if history_cut is not None:
                 await self._purge_history(uow_factory, now, history_cut, limit, dry_run, tally)
+                if not dry_run:
+                    await self._purge_mcp_call_log(uow_factory, history_cut)
         deleted = tally.would_delete_keys if dry_run else tally.deleted_keys
         report = PurgeReport(
             dry_run=dry_run,
@@ -385,6 +388,13 @@ class RetentionService:
             remaining -= len(ids)
             if readings + adjudications == 0:
                 return
+
+    @staticmethod
+    async def _purge_mcp_call_log(uow_factory: UowFactory, cutoff: datetime) -> None:
+        """MCP call-log rows age out with the history payloads (no key of their own)."""
+        async with uow_factory() as uow:
+            await uow.repo(McpCallLogRepository).purge_before(cutoff)
+            await uow.commit()
 
     async def _purge_history(
         self,
