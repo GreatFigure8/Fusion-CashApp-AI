@@ -12,11 +12,19 @@ import type { ApiPath } from "./types";
  */
 export async function apiFile(
   path: ApiPath,
-  query?: Readonly<Record<string, string>>,
-  init?: { signal?: AbortSignal; requestId?: string },
+  query?: Readonly<Record<string, string>> | URLSearchParams,
+  init?: {
+    signal?: AbortSignal;
+    requestId?: string;
+    method?: "get" | "post";
+    body?: unknown;
+    params?: Readonly<Record<string, string | number>>;
+  },
 ): Promise<Result<Response, ApiError>> {
-  const prepared = await buildApiRequest("get", path, "*/*", {
+  const prepared = await buildApiRequest(init?.method ?? "get", path, "*/*", {
+    params: init?.params,
     query,
+    body: init?.body,
     signal: init?.signal,
     requestId: init?.requestId,
   });
