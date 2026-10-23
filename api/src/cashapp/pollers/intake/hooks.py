@@ -36,3 +36,9 @@ from cashapp.services.retention.hook import RetentionCycleHook  # noqa: E402
 
 if not any(isinstance(hook, RetentionCycleHook) for hook in CYCLE_HOOKS):
     CYCLE_HOOKS.append(RetentionCycleHook())
+
+# s19: the flow monitor shows when the intake poller last completed a cycle.
+from cashapp.services.poller_heartbeat import PollerHeartbeatHook  # noqa: E402
+
+if not any(isinstance(hook, PollerHeartbeatHook) for hook in CYCLE_HOOKS):
+    CYCLE_HOOKS.append(PollerHeartbeatHook("intake-poller"))

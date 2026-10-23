@@ -27,6 +27,7 @@ from cashapp.pollers.receipt_watcher.cursor import (
 )
 from cashapp.services.awaiting_receipt import escalate_aged
 from cashapp.services.config import ConfigSnapshot, RuntimeConfig
+from cashapp.services.poller_heartbeat import STATUS_DEGRADED, STATUS_OK, record_poller_heartbeat
 
 logger = logging.getLogger(__name__)
 
@@ -131,9 +132,24 @@ class ReceiptWatcher:
         else:
             self._status = "running"
             self._detail = None
+        await self._stamp_heartbeat(degraded=self._status == "degraded")
         return WatcherCycleStats(
             fetched=fetched, emitted=emitted, aged_out=aged, fusion_error=fusion_error
         )
+
+    async def _stamp_heartbeat(self, *, degraded: bool) -> None:
+        """Record that a cycle finished (s19's flow monitor reads it). Never fails the cycle."""
+        try:
+            async with self._uow_factory() as uow:
+                await record_poller_heartbeat(
+                    uow,
+                    ROLE_NAME,
+                    self._clock.now(),
+                    status=STATUS_DEGRADED if degraded else STATUS_OK,
+                )
+                await uow.commit()
+        except Exception as exc:
+            logger.warning("receipt watcher heartbeat failed: error=%s", type(exc).__name__)
 
     async def _ingest_receipts(self) -> tuple[int, int, str | None]:
         pod = self._fusion.pod_name

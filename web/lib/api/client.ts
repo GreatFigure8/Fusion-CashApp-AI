@@ -6,7 +6,7 @@ import { err, ok, type Result } from "@/lib/result";
 
 import { apiError, errorEnvelopeSchema, networkError, type ApiError } from "./errors";
 import type { StreamPath } from "./stream-paths";
-import type { ApiArgs, ApiPath, Method, ResponseOf } from "./types";
+import type { ApiArgs, ApiPath, ApiRequestOptions, Method, ResponseOf } from "./types";
 
 type RawOptions = {
   params?: Readonly<Record<string, unknown>>;
@@ -149,6 +149,22 @@ export async function api<P extends ApiPath, M extends Method<P>>(
       ),
     );
   }
+}
+
+/**
+ * GET that returns the upstream `Response` untouched on 2xx (binary passthrough, for example an
+ * artifact part), and the same `ApiError` mapping as `api` otherwise.
+ */
+export async function apiRaw<P extends ApiPath>(
+  path: P,
+  options?: ApiRequestOptions<P, Extract<"get", Method<P>>>,
+): Promise<Result<Response, ApiError>> {
+  const prepared = await buildApiRequest("get", path, "*/*", (options ?? {}) as RawOptions);
+  if (!prepared.ok) return prepared;
+  const sent = await send(prepared.value);
+  if (!sent.ok) return sent;
+  if (!sent.value.ok) return err(await errorFromResponse(sent.value, prepared.value.requestId));
+  return sent;
 }
 
 /** Opens an event stream to the API; returns the raw upstream response. Used by the SSE proxy. */
