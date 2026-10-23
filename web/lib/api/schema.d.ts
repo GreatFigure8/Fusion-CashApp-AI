@@ -2205,16 +2205,25 @@ export interface components {
         };
         /** MeResponse */
         MeResponse: {
+            /** Access Request Url */
+            access_request_url: string | null;
             /** Display Name */
             display_name: string;
             /** Email */
             email: string | null;
+            /**
+             * Env
+             * @enum {string}
+             */
+            env: "local" | "dev" | "test" | "prod";
             /** Groups */
             groups: string[];
             /** Permissions */
             permissions: components["schemas"]["Permission"][];
             /** Roles */
             roles: components["schemas"]["Role"][];
+            /** Sample Data */
+            sample_data: boolean;
             /** Subject */
             subject: string;
         };

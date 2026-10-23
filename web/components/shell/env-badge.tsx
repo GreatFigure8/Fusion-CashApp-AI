@@ -1,16 +1,11 @@
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { Pill } from "@/components/common/pill";
+import type { Me } from "@/lib/permissions";
 
-/** DEV, TEST or PROD from `NEXT_PUBLIC_ENV_LABEL`; PROD gets a red outline. */
-export function EnvBadge({ label }: { label: string }) {
-  const prod = label.toUpperCase() === "PROD";
+/** DEV, TEST, PROD or LOCAL from the API's environment; warn tone for every environment. */
+export function EnvPill({ env }: { env: Me["env"] }) {
   return (
-    <Badge
-      variant="outline"
-      data-env={label}
-      className={cn("font-mono", prod && "border-status-error text-status-error")}
-    >
-      {label}
-    </Badge>
+    <Pill tone="warn" mono title={`Environment: ${env}`}>
+      <span data-env={env}>{env.toUpperCase()}</span>
+    </Pill>
   );
 }

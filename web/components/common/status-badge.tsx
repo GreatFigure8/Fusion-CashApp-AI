@@ -1,7 +1,6 @@
-import { Badge } from "@/components/ui/badge";
+import { Pill, type PillTone } from "@/components/common/pill";
 import type { Schemas } from "@/lib/api/types";
 import { humanizeEnum } from "@/lib/format";
-import { cn } from "@/lib/utils";
 
 /**
  * The one place a status value becomes a colour. The maps are typed against the generated API
@@ -61,24 +60,15 @@ export const STATUS_TOKENS: {
   },
 };
 
-const DOT: Record<StatusToken, string> = {
-  success: "bg-status-success",
-  progress: "bg-status-progress",
-  waiting: "bg-status-waiting",
-  attention: "bg-status-attention",
-  error: "bg-status-error",
-  locked: "bg-status-locked",
-  neutral: "bg-muted-foreground",
-};
-
-const TEXT: Record<StatusToken, string> = {
-  success: "text-status-success",
-  progress: "text-status-progress",
-  waiting: "text-status-waiting",
-  attention: "text-status-attention",
-  error: "text-status-error",
-  locked: "text-status-locked",
-  neutral: "text-muted-foreground",
+/** How each status token renders as a pill. */
+export const STATUS_PILL_TONE: Readonly<Record<StatusToken, PillTone>> = {
+  success: "ok",
+  progress: "accent",
+  waiting: "muted",
+  attention: "warn",
+  error: "err",
+  locked: "locked",
+  neutral: "muted",
 };
 
 export function statusToken(kind: keyof typeof STATUS_TOKENS, value: string): StatusToken {
@@ -97,13 +87,10 @@ export function StatusBadge({
 }) {
   const token = statusToken(kind, value);
   return (
-    <Badge
-      variant="outline"
-      data-status={token}
-      className={cn("gap-1.5 font-medium", TEXT[token], className)}
-    >
-      <span aria-hidden className={cn("size-1.5 rounded-full", DOT[token])} />
-      {humanizeEnum(value)}
-    </Badge>
+    <span data-status={token} className="inline-flex">
+      <Pill tone={STATUS_PILL_TONE[token]} dot className={className}>
+        {humanizeEnum(value)}
+      </Pill>
+    </span>
   );
 }

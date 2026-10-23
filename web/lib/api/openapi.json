@@ -4254,6 +4254,17 @@
       },
       "MeResponse": {
         "properties": {
+          "access_request_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Access Request Url"
+          },
           "display_name": {
             "title": "Display Name",
             "type": "string"
@@ -4268,6 +4279,16 @@
               }
             ],
             "title": "Email"
+          },
+          "env": {
+            "enum": [
+              "local",
+              "dev",
+              "test",
+              "prod"
+            ],
+            "title": "Env",
+            "type": "string"
           },
           "groups": {
             "items": {
@@ -4290,6 +4311,10 @@
             "title": "Roles",
             "type": "array"
           },
+          "sample_data": {
+            "title": "Sample Data",
+            "type": "boolean"
+          },
           "subject": {
             "title": "Subject",
             "type": "string"
@@ -4301,7 +4326,10 @@
           "email",
           "groups",
           "roles",
-          "permissions"
+          "permissions",
+          "env",
+          "sample_data",
+          "access_request_url"
         ],
         "title": "MeResponse",
         "type": "object"

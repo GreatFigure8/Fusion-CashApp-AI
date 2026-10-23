@@ -9,6 +9,7 @@ import { ExceptionsTable } from "@/components/exceptions/exceptions-table";
 import { FusionContextSection } from "@/components/exceptions/fusion-context-section";
 import { RetryAlert } from "@/components/exceptions/retry-alert";
 import { WhyStuck } from "@/components/exceptions/why-stuck";
+import { TopBar } from "@/components/shell/top-bar";
 import { HistoryTimeline } from "@/components/common/history-timeline";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -125,7 +126,7 @@ export default async function ExceptionsPage(props: PageProps<"/exceptions">) {
 
   return (
     <div className="grid gap-4">
-      <h1 className="text-lg font-semibold tracking-tight">Exceptions</h1>
+      <TopBar title="Exceptions" />
       <ExceptionsFilterBar
         filters={filters}
         errorCodeOptions={ERROR_CODES}

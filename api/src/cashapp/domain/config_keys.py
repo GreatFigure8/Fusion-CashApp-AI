@@ -343,6 +343,18 @@ FUSION_RECEIPT_NOTE_MAX_CHARS = _key(
     240,
     "Maximum characters of the note written to a Fusion receipt's Comments field.",
 )
+UI_SAMPLE_DATA = _key(
+    "ui.sample_data",
+    bool,
+    False,
+    "Show the Sample data pill: the environment runs on generated test data. Ignored in prod.",
+)
+UI_ACCESS_REQUEST_URL = _key(
+    "ui.access_request_url",
+    str | None,
+    None,
+    "Link behind Request access when a user's groups map to no role.",
+)
 
 CHAT_CONFIRM_TTL_SECONDS = _key(
     "chat.confirm_ttl_seconds",
@@ -640,6 +652,7 @@ CONFIG_GROUPS: Mapping[str, GroupSpec] = MappingProxyType(
         "smtp": GroupSpec("Email (SMTP)", "Outgoing email; empty host turns it off.", 250),
         "chat": GroupSpec("Assistant", "Assistant tool calls and confirmations.", 260),
         "mcp": GroupSpec("Fusion MCP", "Connection to the fusion-sql-mcp server.", 280),
+        "ui": GroupSpec("User interface", "Sample-data pill and the access request link.", 290),
         "engine": GroupSpec("Engine", "Paused and draining stations, engine status timing.", 270),
     }
 )
@@ -803,6 +816,8 @@ _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     MCP_FUSION_SOURCE,
     MCP_TIMEOUT_SECONDS,
     MCP_MAX_ROWS,
+    UI_SAMPLE_DATA,
+    UI_ACCESS_REQUEST_URL,
 )
 
 

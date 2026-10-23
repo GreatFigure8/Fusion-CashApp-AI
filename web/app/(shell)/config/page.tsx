@@ -8,6 +8,7 @@ import { ConfigStagingProvider } from "@/components/config/config-staging-provid
 import { ConfigTabSkeleton } from "@/components/config/config-tab-skeleton";
 import { ConfigTabs } from "@/components/config/config-tabs";
 import { SaveFooter } from "@/components/config/save-footer";
+import { TopBar } from "@/components/shell/top-bar";
 import { hasPermission } from "@/lib/me";
 
 import { HistoryContent } from "./_components/history-content";
@@ -36,7 +37,7 @@ export default async function ConfigPage(props: PageProps<"/config">) {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Configuration</h1>
+      <TopBar title="Settings" />
       <ConfigStagingProvider canEdit={canEdit}>
         <div className="flex flex-col gap-4 lg:flex-row">
           <ConfigTabs active={params.tab} />
