@@ -5,6 +5,15 @@ not a role package, so importing it must have no side effects.
 """
 
 from cashapp.services.reports.daily_summary import daily_summary
+from cashapp.services.reports.html_export import HtmlReportRenderer, RenderedReport
+from cashapp.services.reports.html_service import (
+    ExportNotFound,
+    HtmlReportService,
+    NothingToReport,
+    ReportExportInfo,
+    ReportFailed,
+    make_html_report_service,
+)
 from cashapp.services.reports.models import (
     AgingBucketCount,
     CurrencyAmount,
@@ -26,12 +35,20 @@ __all__ = [
     "CurrencyAmount",
     "DailySummary",
     "ErrorCodeCount",
+    "ExportNotFound",
     "FutureReportDate",
+    "HtmlReportRenderer",
+    "HtmlReportService",
     "NoRecipients",
+    "NothingToReport",
     "PartiallyPaidRow",
+    "RenderedReport",
     "ReportEmailFailed",
+    "ReportExportInfo",
+    "ReportFailed",
     "ReportRunInfo",
     "ReportService",
     "daily_summary",
+    "make_html_report_service",
     "partially_paid",
 ]
