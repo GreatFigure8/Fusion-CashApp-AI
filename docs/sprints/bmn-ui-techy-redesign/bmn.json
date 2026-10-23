@@ -1,7 +1,7 @@
 {
  "run": "bmn-ui-techy-redesign",
- "estimate": null,
- "phase": "split",
+ "estimate": "~2-3 h to code (14 stories, 1 wave)",
+ "phase": "plan",
  "integration": "sprint/ui-techy-redesign",
  "worktree": "D:/Fusion-CashApp-AI-ui-techy-redesign",
  "live": "dev",
@@ -22,7 +22,193 @@
   "supabase_dev_ref": null,
   "supabase_main_ref": null
  },
- "stories": [],
+ "stories": [
+  {
+   "slug": "chat-agent-tool-registry",
+   "title": "chat-agent-tool-registry",
+   "deps": [],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/chat-agent-tool-registry",
+   "merges": [],
+   "detail": ""
+  },
+  {
+   "slug": "db-stored-settings",
+   "title": "db-stored-settings",
+   "deps": [],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/db-stored-settings",
+   "merges": [],
+   "detail": ""
+  },
+  {
+   "slug": "engine-control-api",
+   "title": "engine-control-api",
+   "deps": [
+    "chat-agent-tool-registry"
+   ],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/engine-control-api",
+   "merges": [],
+   "detail": ""
+  },
+  {
+   "slug": "fusion-mcp-transport",
+   "title": "fusion-mcp-transport",
+   "deps": [
+    "db-stored-settings",
+    "chat-agent-tool-registry"
+   ],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/fusion-mcp-transport",
+   "merges": [],
+   "detail": ""
+  },
+  {
+   "slug": "glass-theme-shell",
+   "title": "glass-theme-shell",
+   "deps": [
+    "engine-control-api"
+   ],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/glass-theme-shell",
+   "merges": [],
+   "detail": ""
+  },
+  {
+   "slug": "live-progress-dashboard",
+   "title": "live-progress-dashboard",
+   "deps": [
+    "glass-theme-shell",
+    "chat-agent-tool-registry"
+   ],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/live-progress-dashboard",
+   "merges": [],
+   "detail": ""
+  },
+  {
+   "slug": "exceptions-workbench-restyle",
+   "title": "exceptions-workbench-restyle",
+   "deps": [
+    "glass-theme-shell"
+   ],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/exceptions-workbench-restyle",
+   "merges": [],
+   "detail": ""
+  },
+  {
+   "slug": "engine-control-panel-ui",
+   "title": "engine-control-panel-ui",
+   "deps": [
+    "glass-theme-shell",
+    "engine-control-api",
+    "fusion-mcp-transport",
+    "live-progress-dashboard"
+   ],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/engine-control-panel-ui",
+   "merges": [],
+   "detail": ""
+  },
+  {
+   "slug": "settings-screen-redesign",
+   "title": "settings-screen-redesign",
+   "deps": [
+    "glass-theme-shell",
+    "db-stored-settings",
+    "fusion-mcp-transport"
+   ],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/settings-screen-redesign",
+   "merges": [],
+   "detail": ""
+  },
+  {
+   "slug": "failed-receipt-review",
+   "title": "failed-receipt-review",
+   "deps": [
+    "glass-theme-shell",
+    "chat-agent-tool-registry",
+    "db-stored-settings",
+    "live-progress-dashboard"
+   ],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/failed-receipt-review",
+   "merges": [],
+   "detail": ""
+  },
+  {
+   "slug": "html-progress-reports",
+   "title": "html-progress-reports",
+   "deps": [
+    "live-progress-dashboard",
+    "glass-theme-shell",
+    "chat-agent-tool-registry"
+   ],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/html-progress-reports",
+   "merges": [],
+   "detail": ""
+  },
+  {
+   "slug": "assistant-chat-redesign",
+   "title": "assistant-chat-redesign",
+   "deps": [
+    "glass-theme-shell",
+    "chat-agent-tool-registry",
+    "failed-receipt-review",
+    "live-progress-dashboard",
+    "engine-control-api"
+   ],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/assistant-chat-redesign",
+   "merges": [],
+   "detail": ""
+  },
+  {
+   "slug": "matching-lab-replay-api",
+   "title": "matching-lab-replay-api",
+   "deps": [
+    "chat-agent-tool-registry",
+    "fusion-mcp-transport",
+    "db-stored-settings"
+   ],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/matching-lab-replay-api",
+   "merges": [],
+   "detail": ""
+  },
+  {
+   "slug": "matching-lab-ui",
+   "title": "matching-lab-ui",
+   "deps": [
+    "glass-theme-shell",
+    "assistant-chat-redesign",
+    "matching-lab-replay-api",
+    "live-progress-dashboard"
+   ],
+   "interfaces": [],
+   "status": "split",
+   "branch": "wip/ui-techy-redesign/matching-lab-ui",
+   "merges": [],
+   "detail": ""
+  }
+ ],
  "temp_refs": [],
  "integration_pushed": false,
  "cleanup": {
