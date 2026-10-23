@@ -35,6 +35,7 @@ from cashapp.pipeline.errors import StageError
 from cashapp.pipeline.outcomes import Advance, StageOutcome
 from cashapp.pipeline.roles import Container
 from cashapp.pipeline.runner import RunnerDeps, StageContext, StageRunner, consumer_role
+from cashapp.services.review.effort import effort_for
 from cashapp.stations.extract.prompts import PROMPT_VERSION, build_reader_request
 
 _MESSAGE_MAX = 2000
@@ -94,8 +95,8 @@ class ExtractRunner(StageRunner):
         for slot in slots:
             is_a = slot is ReaderSlot.A
             role = models.reader_a if is_a else models.reader_b
-            # Cohere has no effort setting; reader A takes the auto-fix override, else config.
-            effort = (hints.get("effort") or role.effort) if is_a else None
+            # Cohere has no effort setting; reader A's comes from the one shared lookup.
+            effort = effort_for(item, role, ctx.config) if is_a else None
             request = build_reader_request(
                 fitted.parts, role=role, effort=effort, slot=slot, work_item_id=item.id
             )
