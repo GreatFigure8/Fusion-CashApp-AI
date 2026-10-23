@@ -28,7 +28,7 @@
    "title": "chat-agent-tool-registry",
    "deps": [],
    "interfaces": [],
-   "status": "planned",
+   "status": "built",
    "branch": "wip/ui-techy-redesign/chat-agent-tool-registry",
    "merges": [],
    "detail": ""
@@ -38,7 +38,7 @@
    "title": "db-stored-settings",
    "deps": [],
    "interfaces": [],
-   "status": "planned",
+   "status": "built",
    "branch": "wip/ui-techy-redesign/db-stored-settings",
    "merges": [],
    "detail": ""
@@ -50,7 +50,7 @@
     "chat-agent-tool-registry"
    ],
    "interfaces": [],
-   "status": "planned",
+   "status": "built",
    "branch": "wip/ui-techy-redesign/engine-control-api",
    "merges": [],
    "detail": ""
@@ -63,7 +63,7 @@
     "chat-agent-tool-registry"
    ],
    "interfaces": [],
-   "status": "planned",
+   "status": "built",
    "branch": "wip/ui-techy-redesign/fusion-mcp-transport",
    "merges": [],
    "detail": ""
@@ -75,7 +75,7 @@
     "engine-control-api"
    ],
    "interfaces": [],
-   "status": "planned",
+   "status": "built",
    "branch": "wip/ui-techy-redesign/glass-theme-shell",
    "merges": [],
    "detail": ""
@@ -88,7 +88,7 @@
     "chat-agent-tool-registry"
    ],
    "interfaces": [],
-   "status": "planned",
+   "status": "built",
    "branch": "wip/ui-techy-redesign/live-progress-dashboard",
    "merges": [],
    "detail": ""
@@ -103,7 +103,7 @@
    "status": "planned",
    "branch": "wip/ui-techy-redesign/exceptions-workbench-restyle",
    "merges": [],
-   "detail": ""
+   "detail": "partial (helpers only); re-dispatch after wave-1 merge"
   },
   {
    "slug": "engine-control-panel-ui",
@@ -115,7 +115,7 @@
     "live-progress-dashboard"
    ],
    "interfaces": [],
-   "status": "planned",
+   "status": "built",
    "branch": "wip/ui-techy-redesign/engine-control-panel-ui",
    "merges": [],
    "detail": ""
@@ -129,7 +129,7 @@
     "fusion-mcp-transport"
    ],
    "interfaces": [],
-   "status": "planned",
+   "status": "built",
    "branch": "wip/ui-techy-redesign/settings-screen-redesign",
    "merges": [],
    "detail": ""
@@ -144,7 +144,7 @@
     "live-progress-dashboard"
    ],
    "interfaces": [],
-   "status": "planned",
+   "status": "built",
    "branch": "wip/ui-techy-redesign/failed-receipt-review",
    "merges": [],
    "detail": ""
@@ -158,7 +158,7 @@
     "chat-agent-tool-registry"
    ],
    "interfaces": [],
-   "status": "planned",
+   "status": "built",
    "branch": "wip/ui-techy-redesign/html-progress-reports",
    "merges": [],
    "detail": ""
@@ -174,7 +174,7 @@
     "engine-control-api"
    ],
    "interfaces": [],
-   "status": "planned",
+   "status": "built",
    "branch": "wip/ui-techy-redesign/assistant-chat-redesign",
    "merges": [],
    "detail": ""
@@ -188,7 +188,7 @@
     "db-stored-settings"
    ],
    "interfaces": [],
-   "status": "planned",
+   "status": "built",
    "branch": "wip/ui-techy-redesign/matching-lab-replay-api",
    "merges": [],
    "detail": ""
@@ -206,10 +206,207 @@
    "status": "planned",
    "branch": "wip/ui-techy-redesign/matching-lab-ui",
    "merges": [],
-   "detail": ""
+   "detail": "coder blocked on unmerged deps; re-dispatch after wave-1 merge"
   }
  ],
- "temp_refs": [],
+ "temp_refs": [
+  {
+   "branch": "wip/ui-techy-redesign/chat-agent-tool-registry",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-a179dc3f9d56a4035",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-a179dc3f9d56a4035",
+   "pushed": false
+  },
+  {
+   "branch": "wip/ui-techy-redesign/db-stored-settings",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-af7366580724f616f",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-af7366580724f616f",
+   "pushed": false
+  },
+  {
+   "branch": "wip/ui-techy-redesign/engine-control-api",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-a6103665a3bc80df0",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-a6103665a3bc80df0",
+   "pushed": false
+  },
+  {
+   "branch": "wip/ui-techy-redesign/fusion-mcp-transport",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-a42f0450d3a478b94",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-a42f0450d3a478b94",
+   "pushed": false
+  },
+  {
+   "branch": "wip/ui-techy-redesign/glass-theme-shell",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-ae1fd76c931a6a9db",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-ae1fd76c931a6a9db",
+   "pushed": false
+  },
+  {
+   "branch": "wip/ui-techy-redesign/live-progress-dashboard",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-a24d1ba02366f5d97",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-a24d1ba02366f5d97",
+   "pushed": false
+  },
+  {
+   "branch": "wip/ui-techy-redesign/failed-receipt-review",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-a16cc662395e1c1c2",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-a16cc662395e1c1c2",
+   "pushed": false
+  },
+  {
+   "branch": "wip/ui-techy-redesign/html-progress-reports",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-a90409c8b49e2f967",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-a90409c8b49e2f967",
+   "pushed": false
+  },
+  {
+   "branch": "wip/ui-techy-redesign/matching-lab-replay-api",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-a5c8aa56acee5c0de",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-a5c8aa56acee5c0de",
+   "pushed": false
+  },
+  {
+   "branch": "wip/ui-techy-redesign/assistant-chat-redesign",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-abcb2c1716d4e99ac",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-abcb2c1716d4e99ac",
+   "pushed": false
+  },
+  {
+   "branch": "wip/ui-techy-redesign/engine-control-panel-ui",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-accf5f0746aac36ed",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-accf5f0746aac36ed",
+   "pushed": false
+  },
+  {
+   "branch": "wip/ui-techy-redesign/settings-screen-redesign",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-a0dffdf36b7c264a5",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-a0dffdf36b7c264a5",
+   "pushed": false
+  },
+  {
+   "branch": "wip/ui-techy-redesign/exceptions-workbench-restyle",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-a61577ba565f5e526",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-a61577ba565f5e526",
+   "pushed": false
+  },
+  {
+   "branch": "wip/ui-techy-redesign/matching-lab-ui",
+   "kind": "wip",
+   "base": "2653009",
+   "worktree": null,
+   "pushed": true
+  },
+  {
+   "branch": "worktree-agent-ae0191c047dfced35",
+   "kind": "harness",
+   "base": "2653009",
+   "worktree": "D:\\Fusion-CashApp-AI\\.claude\\worktrees\u0007gent-ae0191c047dfced35",
+   "pushed": false
+  }
+ ],
  "integration_pushed": false,
  "cleanup": {
   "deleted": [],
