@@ -1,0 +1,11 @@
+REMITTANCE ADVICE
+From: Example Payer One
+Remittance reference: REF-G01
+Payment date: 2026-03-05
+Currency: USD
+Total paid: 2,350.00
+
+Document     Type         Amount
+INV-10021    Invoice      1,500.00
+2598014      Invoice      1,200.00
+2598014-1    Credit memo   -350.00

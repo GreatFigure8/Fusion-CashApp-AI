@@ -1,0 +1,7 @@
+# Replay recordings are keyed by a digest of the artifact bytes: keep line endings identical on
+# every checkout, whatever core.autocrlf says.
+*.txt text eol=lf
+*.csv text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.py text eol=lf

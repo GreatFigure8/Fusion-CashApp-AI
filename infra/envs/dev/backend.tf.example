@@ -1,0 +1,17 @@
+# Remote state in OCI Object Storage through its S3-compatible API.
+# The release pipeline copies this to backend.tf in its workspace before `terraform init`;
+# backend.tf is never committed. Replace <namespace> with the tenancy's Object Storage namespace.
+terraform {
+  backend "s3" {
+    bucket                      = "cashapp-tfstate"
+    key                         = "dev/terraform.tfstate"
+    region                      = "us-ashburn-1"
+    endpoints                   = { s3 = "https://<namespace>.compat.objectstorage.us-ashburn-1.oraclecloud.com" }
+    skip_region_validation      = true
+    skip_credentials_validation = true
+    skip_requesting_account_id  = true
+    skip_metadata_api_check     = true
+    skip_s3_checksum            = true
+    use_path_style              = true
+  }
+}

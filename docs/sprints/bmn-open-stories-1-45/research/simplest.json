@@ -1,0 +1,60 @@
+{
+  "lens": "simplest",
+  "model": "fable",
+  "approaches": [
+    {
+      "name": "Ledger-first vertical slice",
+      "summary": "Build the thinnest path that applies one receipt end to end before anything else: scaffold, data layer, settings, runtime config, a StageRunner that runs on an in-process EventBus, FusionClient, then the stations in pipeline order. The database (work_item + outbox) is already the system of record, so the bus is a notification adapter that can be swapped in late. Everything a person looks at, every ops concern, and every story blocked on Jonathan is deferred until the slice applies a receipt on a non-production pod.",
+      "how": "Wave 1 (foundations): #1 #2 #27 #28 #26. One Alembic migration set, one status module, one settings class, one config table.\nWave 2 (runtime + adapters behind interfaces): #3 with EventBus = InMemory (tests/local) + OCI Streaming impl; #5 FusionClient with a recorded-fixture fake; LlmClient with a replay fake; ObjectStore with a local-folder fake; #30 as a single `worker` CLI.\nWave 3 (the line, in order): #6 (FolderSource only; MailboxSource stub until #33) → #34 (PDF/image/text only) → #7 → #8 → #9 → #10 → #11 → #16 → #13 (amount/date/currency/customer signals only; weights table ready for #12) → #14 → #15 → #17 → #18 → #40.\nWave 4 (people): #31 → #4 → #19 → #20 → #21 → #22. Wave 5 (ops/extras): #23 #32 #24 #43 #29 #36 #37 #42 #41 #35 #45 #25 #44. Spikes #12 #33 #39 run whenever Jonathan unblocks them; nothing in waves 1-3 waits on them.\nStub rule: every external system sits behind one interface with exactly two implementations, the real one and a fake used by tests and local dev; no third variant, no feature flags.\nYAGNI cuts: no Teams channel, no OTel until #29, no VECTOR column, no per-field region highlighting until #19, structured JSON logs from day one because they are free.",
+      "merit": 8,
+      "confidence": 0.8,
+      "evidence": [
+        "CLAUDE.md: 'The database is the system of record ... The bus only carries item X is ready for stage Y' and reference doc §7 'the ledger table is the system', so an in-memory EventBus loses nothing in dev and the Streaming adapter is a pure swap behind the interface #3 already demands.",
+        "Reference doc §6: 71% of failed payments were receipt-not-found and 67% fixed themselves given time; #14 + #13 + #16 are the automation-rate levers and all sit on the core slice, not on the UI or ops stories.",
+        "#16: about 60% of remittances were already-applied; it is a few invoice lookups and one attachment, so it belongs early in the slice, not late.",
+        "Backlog review 'Open business questions': #12 (pod), #33 (mail platform), #39 (tenant confirm), #45 (retention) are blocked on Jonathan; the slice does not depend on any of them because FolderSource, amount/date/currency signals and no-discount apply already satisfy their callers.",
+        "Stack.md gates during coding are lint + type-check only, so fakes behind interfaces are what make waves 1-3 buildable and checkable without live ATP/Streaming/Fusion/Cohere credentials in every worktree."
+      ],
+      "risks": [
+        "The in-memory EventBus must stay a test/local adapter; if it leaks into a deployed path it reads as a third poller and breaks non-negotiable 5. Mitigation: the worker CLI only constructs the Streaming impl outside tests.",
+        "Deferring #29 means early stations ship with structured logs only; traces and OCI Monitoring metrics are retrofitted, which touches StageRunner once more.",
+        "#13 ships with amount/date/currency/customer signals until #12 runs; weights are configuration so no code churn, but the scorer is amount-heavy in the meantime.",
+        "Waves 4-5 are large; if the run stops early the UI stories (#19-#22) are the ones left undone."
+      ]
+    },
+    {
+      "name": "Walking skeleton with fakes everywhere",
+      "summary": "First make the whole assembly line run locally against fixtures with every integration faked (FakeFusion, replay LlmClient, folder ObjectStore, in-memory bus, no auth), so the station contracts, status enum and history trail are proven on anonymised fixtures before any real adapter exists. Then replace fakes with real adapters one at a time, then add people-facing screens, then ops.",
+      "how": "Wave 1: #1 #2 #27 #28; define the five interfaces (EventBus, FusionClient, LlmClient, ObjectStore, MailboxSource/FolderSource) with fake implementations and #43 anonymised fixtures as the test input.\nWave 2: #3 (in-memory bus), all stations #6 #7 #8 #9 #10 #11 #13 #14 #15 #16 #17 #18 #40 against the fakes; #24 harness runs on fixtures with zero model spend.\nWave 3 (real adapters, one PR each): Streaming EventBus, Anthropic + OCI GenAI LlmClient, FusionClient (#5) confirmed on a non-prod pod, Object Storage, #4 auth, #30 worker host.\nWave 4: #31 #19 #20 #21 #22. Wave 5: #23 #32 #29 #36 #37 #42 #41 #35 #45 #25 #44 #26.\nSpikes #12 #33 #39 slot into wave 3 as their adapters come up.",
+      "merit": 7,
+      "confidence": 0.7,
+      "evidence": [
+        "Reference doc §6 gives a labelled failure set (122 payments, 331 lines, AR buckets); #43 + #24 on fakes lets matching and auto-fix be measured before a single Fusion call, which is where the previous build's defects lived (§4).",
+        "CLAUDE.md requires integrations behind interfaces (MailboxSource, FolderSource, LlmClient, FusionClient, EventBus), so fakes are not extra design, only the second implementation of a required seam.",
+        "Every model call costs money (#24 constraint); a fixture-driven skeleton keeps the coding waves free of LLM spend and of zero-retention credential setup."
+      ],
+      "risks": [
+        "Fakes can agree with each other and disagree with Fusion; endpoint, payload and field-name facts are only learned in wave 3, late, against the rule 'never guess an endpoint' (#5). The FakeFusion must be built from recorded live responses, not invented ones.",
+        "#43 anonymisation needs source data Jonathan holds; if it is not available, wave 1 falls back to hand-written fixtures and the skeleton proves less.",
+        "Larger wave 1 than approach 1 before anything real moves; slower first visible result."
+      ]
+    },
+    {
+      "name": "Fusion-truth first",
+      "summary": "Treat Fusion as the only genuinely unknown dependency and build outward from it: FusionClient, the test-data generator and the tenant preflight against a non-production pod first, then receipt matching and apply on generated data, then the receipt watcher, and only then intake, classification and the two-reader extraction. Extraction is fed by hand-written remittance JSON until the readers exist.",
+      "how": "Wave 1: #1 #2 #27 #28 #5 #32 #23 (all confirmed live on the non-prod pod via aix-greenlight).\nWave 2: #11 #16 #13 #14 #15 #17 #18 #40 with #3 on an in-memory bus and work items seeded from fixture extractions.\nWave 3: #6 (folder) #34 #7 #8 #9 #10 real readers; #30 worker host; Streaming bus.\nWave 4: #31 #4 #19 #20 #21 #22. Wave 5: remaining ops stories.\n#12 is the first spike once Jonathan names the pod; #39 and #38 are confirmed in wave 1 while the pod session is open.",
+      "merit": 5,
+      "confidence": 0.6,
+      "evidence": [
+        "Reference doc §3 and §6: every apply fault (22% of failures, mostly INR) and the receipt lookup limits (no UnappliedAmount/Currency filter on standardReceipts) are Fusion facts that only a live pod confirms; #5, #17, #38, #39 each say 'confirm on a non-production pod first'.",
+        "#23 is the only way to exercise splits, short pays, INR rounding and ambiguous receipts, which the old generator could not; having it before #13/#15 makes those stories testable the day they land."
+      ],
+      "risks": [
+        "Front-loads the work most likely to block: pod access, integration-user roles, the BIP report (#32) and Jonathan naming the pod (#12). A stalled wave 1 stalls the run.",
+        "Writes test invoices and receipts to a shared non-prod pod early and often; needs tagging and cleanup (#23) from the first commit.",
+        "Intake and extraction, which define the work_item payload every later station reads, are designed last; the extraction schema (#8) risks being bent to fit the matcher instead of the artifacts.",
+        "Not the simplest start for a greenfield repo: the first week has no running pipeline, only a client and a generator."
+      ]
+    }
+  ]
+}

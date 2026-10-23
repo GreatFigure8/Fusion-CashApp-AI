@@ -1,0 +1,6 @@
+Example Payer Three
+Remittance advice REF-G03
+Paid on 2026-03-18
+Amount: $980.00
+
+INV-30007    $980.00

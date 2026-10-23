@@ -1,0 +1,61 @@
+{
+  "lens": "risk",
+  "model": "opus",
+  "approaches": [
+    {
+      "name": "Serialized spine with frozen shared registries, then waves by owned directory",
+      "summary": "One coder builds the greenfield spine alone (#1, #27, #2, #26, plus empty registries for statuses, error codes, config keys, router mount and Alembic chain). Later waves fan out only where each story owns its own package. Money-moving and pod-dependent stories go last, and blocked spikes are deferred.",
+      "how": "Wave 0 (serial, one coder): #1 scaffold with ALL known deps pinned up front (pyproject/uv.lock, package.json/lock) + #27 settings + #2 data layer incl. status.py, error_codes.py, money.py, config_keys.py + #26 CI.\nWave 1 (parallel, disjoint dirs): #3 pipeline/, #4 auth/, #5 integrations/fusion/, #28 services/config/, #40 locks, #29 observability, #31 web/lib/api.\nWave 2: stations #6/#34, #7, #8/#9, #10, #11, #14, #18, #30 and UI #19-#22, each in its own module; routers auto-registered from api/<pkg>/api/routers/ so main.py is never edited.\nWave 3 (money path, serial-ish): #13, #15, #16, #17, #38, #39, #35; one Alembic revision per story, merger re-points down_revision and gates on `alembic heads` == 1.\nDefer/stub: #12, #33, #39 tenant check, #43 (needs off-repo source data), #24 runs, #25/#44 plan-only.",
+      "merit": 9,
+      "confidence": 0.8,
+      "evidence": [
+        "Greenfield repo: every parallel coder would otherwise create pyproject.toml, uv.lock, package.json, main.py and alembic/env.py at once; lockfiles do not merge textually.",
+        "Alembic linear history breaks with parallel revisions (multiple heads); Oracle DDL auto-commits, so a half-failed migration leaves partial schema on DEV ATP and cannot roll back.",
+        "CLAUDE.md non-negotiable 7 (one status enum, one StageRunner, one chat component): parallel coders inventing their own copies is the predicted defect; prior lessons §5 says reporting drifted from the matcher last time.",
+        "Stories #3, #6-#18 all import status, error codes, config and the repository base; building them before #2/#28 forces guessed interfaces.",
+        "#12 blocked on pod name, #33 on mail platform, #39 on tenant confirmation, #5/#17/#38 require live non-prod confirmation per CLAUDE.md 'never guess an endpoint'."
+      ],
+      "risks": [
+        "Wave 0 is a long serial critical path; a defect in the spine propagates to every later story.",
+        "Registry files (status.py, error_codes.py, config_keys.py) still get appended by several stories; needs append-only sections or one-file-per-domain to avoid conflicts.",
+        "Deferring pod-dependent stories leaves FusionClient calls stubbed; stubs risk being mistaken for confirmed contracts."
+      ]
+    },
+    {
+      "name": "Rails-first: money and data safety guards land before any feature that can move cash",
+      "summary": "Treat the cash-moving path as the highest risk and build its guard rails as foundation code: Decimal fidelity end to end, an apply kill-switch defaulting off, a production-pod refusal, reservation and idempotency ledger, fail-closed SOAP parsing, safe artifact parsing and PII-free logging. Feature stories may only call Fusion writes through these rails.",
+      "how": "In #2/#27: oracledb fetch_decimals=True and Numeric(asdecimal=True); money serialized as strings in Pydantic/OpenAPI so web never sees floats; LLM schema amounts as strings parsed to Decimal.\nIn #5: FUSION_WRITE_ENABLED=false default, environment allowlist that refuses prod pods (shared by #23, #32, #35 dry-run), fail-closed SOAP via defusedxml, typed error mapping.\nIn #2/#13/#15: APPLICATION_LEDGER table (receipt_id, trx_id, amount, idempotency key, unique constraint) written before and reconciled after each apply; SKIP LOCKED reservation with lease expiry.\nIn #4: JWT alg pinned to JWKS RS256, iss/aud/exp/nbf checked, group-claim name verified live; #29 redaction filter + test before any station logs; #34 zip-bomb, path-traversal and nested-depth limits.\nReaders get no tools; artifact text is untrusted (prompt injection) and only structured output is accepted; chat actions re-authorized in the API.",
+      "merit": 8,
+      "confidence": 0.75,
+      "evidence": [
+        "python-oracledb returns Oracle NUMBER as float unless defaults.fetch_decimals is set; float money silently violates the CLAUDE.md Decimal rule.",
+        "JSON numbers become JS doubles in web/; amounts must cross the API as strings to stay exact.",
+        "Prior lessons §4 defects: no cap, no reservation, no ambiguity check, no idempotency, re-sent message re-applied, partial apply never resumed.",
+        "Prior lessons §3/CLAUDE.md: SOAP faults arrive inside HTTP 200; fail-closed parsing is mandatory. XML from Fusion and .msg/.eml/zip from email are untrusted input (XXE, zip bombs).",
+        "Remittance artifacts come from external senders, so text inside them can attempt prompt injection against Opus/Haiku; CLAUDE.md requires zero data retention and no PII in logs."
+      ],
+      "risks": [
+        "Guard code front-loads effort before visible features; reviewers may trim it as over-engineering.",
+        "A kill-switch default of off means end-to-end tests on the non-prod pod need an explicit per-environment enable, which must itself be audited config.",
+        "Ledger uniqueness rules must match Fusion's real application semantics (partial applies, unapply in #38) or they block legitimate retries."
+      ]
+    },
+    {
+      "name": "Maximum parallelism: one coder per story, vertical slices from day one",
+      "summary": "Dispatch all unblocked stories at once, each coder scaffolding what it needs and the merger resolving conflicts. Fastest wall clock on paper, highest conflict and drift risk.",
+      "how": "Spawn ~35 coders in parallel worktrees off sprint/<slug>.\nEach creates its own models, migration, router and UI page.\nMerger serializes merges and resolves lockfile, Alembic-head and enum conflicts by hand.\nShared abstractions extracted afterwards in a refactor story.",
+      "merit": 3,
+      "confidence": 0.85,
+      "evidence": [
+        "Repo is empty: there is no existing BaseRepository, StageRunner, status enum or settings class to converge on, so slices would each invent one.",
+        "CLAUDE.md states a second copy of shared behaviour is a defect, so the refactor is guaranteed rework.",
+        "Lockfiles (uv.lock, package-lock.json), alembic/versions heads and FastAPI main.py would conflict on nearly every merge."
+      ],
+      "risks": [
+        "Duplicate status/error enums diverge (the exact prior failure) and money handling becomes inconsistent across stations.",
+        "Multiple Alembic heads and partial Oracle DDL on DEV ATP that cannot be rolled back.",
+        "Security rules (token validation, PII logging, prod-pod guard) implemented unevenly or not at all per slice."
+      ]
+    }
+  ]
+}

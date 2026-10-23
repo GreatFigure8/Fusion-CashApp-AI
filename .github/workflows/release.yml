@@ -1,0 +1,117 @@
+name: release
+
+# Never triggered during a BMN run: the BMN release step dispatches it through deploy/release.sh
+# after Jonathan says "release". See deploy/README.md.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (= api/pyproject.toml version)"
+        required: true
+        type: string
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options: [dev, prod]
+      action:
+        description: "deploy builds, migrates and rolls out; rollback redeploys an earlier tag with no migrations"
+        required: true
+        type: choice
+        options: [deploy, rollback]
+        default: deploy
+      rollback_to:
+        description: "Image tag to roll back to; empty = previous in deploy/releases/<env>.json"
+        required: false
+        type: string
+        default: ""
+      fusion_write_enabled:
+        description: "Set CASHAPP_FUSION__WRITE_ENABLED on workers"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 90
+    env:
+      OCI_CLI_REGION: us-ashburn-1
+      OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
+      OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
+      OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
+      OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}
+      OCIR_NAMESPACE: ${{ secrets.OCIR_NAMESPACE }}
+      OCIR_USERNAME: ${{ secrets.OCIR_USERNAME }}
+      OCIR_AUTH_TOKEN: ${{ secrets.OCIR_AUTH_TOKEN }}
+      TF_STATE_ACCESS_KEY: ${{ secrets.TF_STATE_ACCESS_KEY }}
+      TF_STATE_SECRET_KEY: ${{ secrets.TF_STATE_SECRET_KEY }}
+      ENV_NAME: ${{ inputs.environment }}
+      VERSION: ${{ inputs.version }}
+    steps:
+      - name: Guard prod ref
+        if: inputs.environment == 'prod'
+        run: test "$GITHUB_REF" = "refs/heads/main" || { echo "prod releases run from main only"; exit 1; }
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@6b9c6063abd6010835644d4c2e1bef4cf5cd0fca # v6.0.1
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_wrapper: false
+      - uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+      - name: Install OCI CLI
+        run: pipx install oci-cli==3.51.0
+      - name: Check version
+        if: inputs.action == 'deploy'
+        run: deploy/scripts/check_version.sh "$VERSION"
+      - name: Build and push images
+        if: inputs.action == 'deploy'
+        run: deploy/scripts/build_push.sh "$ENV_NAME" "$VERSION" "$GITHUB_SHA"
+      - name: Init Terraform
+        run: deploy/scripts/tf_init.sh "$ENV_NAME"
+      - name: Check migrations are applied on DEV
+        if: inputs.action == 'deploy' && inputs.environment == 'prod'
+        run: deploy/scripts/tf_init.sh dev && deploy/scripts/check_migrations_on_dev.sh "iad.ocir.io/$OCIR_NAMESPACE/cashapp-prod/api:$VERSION"
+      - name: Migrate
+        if: inputs.action == 'deploy'
+        run: deploy/scripts/migrate.sh "$ENV_NAME" "iad.ocir.io/$OCIR_NAMESPACE/cashapp-$ENV_NAME/api:$VERSION"
+      - name: Resolve tag
+        id: tag
+        env:
+          ROLLBACK_TO: ${{ inputs.rollback_to }}
+          ACTION: ${{ inputs.action }}
+        run: |
+          set -euo pipefail
+          if [ "$ACTION" = "deploy" ]; then
+            tag="${VERSION#v}"
+          elif [ -n "$ROLLBACK_TO" ]; then
+            tag="$ROLLBACK_TO"
+          else
+            tag="$(python deploy/scripts/record_release.py previous "$ENV_NAME")"
+          fi
+          if ! printf '%s' "$tag" | grep -Eq '^[0-9A-Za-z][0-9A-Za-z._-]{0,127}$'; then
+            echo "invalid image tag: $tag" >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Roll out
+        run: deploy/scripts/rollout.sh "$ENV_NAME" "${{ steps.tag.outputs.tag }}" "${{ inputs.fusion_write_enabled }}"
+      - name: Smoke
+        run: deploy/scripts/smoke_env.sh "$ENV_NAME" "${{ steps.tag.outputs.tag }}" "iad.ocir.io/$OCIR_NAMESPACE/cashapp-$ENV_NAME/api:${{ steps.tag.outputs.tag }}"
+      - name: Record release
+        run: python deploy/scripts/record_release.py record "$ENV_NAME" --action "${{ inputs.action }}" --version "${{ steps.tag.outputs.tag }}" --sha "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-record-${{ inputs.environment }}
+          path: deploy/releases/${{ inputs.environment }}.json
+          if-no-files-found: error

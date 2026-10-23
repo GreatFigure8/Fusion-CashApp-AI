@@ -1,0 +1,31 @@
+# Non-secret example values. Copy to dev.tfvars (gitignored) and fill in.
+# Secret values (passwords, tokens, keys) are never set here: set them in OCI Vault.
+tenancy_ocid     = "ocid1.tenancy.oc1..example"
+tenancy_name     = "example-tenancy"
+compartment_ocid = "ocid1.compartment.oc1..example"
+certificate_ocid = "ocid1.certificate.oc1.iad.example"
+web_hostname     = "cashapp-dev.example.com"
+api_hostname     = "api.cashapp-dev.example.com"
+
+fusion_default_pod               = "dev"
+fusion_write_enabled             = false
+fusion_relationships_report_path = "/Custom/CashApp/PayOnBehalfRelationshipsReport.xdo"
+fusion_pods = {
+  dev = {
+    base_url      = "https://example-dev.fa.us2.oraclecloud.com"
+    username      = "cashapp.integration"
+    is_production = false
+  }
+}
+
+identity = {
+  issuer         = "https://identity.oraclecloud.com/"
+  jwks_url       = "https://idcs-example.identity.oraclecloud.com/admin/v1/SigningCert/jwk"
+  audience       = "cashapp-api"
+  oidc_client_id = "example-client-id"
+}
+
+streaming_user = "cashapp-streaming"
+
+genai_units = 1
+alarm_emails = ["ops@example.com"]

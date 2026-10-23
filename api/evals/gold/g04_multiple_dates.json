@@ -1,0 +1,28 @@
+{
+  "case_id": "g04_multiple_dates",
+  "synthetic": true,
+  "artifact": "g04_multiple_dates.txt",
+  "tags": [
+    "dates"
+  ],
+  "expected": {
+    "payer_name": "Example Payer Four",
+    "remittance_reference": "REF-G04",
+    "payment_amount": "760.00",
+    "currency": "GBP",
+    "currency_ambiguous": false,
+    "payment_date": "2026-03-02",
+    "dates": [
+      "2026-02-20",
+      "2026-03-02",
+      "2026-03-03"
+    ],
+    "lines": [
+      {
+        "kind": "INVOICE",
+        "transaction_number": "INV-40010",
+        "amount_paid": "760.00"
+      }
+    ]
+  }
+}

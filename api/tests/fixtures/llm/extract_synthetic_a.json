@@ -1,0 +1,148 @@
+{
+  "purpose": "extract.reader_a",
+  "parts_sha256": "b726c207ee3ba133475379930d609a5b744b7727fa7ff74e302134d85884cfe4",
+  "schema": "RemittanceExtraction@1",
+  "result": {
+    "output": {
+      "payer_name": {
+        "value": "Acme Test Payer",
+        "source": {
+          "part_no": 1,
+          "page": null,
+          "bbox": null,
+          "quote": null
+        },
+        "confidence": 0.95
+      },
+      "payer_bank_account": {
+        "value": null,
+        "source": {
+          "part_no": 1,
+          "page": null,
+          "bbox": null,
+          "quote": null
+        },
+        "confidence": 0.95
+      },
+      "remittance_reference": {
+        "value": "REM-0001",
+        "source": {
+          "part_no": 1,
+          "page": null,
+          "bbox": null,
+          "quote": null
+        },
+        "confidence": 0.95
+      },
+      "payment_amount": {
+        "value": "1250.00",
+        "source": {
+          "part_no": 1,
+          "page": null,
+          "bbox": null,
+          "quote": null
+        },
+        "confidence": 0.95
+      },
+      "currency_raw": {
+        "value": "USD",
+        "source": {
+          "part_no": 1,
+          "page": null,
+          "bbox": null,
+          "quote": null
+        },
+        "confidence": 0.95
+      },
+      "currency": {
+        "value": "USD",
+        "source": {
+          "part_no": 1,
+          "page": null,
+          "bbox": null,
+          "quote": null
+        },
+        "confidence": 0.95
+      },
+      "currency_ambiguous": false,
+      "dates": [
+        {
+          "value": "2026-01-10",
+          "kind": "payment",
+          "source": {
+            "part_no": 1,
+            "page": null,
+            "bbox": null,
+            "quote": null
+          },
+          "confidence": 0.95
+        }
+      ],
+      "payment_date": {
+        "value": "2026-01-10",
+        "source": {
+          "part_no": 1,
+          "page": null,
+          "bbox": null,
+          "quote": null
+        },
+        "confidence": 0.95
+      },
+      "lines": [
+        {
+          "line_no": 1,
+          "kind": "INVOICE",
+          "transaction_number": "INV-1001",
+          "amount_paid": "1000.00",
+          "gross_amount": "1000.00",
+          "discount_claimed": null,
+          "deduction": null,
+          "po_number": null,
+          "sales_order": null,
+          "ers_reference": null,
+          "source": {
+            "part_no": 1,
+            "page": null,
+            "bbox": null,
+            "quote": null
+          },
+          "confidence": 0.95
+        },
+        {
+          "line_no": 2,
+          "kind": "INVOICE",
+          "transaction_number": "2598014-1",
+          "amount_paid": "250.00",
+          "gross_amount": "250.00",
+          "discount_claimed": null,
+          "deduction": null,
+          "po_number": null,
+          "sales_order": null,
+          "ers_reference": null,
+          "source": {
+            "part_no": 1,
+            "page": null,
+            "bbox": null,
+            "quote": null
+          },
+          "confidence": 0.95
+        }
+      ],
+      "po_refs": [],
+      "sales_order_refs": [],
+      "ers_refs": [],
+      "bank_fees": [],
+      "notes": null
+    },
+    "refused": false,
+    "stop_reason": "end_turn",
+    "usage": {
+      "model_id": "synthetic",
+      "input_tokens": 1200,
+      "output_tokens": 600,
+      "latency_ms": 2500
+    },
+    "response_id": null
+  },
+  "verified_against_live": false
+}

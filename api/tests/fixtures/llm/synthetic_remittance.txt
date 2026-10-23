@@ -1,0 +1,8 @@
+Remittance Advice
+Payer: Acme Test Payer
+Reference: REM-0001
+Payment date: 2026-01-10
+Currency: USD
+Invoice INV-1001   1000.00
+Invoice 2598014-1   250.00
+Total paid: 1250.00

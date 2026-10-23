@@ -1,0 +1,34 @@
+{
+  "case_id": "g06_inr_whole_rupee",
+  "synthetic": true,
+  "artifact": "g06_inr_whole_rupee.csv",
+  "tags": [
+    "inr",
+    "po-reference",
+    "table"
+  ],
+  "expected": {
+    "payer_name": "Example Payer Six",
+    "remittance_reference": "REF-G06",
+    "payment_amount": "125000.00",
+    "currency": "INR",
+    "currency_ambiguous": false,
+    "payment_date": "2026-03-25",
+    "po_refs": [
+      "PO-6001",
+      "PO-6002"
+    ],
+    "lines": [
+      {
+        "kind": "INVOICE",
+        "transaction_number": "INV-60001",
+        "amount_paid": "75000.00"
+      },
+      {
+        "kind": "INVOICE",
+        "transaction_number": "INV-60002",
+        "amount_paid": "50000.00"
+      }
+    ]
+  }
+}

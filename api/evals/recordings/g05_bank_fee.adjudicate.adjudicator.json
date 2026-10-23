@@ -1,0 +1,263 @@
+{
+  "parts_sha256": "39576e715de31befe7927f338f257d013f43432200056310146ba249df83fc10",
+  "purpose": "adjudicate.adjudicator",
+  "result": {
+    "output": {
+      "confidence": 0.9,
+      "disagreements": [
+        {
+          "chosen": "B",
+          "field_path": "bank_fees",
+          "reason": "synthetic recording: chosen by hand",
+          "value_a": "[]",
+          "value_b": "[{\"amount\": \"15.00\", \"currency\": \"USD\"}]"
+        },
+        {
+          "chosen": "B",
+          "field_path": "lines",
+          "reason": "synthetic recording: chosen by hand",
+          "value_a": "2 lines",
+          "value_b": "3 lines"
+        }
+      ],
+      "field_choices": [
+        {
+          "field_path": "payer_name",
+          "source": "both"
+        },
+        {
+          "field_path": "payer_bank_account",
+          "source": "both"
+        },
+        {
+          "field_path": "remittance_reference",
+          "source": "both"
+        },
+        {
+          "field_path": "payment_amount",
+          "source": "both"
+        },
+        {
+          "field_path": "currency_raw",
+          "source": "both"
+        },
+        {
+          "field_path": "currency",
+          "source": "both"
+        },
+        {
+          "field_path": "currency_ambiguous",
+          "source": "both"
+        },
+        {
+          "field_path": "dates",
+          "source": "both"
+        },
+        {
+          "field_path": "payment_date",
+          "source": "both"
+        },
+        {
+          "field_path": "po_refs",
+          "source": "both"
+        },
+        {
+          "field_path": "sales_order_refs",
+          "source": "both"
+        },
+        {
+          "field_path": "ers_refs",
+          "source": "both"
+        },
+        {
+          "field_path": "bank_fees",
+          "source": "B"
+        },
+        {
+          "field_path": "notes",
+          "source": "both"
+        }
+      ],
+      "final": {
+        "bank_fees": [
+          {
+            "amount": "15.00",
+            "currency": "USD"
+          }
+        ],
+        "currency": {
+          "confidence": 0.95,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "value": "USD"
+        },
+        "currency_ambiguous": false,
+        "currency_raw": {
+          "confidence": 0.95,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "value": "USD"
+        },
+        "dates": [
+          {
+            "confidence": 0.95,
+            "kind": "payment",
+            "source": {
+              "bbox": null,
+              "page": null,
+              "part_no": 1,
+              "quote": null
+            },
+            "value": "2026-03-20"
+          }
+        ],
+        "ers_refs": [],
+        "lines": [
+          {
+            "amount_paid": "2000.00",
+            "confidence": 0.95,
+            "deduction": null,
+            "discount_claimed": null,
+            "ers_reference": null,
+            "gross_amount": null,
+            "kind": "INVOICE",
+            "line_no": 1,
+            "po_number": null,
+            "sales_order": null,
+            "source": {
+              "bbox": null,
+              "page": null,
+              "part_no": 1,
+              "quote": null
+            },
+            "transaction_number": "INV-50001"
+          },
+          {
+            "amount_paid": "2000.00",
+            "confidence": 0.95,
+            "deduction": null,
+            "discount_claimed": null,
+            "ers_reference": null,
+            "gross_amount": null,
+            "kind": "INVOICE",
+            "line_no": 2,
+            "po_number": null,
+            "sales_order": null,
+            "source": {
+              "bbox": null,
+              "page": null,
+              "part_no": 1,
+              "quote": null
+            },
+            "transaction_number": "INV-50002"
+          },
+          {
+            "amount_paid": "15.00",
+            "confidence": 0.95,
+            "deduction": null,
+            "discount_claimed": null,
+            "ers_reference": null,
+            "gross_amount": null,
+            "kind": "BANK_FEE",
+            "line_no": 3,
+            "po_number": null,
+            "sales_order": null,
+            "source": {
+              "bbox": null,
+              "page": null,
+              "part_no": 1,
+              "quote": null
+            },
+            "transaction_number": ""
+          }
+        ],
+        "notes": null,
+        "payer_bank_account": {
+          "confidence": 0.9,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "value": null
+        },
+        "payer_name": {
+          "confidence": 0.95,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "value": "Example Payer Five"
+        },
+        "payment_amount": {
+          "confidence": 0.95,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "value": "3985.00"
+        },
+        "payment_date": {
+          "confidence": 0.95,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "value": "2026-03-20"
+        },
+        "po_refs": [],
+        "remittance_reference": {
+          "confidence": 0.95,
+          "source": {
+            "bbox": null,
+            "page": null,
+            "part_no": 1,
+            "quote": null
+          },
+          "value": "REF-G05"
+        },
+        "sales_order_refs": []
+      },
+      "line_choices": [
+        {
+          "line_no": 1,
+          "source": "B"
+        },
+        {
+          "line_no": 2,
+          "source": "B"
+        },
+        {
+          "line_no": 3,
+          "source": "B"
+        }
+      ]
+    },
+    "refused": false,
+    "response_id": null,
+    "stop_reason": "end_turn",
+    "usage": {
+      "input_tokens": 2600,
+      "latency_ms": 1500,
+      "model_id": "claude-opus-5-5",
+      "output_tokens": 700
+    }
+  },
+  "schema": "AdjudicatorDecision@1",
+  "verified_against_live": false
+}

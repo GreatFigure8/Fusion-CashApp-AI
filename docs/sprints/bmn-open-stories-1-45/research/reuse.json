@@ -1,0 +1,75 @@
+{
+  "lens": "reuse",
+  "model": "haiku",
+  "approaches": [
+    {
+      "name": "Compose established libraries per layer, hand-roll only the domain core",
+      "summary": "Use mature PyPI and npm packages for every commodity layer (SQLAlchemy 2 async on python-oracledb, Alembic, FastAPI, pydantic v2 and pydantic-settings, sse-starlette for SSE, the OCI SDK, the anthropic SDK, cohere[oci] for Reader B, and shadcn/ui plus Zod, openapi-typescript and eslint/vitest on the web side). Hand-roll only what CLAUDE.md marks as domain logic: the generic repository, the unit of work, StageRunner, the status enum, the matcher scorer and the auto-fix handlers.",
+      "how": [
+        "api/: uv project; SQLAlchemy 2.0 async engine via oracle+oracledb (SQLAlchemy supports one dialect name for sync and async), python-oracledb in thin mode with the ATP wallet.",
+        "Alembic for migrations; pydantic-settings for stories #27 and #28 config loading; FastAPI plus sse-starlette for SSE.",
+        "LLM layer: anthropic SDK for Opus and Haiku with structured outputs; cohere[oci] OciClientV2 (or OCI SDK directly) for Reader B with servingType DEDICATED.",
+        "web/: openapi-typescript generated types from FastAPI OpenAPI, Zod at boundaries, shadcn primitives from the CLI, eslint and vitest.",
+        "Hand-rolled: BaseRepository, UnitOfWork, StageRunner, one status module, money helpers, matcher, auto-fix engine."
+      ],
+      "merit": 8,
+      "confidence": 0.7,
+      "evidence": [
+        "SQLAlchemy docs: the oracledb dialect serves sync and async; create_async_engine with oracle+oracledb:// selects async (sqlalchemy.org dialects/oracle docs, 2.1 page).",
+        "python-oracledb docs (Appendix D): SQLAlchemy 2 supports python-oracledb directly; thin mode is the default and needs no Oracle client libraries.",
+        "Cohere Python SDK on PyPI (cohere 7.x) ships OciClient and OciClientV2 under the cohere[oci] extra; Oracle's April 2026 post describes the swap as a small change.",
+        "docs/reference/prior-implementation-lessons.md sections 3 and 7 already list the Fusion and bus facts to port, so no library has to be chosen for those rules.",
+        "Not verified: exact PyPI version numbers, and whether cohere[oci] supports servingType DEDICATED for Command A Vision; the search results were inconclusive on dedicated serving and vision."
+      ],
+      "risks": [
+        "The cohere[oci] client may not support DEDICATED endpoints or Command A Vision; fall back to the raw OCI SDK behind the same LlmClient interface.",
+        "SQLAlchemy async with oracledb is a moderately sparse path; expect dialect quirks around JSON and VECTOR types.",
+        "Dependency sprawl across api and web must be pinned; the two-week-old version rule applies to CDN scripts only, not PyPI, so pin deliberately."
+      ]
+    },
+    {
+      "name": "Adopt a PyPI transactional-outbox library for the bus",
+      "summary": "Replace the hand-rolled outbox table, relay and lease logic with an existing PyPI outbox package and keep the rest of the runtime custom.",
+      "how": [
+        "Candidates from search: pactix (outbox and inbox on async SQLAlchemy, leases, FIFO, Kafka transport extra), pgrelay (SKIP LOCKED worker, leases), faststream-outbox (requires Python 3.13+ and PostgreSQL 12+).",
+        "Enqueue inside the same SQLAlchemy session as the work item, so state and event commit together.",
+        "Relay publishes to OCI Streaming through its Kafka-compatible endpoint with an aiokafka or confluent producer.",
+        "Keep StageRunner and the status enum custom."
+      ],
+      "merit": 3,
+      "confidence": 0.8,
+      "evidence": [
+        "pactix, pgrelay and faststream-outbox are PostgreSQL-oriented (search results, PyPI pages). ATP is Oracle, so the SKIP LOCKED and table DDL assumptions do not carry over.",
+        "python-outbox-core is built around Kafka and FastStream; qx-db is tied to the Qx framework.",
+        "smixi/python-outbox is described as unmaintained; the others have unverified release activity."
+      ],
+      "risks": [
+        "Postgres-only SQL and DDL would need rewriting for Oracle, which defeats the reuse.",
+        "Lease and retry semantics would have to match the auto-fix and lock rules in CLAUDE.md (story #40), so the library's model may not fit.",
+        "Adds a dependency that owns part of the system of record, against the rule that the database is the system of record."
+      ]
+    },
+    {
+      "name": "Hand-roll the outbox on Oracle, with a generic SOAP library for Fusion",
+      "summary": "Write a small outbox and relay on ATP (identity PK, SKIP LOCKED claim) and use a generic SOAP client library for the Fusion apply, BIP and attachment calls, with only the fault parsing custom.",
+      "how": [
+        "Outbox table as a SQLAlchemy model in the data layer; relay claims rows with FOR UPDATE SKIP LOCKED and publishes via aiokafka with SASL_SSL.",
+        "Fusion: zeep (PyPI) for WSDL-driven SOAP calls to StandardReceiptService and BIP ExternalReportWSSService; hand-written fail-closed parsing of faults inside HTTP 200 envelopes.",
+        "Fusion REST through httpx with retry and backoff (tenacity), and a typed error mapping layer.",
+        "Keep StageRunner and the status enum custom."
+      ],
+      "merit": 6,
+      "confidence": 0.55,
+      "evidence": [
+        "CLAUDE.md requires the outbox in the same transaction and SKIP LOCKED on ATP, which this option meets without a foreign library.",
+        "prior-implementation-lessons.md section 3 says faults arrive inside HTTP 200 envelopes and that some codes must be ignored. zeep would not handle that for us, so this part stays custom either way.",
+        "Not verified: zeep and aiokafka versions and their async support; no search was run for them."
+      ],
+      "risks": [
+        "Hand-rolled relay and retry code is the most likely source of the lost-event defects the lessons doc describes.",
+        "zeep is synchronous, so Fusion calls would need to run in a thread pool to stay async end to end.",
+        "More custom code means more tests, and the tests run only in BMN's test cycles."
+      ]
+    }
+  ]
+}

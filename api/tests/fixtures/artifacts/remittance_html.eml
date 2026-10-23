@@ -1,0 +1,25 @@
+From: ap@example-payer.test
+To: cash@example-receiver.test
+Subject: Payment advice (html)
+Date: Thu, 15 Jan 2026 09:30:00 +0000
+Message-ID: <1163578376@example-payer.test>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="===============2384464204814832647=="
+
+--===============2384464204814832647==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+See attached table.
+
+--===============2384464204814832647==
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<html><body><p>Payment advice</p><table><tr><th>Invoice</th><th>Amount</th></=
+tr><tr><td>INV-10001</td><td>1500.00</td></tr><tr><td>INV-10002</td><td>820.5=
+0</td></tr><tr><td>INV-10003</td><td>99.99</td></tr></table></body></html>
+
+--===============2384464204814832647==--
