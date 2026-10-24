@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import { dequeueAction } from "@/app/(shell)/exceptions/_lib/actions";
 import { Money } from "@/components/common/money";
-import { Badge } from "@/components/ui/badge";
+import { Pill } from "@/components/common/pill";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,7 +18,9 @@ import {
 import type { Schemas } from "@/lib/api/types";
 import { formatDuration, formatWorkItemId } from "@/lib/format";
 
+import { lockOwnerLabel } from "./list-format";
 import { lockErrorToast } from "./lock-messages";
+import { REASON_TONE, reasonLabel } from "./reason";
 
 export type ExceptionRow = Schemas["ExceptionRowOut"];
 
@@ -71,13 +73,14 @@ function RowMenu({
 export function buildExceptionColumns(options: {
   canWork: boolean;
   onOpen: (id: number) => void;
+  meSubject: string | null;
 }): DataTableColumn<ExceptionRow>[] {
   return [
     {
       id: "id",
-      header: "WI",
+      header: "Item",
       cell: ({ row }) => (
-        <span className="font-mono">{formatWorkItemId(row.original.id)}</span>
+        <span className="font-mono text-brand-ink">{formatWorkItemId(row.original.id)}</span>
       ),
     },
     {
@@ -88,51 +91,43 @@ export function buildExceptionColumns(options: {
     {
       id: "amount",
       header: "Amount",
+      meta: { align: "right", mono: true },
       cell: ({ row }) => (
         <Money amount={row.original.amount} currency={row.original.currency} />
       ),
     },
     {
-      id: "payment_date",
-      header: "Payment date",
-      cell: ({ row }) => row.original.payment_date ?? "—",
-    },
-    {
       id: "error_code",
-      header: "Error",
+      header: "Reason",
       cell: ({ row }) =>
         row.original.error_code ? (
-          <Badge variant="outline" className="font-mono">
-            {row.original.error_code}
-          </Badge>
+          <Pill tone={REASON_TONE[row.original.error_code]}>
+            {reasonLabel(row.original.error_code)}
+          </Pill>
         ) : (
           "—"
         ),
     },
     {
-      id: "autofix",
-      header: "Auto-fixes",
-      cell: ({ row }) => (
-        <span className="font-mono tabular-nums">
-          {row.original.autofix_tried} / {row.original.autofix_limit}
-        </span>
-      ),
-    },
-    {
       id: "age",
       header: "Age",
-      cell: ({ row }) => formatDuration(row.original.age_s),
+      meta: { align: "right", mono: true },
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">{formatDuration(row.original.age_s)}</span>
+      ),
     },
     {
       id: "lock",
       header: "Lock",
-      cell: ({ row }) =>
-        row.original.lock ? (
-          <span className="inline-flex items-center gap-1 text-status-locked">
+      cell: ({ row }) => {
+        const label = lockOwnerLabel(row.original.lock, options.meSubject);
+        return label ? (
+          <span className="inline-flex items-center gap-1 text-xs text-locked-ink">
             <Lock aria-hidden className="size-3.5" />
-            {row.original.lock.owner_name}
+            {label}
           </span>
-        ) : null,
+        ) : null;
+      },
     },
     {
       id: "actions",

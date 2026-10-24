@@ -82,7 +82,7 @@ def build(container: Container) -> Runnable:
     return StageConsumer(
         ValidateRunner.build(container),
         container.bus,
-        container.settings.streaming.consumer_group,
+        container.runtime.streaming().consumer_group,
         name="validate",
     )
 

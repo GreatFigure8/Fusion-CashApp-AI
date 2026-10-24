@@ -14,8 +14,11 @@ from typing import Annotated
 import typer
 from pydantic import ValidationError
 
-from cashapp.integrations.fusion import FusionClient, FusionClientFactory
-from cashapp.settings import FusionPodSettings, FusionTestDataSettings, Settings, load_settings
+from cashapp.domain.config_keys import FusionPod, FusionTestData
+from cashapp.integrations.fusion import FusionClient
+from cashapp.integrations.fusion.factory import standalone_factory
+from cashapp.services.runtime_settings import FusionConfig, load_runtime_settings
+from cashapp.settings import load_settings
 from cashapp.tools.testdata.cleanup import cleanup, render_cleanup_steps
 from cashapp.tools.testdata.fixtures import write_fixtures, write_manifest
 from cashapp.tools.testdata.generator import GenerationError, generate
@@ -63,7 +66,7 @@ async def _generate_run(
     fusion: FusionClient,
     *,
     tag: str,
-    defaults: FusionTestDataSettings,
+    defaults: FusionTestData,
     bill_to_site: str | None,
     out: Path,
     drop_folder: Path | None,
@@ -106,20 +109,20 @@ class _Guard:
     def __init__(
         self,
         pod_name: str,
-        pod: FusionPodSettings,
-        settings: Settings,
+        pod: FusionPod,
+        fusion: FusionConfig,
         extra_hosts: list[str],
         *,
         require_testdata: bool,
     ) -> None:
-        self._args = (pod_name, pod, settings, extra_hosts, require_testdata)
+        self._args = (pod_name, pod, fusion, extra_hosts, require_testdata)
 
     def __call__(self) -> None:
-        pod_name, pod, settings, extra_hosts, require_testdata = self._args
+        pod_name, pod, fusion, extra_hosts, require_testdata = self._args
         assert_non_production(
             pod_name,
             pod,
-            all_pods=settings.fusion.pods,
+            all_pods=fusion.pods,
             extra_production_hosts=extra_hosts,
             require_testdata=require_testdata,
         )
@@ -175,22 +178,25 @@ def run(
         typer.echo(f"fixtures written to {paths.plan.parent}", err=True)
         return
 
-    settings = load_settings()
-    pod_name = (pod or settings.fusion.default_pod).lower()
-    pod_settings = settings.fusion.pods.get(pod_name)
+    runtime = load_runtime_settings(load_settings())
+    fusion_config = runtime.fusion()
+    pod_name = (pod or fusion_config.default_pod).lower()
+    pod_settings = fusion_config.pods.get(pod_name)
     if pod_settings is None:
         raise _fail(
-            f"unknown pod '{pod_name}'; known pods: {', '.join(sorted(settings.fusion.pods))}",
+            f"unknown pod '{pod_name}'; known pods: {', '.join(sorted(fusion_config.pods))}",
             EXIT_REFUSED,
         )
-    guard = _Guard(pod_name, pod_settings, settings, extra_hosts, require_testdata=not do_cleanup)
+    guard = _Guard(
+        pod_name, pod_settings, fusion_config, extra_hosts, require_testdata=not do_cleanup
+    )
     try:
         guard()
     except ProductionPodRefused as exc:
         raise _fail(str(exc), EXIT_REFUSED) from exc
 
     if do_cleanup:
-        fusion = FusionClientFactory(settings).for_pod(pod_name)
+        fusion = standalone_factory(runtime).for_pod(pod_name)
         raise typer.Exit(code=asyncio.run(_cleanup_run(fusion, tag=tag, out=out, guard=guard)))
 
     defaults = pod_settings.testdata
@@ -200,7 +206,7 @@ def run(
         raise typer.BadParameter("required for a real run", param_hint="--customer")
     params = _params(currency, lines, seed, _parse_date(as_of))
     plan = _plan_for(scenario, params, tag, customer)
-    fusion = FusionClientFactory(settings).for_pod(pod_name)
+    fusion = standalone_factory(runtime).for_pod(pod_name)
     code = asyncio.run(
         _generate_run(
             plan,

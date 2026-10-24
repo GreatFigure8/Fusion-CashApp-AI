@@ -8,8 +8,8 @@ Artifact content is never logged: only work item ids, content hashes and the sou
 import asyncio
 import hashlib
 import logging
-from collections.abc import Callable
-from dataclasses import dataclass
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass, replace
 from typing import Any
 
 from cashapp.data.models.artifacts import ArtifactPart
@@ -26,11 +26,14 @@ from cashapp.domain.artifacts import (
 )
 from cashapp.domain.clock import Clock, SystemClock
 from cashapp.domain.error_codes import ErrorCode
+from cashapp.domain.principal import Principal
+from cashapp.domain.review import RECEIVED_FOR_REVIEW
 from cashapp.domain.stages import ItemState, Stage
 from cashapp.domain.work_item import PRIORITY_LIVE, HistoryAction, SourceKind
 from cashapp.integrations.storage.base import ObjectStore
 from cashapp.integrations.storage.keys import original_key, part_key, part_text_key
 from cashapp.pipeline.events import StageEvent, emit
+from cashapp.services.actor import actor_fields
 from cashapp.services.history import HistoryEntry, record_history
 from cashapp.services.normalise import normalise
 
@@ -59,8 +62,14 @@ async def ingest(
     priority: int = PRIORITY_LIVE,
     clock: Clock | None = None,
     normaliser: Normaliser = normalise,
+    actor: Principal | None = None,
+    received_payload: Mapping[str, Any] | None = None,
 ) -> IngestResult:
-    """Turn one artifact into work items exactly once; a repeat only adds a history row."""
+    """Turn one artifact into work items exactly once; a repeat only adds a history row.
+
+    ``actor`` is set only for a person's upload: the "received" row then names them and carries
+    ``received_payload``. Left ``None`` every row is written as the system, as before.
+    """
     clock = clock or SystemClock()
     raw_hash = hashlib.sha256(artifact.data).hexdigest()
     run = _Ingest(
@@ -73,6 +82,8 @@ async def ingest(
         priority=priority,
         clock=clock,
         normaliser=normaliser,
+        actor=actor,
+        received_payload=received_payload,
     )
     try:
         return await run.once()
@@ -96,6 +107,14 @@ class _Ingest:
     priority: int
     clock: Clock
     normaliser: Normaliser
+    actor: Principal | None = None
+    received_payload: Mapping[str, Any] | None = None
+
+    def _by_actor(self, entry: HistoryEntry) -> HistoryEntry:
+        """The entry as written by the uploading person; unchanged for system intake."""
+        if self.actor is None:
+            return entry
+        return replace(entry, **actor_fields(self.actor))
 
     @property
     def _received_from(self) -> str:
@@ -130,7 +149,9 @@ class _Ingest:
         await record_history(
             uow,
             existing.id,
-            HistoryEntry(action=HistoryAction.DECISION, reasoning=self._received_from),
+            self._by_actor(
+                HistoryEntry(action=HistoryAction.DECISION, reasoning=self._received_from)
+            ),
             clock=self.clock,
         )
 
@@ -269,7 +290,9 @@ class _Ingest:
                 await record_history(
                     uow,
                     existing_id,
-                    HistoryEntry(action=HistoryAction.DECISION, reasoning=self._received_from),
+                    self._by_actor(
+                        HistoryEntry(action=HistoryAction.DECISION, reasoning=self._received_from)
+                    ),
                     clock=self.clock,
                 )
             await uow.commit()
@@ -311,16 +334,19 @@ class _Ingest:
         await record_history(
             uow,
             item.id,
-            HistoryEntry(
-                action=HistoryAction.STAGE_TRANSITION,
-                to_stage=Stage.CLASSIFY,
-                to_state=ItemState.PENDING,
-                reasoning="received",
-                payload={
-                    "parts": len(doc.parts),
-                    "document_hash": doc.document_hash,
-                    "parent_id": envelope_id,
-                },
+            self._by_actor(
+                HistoryEntry(
+                    action=HistoryAction.STAGE_TRANSITION,
+                    to_stage=Stage.CLASSIFY,
+                    to_state=ItemState.PENDING,
+                    reasoning="received" if self.actor is None else RECEIVED_FOR_REVIEW,
+                    payload={
+                        "parts": len(doc.parts),
+                        "document_hash": doc.document_hash,
+                        "parent_id": envelope_id,
+                        **(self.received_payload or {}),
+                    },
+                )
             ),
             clock=self.clock,
         )

@@ -3,11 +3,6 @@ variable "tenancy_ocid" {
   type        = string
 }
 
-variable "tenancy_name" {
-  description = "Tenancy name; the first part of the Streaming SASL username."
-  type        = string
-}
-
 variable "compartment_ocid" {
   description = "OCID of the compartment that holds the environment's resources."
   type        = string
@@ -80,11 +75,6 @@ variable "identity" {
   })
 }
 
-variable "streaming_user" {
-  description = "IAM user whose auth token is the Streaming SASL password (created manually)."
-  type        = string
-}
-
 variable "smtp" {
   description = "SMTP settings for notifications; null disables them. The password lives in Vault."
   type = object({
@@ -147,12 +137,6 @@ variable "sizes" {
   default = {
     default = { ocpus = 1, memory_in_gbs = 4 }
   }
-}
-
-variable "partitions" {
-  description = "Stream partition overrides keyed by short topic name."
-  type        = map(number)
-  default     = {}
 }
 
 variable "alarm_emails" {

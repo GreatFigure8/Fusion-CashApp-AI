@@ -68,21 +68,6 @@ output "atp_schema_script" {
   value       = "infra/sql/schemas.sql"
 }
 
-output "stream_pool_id" {
-  description = "OCID of the stream pool."
-  value       = module.streaming.stream_pool_id
-}
-
-output "stream_pool_bootstrap_servers" {
-  description = "Kafka bootstrap server of the stream pool."
-  value       = module.streaming.bootstrap_servers
-}
-
-output "stream_topics" {
-  description = "Every pre-created topic."
-  value       = module.streaming.topics
-}
-
 output "bucket_name" {
   description = "Artifact bucket name."
   value       = module.object_storage.bucket_name
@@ -116,4 +101,10 @@ output "vault_secret_ids" {
 output "alarm_topic_id" {
   description = "OCID of the alarm notification topic."
   value       = module.observability.alarm_topic_id
+}
+
+output "migration_env" {
+  description = "Environment for the release migration container only: the bootstrap set plus the legacy variables the s48 data migration seeds the DB settings from."
+  value       = merge(local.api_env, local.settings_seed_env)
+  sensitive   = true
 }

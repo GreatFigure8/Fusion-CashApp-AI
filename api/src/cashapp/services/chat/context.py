@@ -76,6 +76,17 @@ def fit_context(doc: dict[str, Any], max_chars: int) -> str:
     return _dump(work)
 
 
+def fit_text(text: str, max_chars: int) -> str:
+    """Plain text of at most ``max_chars`` characters (the limiter for tool output).
+
+    Over budget it keeps the start and appends a marker, so the model knows it was cut.
+    """
+    if len(text) <= max_chars:
+        return text
+    marker = "...[truncated]"
+    return text[: max(max_chars - len(marker), 0)] + marker
+
+
 def _clip(value: Any, limit: int) -> str:
     text = value if isinstance(value, str) else str(value)
     return text if len(text) <= limit else text[:limit]
@@ -125,6 +136,12 @@ class ChatContextBuilder:
             ],
             "failures_today": [{"error_code": code.value, "items": n} for code, n in failures],
         }
+
+    async def aggregates_context(
+        self, uow: UnitOfWork, now: datetime | None = None
+    ) -> dict[str, Any]:
+        """Flow counts and today's failures by code only: no item data of any kind."""
+        return await self.flow_context(uow, now)
 
     def _item_header(self, item: WorkItem) -> dict[str, Any]:
         now = self._clock.now()

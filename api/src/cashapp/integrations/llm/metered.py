@@ -23,6 +23,10 @@ from cashapp.integrations.llm.base import (
     LlmRequest,
     LlmResult,
     LlmUsage,
+    ToolCallingLlm,
+    ToolTurnComplete,
+    ToolTurnEvent,
+    ToolTurnRequest,
 )
 
 __all__ = ["MeteredLlmClient", "StreamUsageReporter", "UsageRecorder"]
@@ -78,7 +82,7 @@ class MeteredLlmClient:
 
     def _entry(
         self,
-        request: LlmRequest,
+        request: LlmRequest | ToolTurnRequest,
         *,
         outcome: UsageOutcome,
         started: float,
@@ -96,7 +100,7 @@ class MeteredLlmClient:
             station=station_of(request.purpose),
             work_item_id=request.work_item_id,
             prompt_version=request.prompt_version,
-            schema_version=request.schema_version,
+            schema_version=request.schema_version if isinstance(request, LlmRequest) else None,
             effort=request.effort,
             input_tokens=usage.input_tokens if usage is not None else None,
             output_tokens=usage.output_tokens if usage is not None else None,
@@ -195,6 +199,54 @@ class MeteredLlmClient:
             raise
         finally:
             usage = captured[-1] if captured else error_usage
+            await self._record(
+                self._entry(
+                    request,
+                    outcome=outcome,
+                    started=started,
+                    usage=usage,
+                    error_code=error_code,
+                ),
+                cancelling=cancelling,
+            )
+
+    # --- stream_tool_turn -----------------------------------------------------------------
+
+    async def stream_tool_turn(self, request: ToolTurnRequest) -> AsyncIterator[ToolTurnEvent]:
+        """Delegates to the inner client and records one usage row (purpose ``chat.workhorse``)."""
+        inner = self.inner
+        if not isinstance(inner, ToolCallingLlm):
+            raise LlmError(
+                LlmErrorCode.EXTRACTION_FAILED,
+                "tool use is not supported by this client",
+                provider=inner.provider,
+                model_id=inner.model_id,
+            )
+        started = time.perf_counter()
+        usage: LlmUsage | None = None
+        outcome = UsageOutcome.OK
+        error_code: str | None = None
+        cancelling = False
+        try:
+            async for event in inner.stream_tool_turn(request):
+                if isinstance(event, ToolTurnComplete):
+                    usage = event.usage
+                yield event
+        except LlmError as exc:
+            outcome = (
+                UsageOutcome.REFUSED if exc.code == LlmErrorCode.LLM_REFUSAL else UsageOutcome.ERROR
+            )
+            error_code = exc.code.value
+            usage = exc.usage
+            raise
+        except (GeneratorExit, TimeoutError, asyncio.CancelledError):
+            outcome = UsageOutcome.TIMEOUT
+            cancelling = True
+            raise
+        except Exception:
+            outcome = UsageOutcome.ERROR
+            raise
+        finally:
             await self._record(
                 self._entry(
                     request,

@@ -7,11 +7,13 @@ an approved sender (``from_address``) and SMTP credentials from Vault.
 import asyncio
 import smtplib
 import ssl
-from collections.abc import Callable, Sequence
+from collections.abc import Awaitable, Callable, Sequence
 from email.message import EmailMessage
 
+from pydantic import SecretStr
+
 from cashapp.services.notifications.channel import ChannelName, ChannelSendError
-from cashapp.settings import SmtpSettings
+from cashapp.services.runtime_settings import SmtpConfig
 
 SMTP_SSL_PORT = 465
 
@@ -21,12 +23,14 @@ class SmtpEmailChannel:
 
     def __init__(
         self,
-        smtp: SmtpSettings,
+        smtp: SmtpConfig,
+        password: Callable[[], Awaitable[SecretStr]],
         *,
         timeout_seconds: float = 30.0,
         smtp_factory: Callable[..., smtplib.SMTP] | None = None,
     ) -> None:
         self._smtp = smtp
+        self._password = password
         self._timeout = timeout_seconds
         self._factory = smtp_factory
 
@@ -51,12 +55,14 @@ class SmtpEmailChannel:
         if "From" not in message:
             message["From"] = self._smtp.from_address
         try:
-            await asyncio.to_thread(self._deliver, message)
+            # Resolved at send time: the password is never held between sends.
+            password = (await self._password()).get_secret_value()
+            await asyncio.to_thread(self._deliver, message, password)
         except Exception as exc:
             # The reason names the exception class only: SMTP errors can echo addresses.
             raise ChannelSendError("email", f"{type(exc).__name__}: smtp delivery failed") from exc
 
-    def _deliver(self, message: EmailMessage) -> None:
+    def _deliver(self, message: EmailMessage, password: str) -> None:
         settings = self._smtp
         context = ssl.create_default_context()
         if settings.port == SMTP_SSL_PORT:
@@ -76,5 +82,5 @@ class SmtpEmailChannel:
         with client:
             if settings.port != SMTP_SSL_PORT:
                 client.starttls(context=context)
-            client.login(settings.username, settings.password.get_secret_value())
+            client.login(settings.username, password)
             client.send_message(message)

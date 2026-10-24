@@ -124,18 +124,6 @@ resource "oci_core_subnet" "db" {
   freeform_tags              = local.tags
 }
 
-resource "oci_core_subnet" "streaming" {
-  compartment_id             = var.compartment_ocid
-  vcn_id                     = oci_core_vcn.this.id
-  cidr_block                 = var.subnet_cidrs["streaming"]
-  display_name               = "${local.name}-streaming"
-  dns_label                  = "streaming"
-  prohibit_public_ip_on_vnic = true
-  route_table_id             = oci_core_route_table.private.id
-  security_list_ids          = [oci_core_security_list.empty.id]
-  freeform_tags              = local.tags
-}
-
 resource "oci_core_subnet" "genai" {
   compartment_id             = var.compartment_ocid
   vcn_id                     = oci_core_vcn.this.id
@@ -169,13 +157,6 @@ resource "oci_core_network_security_group" "db" {
   freeform_tags  = local.tags
 }
 
-resource "oci_core_network_security_group" "streaming" {
-  compartment_id = var.compartment_ocid
-  vcn_id         = oci_core_vcn.this.id
-  display_name   = "${local.name}-streaming"
-  freeform_tags  = local.tags
-}
-
 resource "oci_core_network_security_group" "genai" {
   compartment_id = var.compartment_ocid
   vcn_id         = oci_core_vcn.this.id
@@ -185,29 +166,26 @@ resource "oci_core_network_security_group" "genai" {
 
 locals {
   nsg = {
-    lb        = oci_core_network_security_group.lb.id
-    app       = oci_core_network_security_group.app.id
-    db        = oci_core_network_security_group.db.id
-    streaming = oci_core_network_security_group.streaming.id
-    genai     = oci_core_network_security_group.genai.id
+    lb    = oci_core_network_security_group.lb.id
+    app   = oci_core_network_security_group.app.id
+    db    = oci_core_network_security_group.db.id
+    genai = oci_core_network_security_group.genai.id
   }
 
   # One entry per TCP rule. peer is a CIDR block or an NSG key from local.nsg.
   rules = {
-    lb_in_https       = { nsg = "lb", direction = "INGRESS", peer = "0.0.0.0/0", min = 443, max = 443, description = "Internet to load balancer HTTPS" }
-    lb_out_api        = { nsg = "lb", direction = "EGRESS", peer = "app", min = 8000, max = 8000, description = "Load balancer to api" }
-    lb_out_web        = { nsg = "lb", direction = "EGRESS", peer = "app", min = 3000, max = 3000, description = "Load balancer to web" }
-    lb_out_health     = { nsg = "lb", direction = "EGRESS", peer = "app", min = 8081, max = 8081, description = "Load balancer to worker health" }
-    app_in_api        = { nsg = "app", direction = "INGRESS", peer = "lb", min = 8000, max = 8000, description = "api from load balancer" }
-    app_in_web        = { nsg = "app", direction = "INGRESS", peer = "lb", min = 3000, max = 3000, description = "web from load balancer" }
-    app_in_health     = { nsg = "app", direction = "INGRESS", peer = "lb", min = 8081, max = 8081, description = "worker health from load balancer" }
-    app_out_db        = { nsg = "app", direction = "EGRESS", peer = "db", min = 1521, max = 1522, description = "app to database" }
-    app_out_streaming = { nsg = "app", direction = "EGRESS", peer = "streaming", min = 9092, max = 9092, description = "app to streaming Kafka endpoint" }
-    app_out_genai     = { nsg = "app", direction = "EGRESS", peer = "genai", min = 443, max = 443, description = "app to generative AI private endpoint" }
-    app_out_https     = { nsg = "app", direction = "EGRESS", peer = "0.0.0.0/0", min = 443, max = 443, description = "app to Anthropic API, Fusion and OCI services via NAT" }
-    db_in_app         = { nsg = "db", direction = "INGRESS", peer = "app", min = 1521, max = 1522, description = "database from app" }
-    streaming_in_app  = { nsg = "streaming", direction = "INGRESS", peer = "app", min = 9092, max = 9092, description = "streaming from app" }
-    genai_in_app      = { nsg = "genai", direction = "INGRESS", peer = "app", min = 443, max = 443, description = "generative AI endpoint from app" }
+    lb_in_https   = { nsg = "lb", direction = "INGRESS", peer = "0.0.0.0/0", min = 443, max = 443, description = "Internet to load balancer HTTPS" }
+    lb_out_api    = { nsg = "lb", direction = "EGRESS", peer = "app", min = 8000, max = 8000, description = "Load balancer to api" }
+    lb_out_web    = { nsg = "lb", direction = "EGRESS", peer = "app", min = 3000, max = 3000, description = "Load balancer to web" }
+    lb_out_health = { nsg = "lb", direction = "EGRESS", peer = "app", min = 8081, max = 8081, description = "Load balancer to worker health" }
+    app_in_api    = { nsg = "app", direction = "INGRESS", peer = "lb", min = 8000, max = 8000, description = "api from load balancer" }
+    app_in_web    = { nsg = "app", direction = "INGRESS", peer = "lb", min = 3000, max = 3000, description = "web from load balancer" }
+    app_in_health = { nsg = "app", direction = "INGRESS", peer = "lb", min = 8081, max = 8081, description = "worker health from load balancer" }
+    app_out_db    = { nsg = "app", direction = "EGRESS", peer = "db", min = 1521, max = 1522, description = "app to database" }
+    app_out_genai = { nsg = "app", direction = "EGRESS", peer = "genai", min = 443, max = 443, description = "app to generative AI private endpoint" }
+    app_out_https = { nsg = "app", direction = "EGRESS", peer = "0.0.0.0/0", min = 443, max = 443, description = "app to Anthropic API, Fusion and OCI services via NAT" }
+    db_in_app     = { nsg = "db", direction = "INGRESS", peer = "app", min = 1521, max = 1522, description = "database from app" }
+    genai_in_app  = { nsg = "genai", direction = "INGRESS", peer = "app", min = 443, max = 443, description = "generative AI endpoint from app" }
   }
 }
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any, cast
 
 from cashapp.domain.error_codes import ErrorCode
@@ -9,7 +10,7 @@ from cashapp.integrations.fusion.errors import FusionError
 
 if TYPE_CHECKING:
     from cashapp.integrations.fusion.client import FusionClient
-    from cashapp.settings import Settings
+    from cashapp.services.runtime_settings import RuntimeSettings
 
 WRITE_METHODS: frozenset[str] = frozenset(
     {
@@ -22,9 +23,19 @@ WRITE_METHODS: frozenset[str] = frozenset(
 )
 
 
+type WriteEnabled = Callable[[], Awaitable[bool]]
+
+
+async def _always_enabled() -> bool:
+    return True
+
+
 class WriteGuard:
+    """`write_enabled` is read on every check: the switch is a hot DB key, so turning it off
+    stops writes at the next call without a restart."""
+
     def __init__(
-        self, *, write_enabled: bool, env: str, pod_name: str, pod_is_production: bool
+        self, *, write_enabled: WriteEnabled, env: str, pod_name: str, pod_is_production: bool
     ) -> None:
         self._write_enabled = write_enabled
         self._env = env
@@ -32,21 +43,37 @@ class WriteGuard:
         self._pod_is_production = pod_is_production
 
     @classmethod
-    def from_settings(cls, settings: Settings, pod_name: str) -> WriteGuard:
-        pod = settings.fusion.pods[pod_name]
+    def from_runtime(cls, runtime: RuntimeSettings, pod_name: str) -> WriteGuard:
+        pod = runtime.fusion().pods[pod_name]
+
+        async def write_enabled() -> bool:
+            return (await runtime.fusion_writes()).write_enabled
+
         return cls(
-            write_enabled=settings.fusion.write_enabled,
-            env=settings.env,
+            write_enabled=write_enabled,
+            env=runtime.env,
             pod_name=pod_name,
             pod_is_production=pod.is_production,
         )
 
     @classmethod
     def allow_all(cls) -> WriteGuard:
-        return cls(write_enabled=True, env="local", pod_name="fake", pod_is_production=False)
+        return cls(
+            write_enabled=_always_enabled, env="local", pod_name="fake", pod_is_production=False
+        )
 
-    def check(self, method: str) -> None:
-        if not self._write_enabled:
+    def check_source(self, method: str, environment: str | None) -> None:
+        """Refuse when the MCP server says the Fusion source is production outside prod."""
+        if environment == "production" and self._env != "prod":
+            raise FusionError(
+                ErrorCode.FUSION_WRITE_DISABLED,
+                f"{method}: the MCP source is a production Fusion instance; writes are refused "
+                f"outside the prod environment",
+                retryable=False,
+            )
+
+    async def check(self, method: str) -> None:
+        if not await self._write_enabled():
             raise FusionError(
                 ErrorCode.FUSION_WRITE_DISABLED,
                 f"{method}: Fusion writes are disabled (fusion.write_enabled is false)",

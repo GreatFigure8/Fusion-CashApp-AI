@@ -34,6 +34,7 @@ from cashapp.pipeline.errors import StageError
 from cashapp.pipeline.outcomes import Advance, StageOutcome
 from cashapp.pipeline.roles import Container
 from cashapp.pipeline.runner import RunnerDeps, StageContext, StageRunner, consumer_role
+from cashapp.services.review.effort import effort_for
 from cashapp.stations.adjudicate.prompts import (
     PROMPT_VERSION,
     SINGLE_READER_PROMPT_VERSION,
@@ -159,7 +160,13 @@ class AdjudicateRunner(StageRunner):
     ) -> tuple[AdjudicationResult, str]:
         models = ctx.config.models()
         client = self._llm.with_models(models).adjudicator
-        request = build_adjudicator_request(a, b, role=models.adjudicator, work_item_id=ctx.item.id)
+        request = build_adjudicator_request(
+            a,
+            b,
+            role=models.adjudicator,
+            work_item_id=ctx.item.id,
+            effort=effort_for(ctx.item, models.adjudicator, ctx.config),
+        )
         fitted = fit_parts(request.parts)
         if fitted.dropped_part_nos:
             # A dropped reading must not be passed off as a decision on both.

@@ -65,6 +65,7 @@ def build_adjudicator_request(
     *,
     role: ModelRole,
     work_item_id: int,
+    effort: str | None = None,
 ) -> LlmRequest:
     """The request for the adjudicator. Only the two readings' JSON is sent, never the artifact."""
     label = f"(schema RemittanceExtraction@{SCHEMA_VERSION})"
@@ -78,7 +79,7 @@ def build_adjudicator_request(
         max_tokens=ADJUDICATE_MAX_TOKENS,
         timeout_s=float(role.timeout_s),
         purpose="adjudicate.adjudicator",
-        effort=role.effort,
+        effort=effort if effort is not None else role.effort,
         work_item_id=work_item_id,
         prompt_version=PROMPT_VERSION,
         schema_version=ADJUDICATION_SCHEMA_VERSION,

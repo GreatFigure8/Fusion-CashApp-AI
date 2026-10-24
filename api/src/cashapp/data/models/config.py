@@ -36,3 +36,8 @@ class ConfigChange(Base):
     changed_by_name: Mapped[str] = mapped_column(String(256), nullable=False)
     changed_at: Mapped[datetime] = mapped_column(UtcDateTime, nullable=False)
     reason: Mapped[str] = mapped_column(String(1000), nullable=False)
+    # One promote of several keys shares a change set; lab ids carry no FK so config history
+    # never depends on lab rows.
+    change_set_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    lab_candidate_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    lab_replay_id: Mapped[int | None] = mapped_column(Integer, nullable=True)

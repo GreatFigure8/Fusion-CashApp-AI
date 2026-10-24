@@ -8,7 +8,7 @@ import { serverEnv } from "@/lib/env";
 
 const DISCOVERY_TTL_MS = 60 * 60 * 1000;
 const HTTP_TIMEOUT_MS = 5000;
-const DEFAULT_SCOPES = "openid profile email offline_access";
+const DEFAULT_SCOPES = "openid profile email offline_access groups";
 
 // Read here until s27's env schema carries OIDC_SCOPES. The API audience scope of the
 // identity-domain resource app goes in this value at deploy time.
@@ -43,9 +43,10 @@ async function authorizationServer(): Promise<oauth.AuthorizationServer> {
   const now = Date.now();
   if (discovery && now - discovery.at < DISCOVERY_TTL_MS) return discovery.as;
   const issuer = new URL(serverEnv.OIDC_ISSUER);
+  const expectedIssuer = new URL(serverEnv.OIDC_EXPECTED_ISSUER ?? serverEnv.OIDC_ISSUER);
   const as = oauth
     .discoveryRequest(issuer, { algorithm: "oidc", ...requestOptions() })
-    .then((response) => oauth.processDiscoveryResponse(issuer, response));
+    .then((response) => oauth.processDiscoveryResponse(expectedIssuer, response));
   discovery = { at: now, as };
   try {
     return await as;

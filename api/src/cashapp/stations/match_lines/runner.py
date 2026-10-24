@@ -32,6 +32,7 @@ from cashapp.pipeline.outcomes import Advance, StageOutcome
 from cashapp.pipeline.roles import Container
 from cashapp.pipeline.runner import RunnerDeps, StageContext, StageRunner
 from cashapp.services.history import HistoryEntry, record_history
+from cashapp.services.matching.decision import decide_lines, index_line_transactions
 from cashapp.services.matching.discount import (
     DiscountContext,
     DiscountReason,
@@ -42,9 +43,7 @@ from cashapp.services.matching.lines import (
     APPLICABLE_LINE_KINDS,
     LedgerRowView,
     LinePlan,
-    index_transactions,
     number_key,
-    plan_lines,
     reconcile_ledger,
 )
 from cashapp.services.validation import current_extraction
@@ -106,7 +105,7 @@ class MatchLinesRunner(StageRunner):
             r.fusion_application_id for r in applied_rows if r.fusion_application_id is not None
         }
         owners = resolution.owners()
-        transactions, ambiguous = index_transactions(found, lines, owners)
+        transactions, ambiguous = index_line_transactions(found, lines, owners)
         todo = [
             ln
             for ln in lines
@@ -138,16 +137,16 @@ class MatchLinesRunner(StageRunner):
                 discount_ctx = DiscountContext(
                     payment_date=header_payment_date, terms=terms, tolerance=tolerance
                 )
-        plan = plan_lines(
+        plan = decide_lines(
             todo,
             transactions,
+            owners,
             receipt.unapplied_amount,
             [a for a in existing if a.application_id not in owned_applications],
             currency,
-            header_amount=header_amount,
-            tolerance=tolerance,
-            owners=owners,
+            ctx.config.matching(),
             ambiguous=ambiguous,
+            header_amount=header_amount,
             discount=discount_ctx,
         )
 

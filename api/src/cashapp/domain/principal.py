@@ -24,6 +24,8 @@ class Permission(StrEnum):
     REPORTS_READ = "reports:read"
     BACKLOG_RUN = "backlog:run"
     CHAT_USE = "chat:use"
+    ENGINE_CONTROL = "engine:control"
+    LAB_RUN = "lab:run"
 
 
 ROLE_PERMISSIONS: Final[Mapping[Role, frozenset[Permission]]] = MappingProxyType(
@@ -37,6 +39,7 @@ ROLE_PERMISSIONS: Final[Mapping[Role, frozenset[Permission]]] = MappingProxyType
                 Permission.REPORTS_READ,
                 Permission.CHAT_USE,
                 Permission.CONFIG_READ,
+                Permission.LAB_RUN,
             }
         ),
         Role.REVERSER: frozenset({Permission.APPLY_REVERSE}),
@@ -101,6 +104,7 @@ SYSTEM_PRINCIPAL: Final[Principal] = Principal(
     email=None,
     groups=frozenset(),
     roles=frozenset(),
-    permissions=frozenset(Permission) - {Permission.APPLY_REVERSE, Permission.CONFIG_WRITE},
+    permissions=frozenset(Permission)
+    - {Permission.APPLY_REVERSE, Permission.CONFIG_WRITE, Permission.ENGINE_CONTROL},
     is_system=True,
 )

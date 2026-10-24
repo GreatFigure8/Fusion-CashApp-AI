@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glass Orbit: progress dashboard</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#05060a}
+a{color:#9db8ff}a:hover{color:#c7d6ff}
+.gl{font-family:Geist,system-ui,sans-serif;font-size:14px;line-height:1.5;color:#e6eaf2;min-height:1500px;background-color:#05060a;background-image:radial-gradient(circle,#ffffff12 1.4px,transparent 1.6px);background-size:22px 22px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.gl *{box-sizing:border-box}
+.glass{background:#0a0c11b8;backdrop-filter:blur(14px);border:1px solid #ffffff1f;border-radius:16px;box-shadow:0 1px 0 #ffffff0a inset,0 30px 80px -30px #000000e6}
+.wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.rail{flex:1 1 200px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.main{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:#a9b2c3;text-decoration:none;min-height:40px}
+.nav.on{background:#4f7cff1f;color:#c7d6ff;box-shadow:inset 0 0 0 1px #4f7cff66,0 0 28px -10px #4f7cff}
+.code{font-family:'Geist Mono',monospace;font-size:10.5px;width:26px;height:22px;border-radius:6px;border:1px solid #ffffff1f;display:inline-flex;align-items:center;justify-content:center;color:#8a94a6}
+.nav.on .code{border-color:#4f7cff;color:#9db8ff}
+.mono{font-family:'Geist Mono',monospace}
+.lab{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a94a6}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 16px}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #ffffff12}
+.bd{padding:16px 18px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;white-space:nowrap}
+.ok{background:#5fe6d817;color:#8cf2e7}.wa{background:#ffc96b14;color:#ffd98f}.er{background:#f8717117;color:#fca5a5}.ac{background:#4f7cff1f;color:#9db8ff}.mu{background:#ffffff0d;color:#a9b2c3}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:#5fe6d8;box-shadow:0 0 10px #5fe6d8}
+.btn{font-family:Geist,sans-serif;font-size:13px;font-weight:500;border-radius:10px;padding:8px 14px;min-height:36px;cursor:pointer;border:1px solid #ffffff1f;background:#ffffff08;color:#e6eaf2}
+.seg{display:inline-flex;border:1px solid #ffffff1f;border-radius:10px;padding:2px;background:#ffffff06}
+.seg button{font-family:'Geist Mono',monospace;font-size:11px;border:0;background:transparent;color:#a9b2c3;border-radius:8px;padding:5px 10px;min-height:28px;cursor:pointer}
+.seg button.on{background:#4f7cff2e;color:#c7d6ff}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.kpi{padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+.big{font-family:'Geist Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-.02em}
+.ccy{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.cc{border:1px solid #ffffff12;border-radius:12px;padding:12px 14px;background:#ffffff05;display:flex;flex-direction:column;gap:4px}
+.t{width:100%;border-collapse:collapse}
+.t th{font-family:'Geist Mono',monospace;font-weight:400;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8a94a6;text-align:left;padding:8px 12px;border-bottom:1px solid #ffffff12;white-space:nowrap}
+.t td{padding:10px 12px;border-bottom:1px solid #ffffff0a;white-space:nowrap}
+.num{text-align:right;font-family:'Geist Mono',monospace}
+.meter{height:6px;border-radius:3px;background:#ffffff12;width:90px;display:inline-block;vertical-align:middle;margin-right:8px}
+.states{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.st{padding:18px;min-height:190px;display:flex;flex-direction:column;gap:10px}
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,#ffffff08,#ffffff14,#ffffff08)}
+</style>
+</helmet>
+<div class="gl">
+<div class="wrap">
+<nav class="rail glass" aria-label="Primary">
+<div style="display:flex;align-items:center;gap:10px;padding:6px 8px 14px"><span style="width:28px;height:28px;border-radius:8px;background:#2f5bdb;box-shadow:0 0 20px -4px #4f7cff;display:inline-flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;color:#fff">CA</span><span style="font-weight:600">CashApp</span><span class="lab" style="margin-left:auto">AI</span></div>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="7"><a class="{{n.cls}}" href="#"><span class="code">{{n.code}}</span><span>{{n.label}}</span><span class="mono" style="margin-left:auto;font-size:11px;color:#5d6778">{{n.count}}</span></a></sc-for>
+</nav>
+<main class="main">
+<div class="glass top"><span style="font-size:18px;font-weight:600">Progress</span><span class="pill wa mono">DEV</span><span class="pill ok"><span class="dot"></span>Live</span><span class="pill mu">Sample data</span>
+<div class="seg" style="margin-left:auto" role="group" aria-label="Window"><button type="button">24h</button><button type="button" class="on">7d</button><button type="button">30d</button></div></div>
+<div class="kpis">
+<div class="glass kpi"><span class="lab">Receipts matched · 7d</span><span class="big">1,284</span><span style="font-size:12px;color:#8a94a6">Reserved and at least one line applied</span></div>
+<div class="glass kpi" style="flex-direction:row;align-items:center;gap:14px">
+<svg width="72" height="72" viewBox="0 0 36 36" role="img" aria-label="Automation rate 87.4 percent"><circle cx="18" cy="18" r="15.9" fill="none" stroke="#ffffff14" stroke-width="3.2"></circle><circle cx="18" cy="18" r="15.9" fill="none" stroke="#4f7cff" stroke-width="3.2" stroke-dasharray="87.4 100" stroke-linecap="round" transform="rotate(-90 18 18)"></circle></svg>
+<span style="display:flex;flex-direction:column"><span class="lab">Automation · 7d</span><span class="big">87.4%</span><span style="font-size:12px;color:#8a94a6">no human touch</span></span></div>
+<div class="glass kpi"><span class="lab">Awaiting receipt</span><span class="big" style="color:#9db8ff">142</span><span style="font-size:12px;color:#8a94a6">Oldest 11d of 30d aging</span></div>
+<div class="glass kpi"><span class="lab">Open exceptions</span><span class="big" style="color:#ffd98f">63</span><span style="font-size:12px;color:#8a94a6">12 locked · 4 dead-lettered</span></div>
+</div>
+<div class="glass"><div class="hd"><span style="font-weight:600">Money applied by currency</span><span class="lab">7d · never summed across currencies</span></div>
+<div class="bd ccy">
+<sc-for list="{{money}}" as="m" hint-placeholder-count="4"><div class="cc"><span class="lab">{{m.ccy}}</span><span class="mono" style="font-size:20px">{{m.amt}}</span><span style="font-size:12px;color:#8a94a6">{{m.n}} receipts · residual <span class="mono">{{m.res}}</span></span></div></sc-for>
+</div></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:16px">
+<div class="glass"><div class="hd"><span style="font-weight:600">Throughput</span><span class="lab">items done per hour · 24h</span></div>
+<div class="bd"><svg viewBox="0 0 480 170" width="100%" height="170" role="img" aria-label="Throughput last 24 hours, peaking at 61 per hour around midday">
+<line x1="0" y1="150" x2="480" y2="150" stroke="#ffffff14"></line><line x1="0" y1="100" x2="480" y2="100" stroke="#ffffff0a"></line><line x1="0" y1="50" x2="480" y2="50" stroke="#ffffff0a"></line>
+<path d="M0,120 L20,127 L40,132 L60,137 L80,140 L100,135 L120,123 L140,96 L160,57 L180,23 L200,0 L220,7 L240,30 L260,15 L280,10 L300,42 L320,52 L340,69 L360,81 L380,91 L400,103 L420,108 L440,113 L460,118 L480,120 L480,150 L0,150 Z" transform="translate(0,10) scale(1,0.92)" fill="#4f7cff22"></path>
+<path d="M0,120 L20,127 L40,132 L60,137 L80,140 L100,135 L120,123 L140,96 L160,57 L180,23 L200,0 L220,7 L240,30 L260,15 L280,10 L300,42 L320,52 L340,69 L360,81 L380,91 L400,103 L420,108 L440,113 L460,118 L480,120" transform="translate(0,10) scale(1,0.92)" fill="none" stroke="#4f7cff" stroke-width="2"></path>
+<path d="M0,146 L120,144 L200,138 L260,141 L320,143 L480,146" fill="none" stroke="#ffc96b" stroke-width="1.5" stroke-dasharray="4 3"></path>
+</svg>
+<div style="display:flex;gap:16px;font-size:12px;color:#a9b2c3"><span><span style="display:inline-block;width:10px;height:3px;background:#4f7cff;vertical-align:middle;margin-right:6px"></span>Applied</span><span><span style="display:inline-block;width:10px;height:3px;background:#ffc96b;vertical-align:middle;margin-right:6px"></span>Escalated</span><span class="mono" style="margin-left:auto">peak 61/h</span></div></div></div>
+<div class="glass"><div class="hd"><span style="font-weight:600">Auto-fix outcomes</span><span class="lab">7d · by error code</span></div>
+<table class="t"><tbody>
+<sc-for list="{{fixes}}" as="f" hint-placeholder-count="5"><tr><td class="mono" style="font-size:12px">{{f.code}}</td><td class="num">{{f.n}}</td><td><span class="meter"><span style="{{f.style}}"></span></span><span class="mono" style="font-size:12px">{{f.rate}}</span></td></tr></sc-for>
+</tbody></table></div>
+</div>
+<div class="glass"><div class="hd"><span style="font-weight:600">Live activity</span><span class="pill ok"><span class="dot"></span>Streaming · 1 s ago</span></div>
+<div class="bd" style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+<span><span class="mono" style="color:#8a94a6;font-size:12px">14:02:11</span>&#160; <span class="pill ok">Applied</span> WI-20444 · <span class="mono">USD 3,120.00</span> to RCPT-88240</span>
+<span><span class="mono" style="color:#8a94a6;font-size:12px">14:02:09</span>&#160; <span class="pill ac">Receipt arrived</span> RCPT-88241 woke 2 waiting items</span>
+<span><span class="mono" style="color:#8a94a6;font-size:12px">14:02:04</span>&#160; <span class="pill wa">Auto-fix</span> WI-20429 amount variance inside bank-fee band</span>
+<span><span class="mono" style="color:#8a94a6;font-size:12px">14:01:58</span>&#160; <span class="pill er">Escalated</span> WI-20431 ambiguous receipt</span>
+</div></div>
+<div class="glass"><div class="hd"><span style="font-weight:600">Model efficiency</span><span class="lab">7d · accuracy only where people corrected</span></div>
+<div style="overflow-x:auto"><table class="t"><thead><tr><th>Role</th><th>Model</th><th class="num">Calls</th><th class="num">Cost</th><th class="num">Cost unknown</th><th class="num">Agreement</th><th class="num">Human corr.</th><th class="num">Accuracy</th></tr></thead><tbody>
+<sc-for list="{{models}}" as="m" hint-placeholder-count="4"><tr><td>{{m.role}}</td><td class="mono" style="color:#9db8ff;font-size:12px">{{m.model}}</td><td class="num">{{m.calls}}</td><td class="num">{{m.cost}}</td><td class="num" style="color:#8a94a6">{{m.nul}}</td><td class="num">{{m.agree}}</td><td class="num">{{m.corr}}</td><td class="num" style="color:#8a94a6">{{m.acc}}</td></tr></sc-for>
+</tbody></table></div>
+<div class="bd" style="display:flex;flex-wrap:wrap;gap:12px;border-top:1px solid #ffffff12"><span class="pill ok">Auto-fix rate 71.2%</span><span class="pill wa">Human-correction rate 4.2%</span><span class="pill ac">Cohere cluster utilisation 61%</span></div></div>
+</main>
+</div>
+<div role="region" aria-label="Assistant dock" style="align-self:center;width:min(880px,100%);display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center"><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Where are items waiting longest?</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Pause apply until 15:00</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Export this week’s report</button></div>
+<div style="display:flex;align-items:center;gap:10px;border:1px solid #ffffff1f;background:#0e1117;border-radius:16px;padding:10px 12px 10px 16px;box-shadow:0 0 0 4px #4f7cff1f,0 30px 60px -30px #000"><span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9db8ff">Assistant</span><input aria-label="Ask the assistant" placeholder="Ask or tell CashApp to do something…" style="flex:1;background:transparent;border:0;outline:none;color:#e6eaf2;font-family:Geist,sans-serif;font-size:15px"><a href="#" style="font-size:12.5px">Full screen</a><button type="button" aria-label="Send" style="width:32px;height:32px;border-radius:8px;background:#2f5bdb;color:#fff;border:0;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
+<span style="text-align:center;font-family:'Geist Mono',monospace;font-size:10.75px;text-transform:uppercase;letter-spacing:.04em;color:#8a94a6">Acts with your permissions · every change asks you to confirm · ⌘K</span>
+</div>
+<section class="states" aria-label="States">
+<div class="glass st"><span class="lab">Loading</span><div class="kpis" style="gap:8px"><div class="sk" style="height:56px"></div><div class="sk" style="height:56px"></div><div class="sk" style="height:56px"></div></div><div class="sk" style="height:90px"></div></div>
+<div class="glass st"><span class="lab">Empty</span><span style="font-size:17px;font-weight:600">Nothing completed in this window</span><span style="color:#a9b2c3;font-size:13px">No item reached done in the last 7 days. Try 30 days or open the Flow monitor.</span><div style="display:flex;gap:8px"><button class="btn" type="button">Show 30 days</button><a href="#" style="align-self:center">Open Flow</a></div></div>
+<div class="glass st" style="border-color:#f8717155"><span class="lab" style="color:#fca5a5">Error</span><span style="font-size:17px;font-weight:600">Couldn’t load the aggregates</span><span style="color:#a9b2c3;font-size:13px">Tiles show values from 13:57 UTC and are marked stale.</span><div><button class="btn" type="button">Retry</button></div></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Dashboard','DB',''],['Flow','FL','312'],['Exceptions','EX','63'],['Engine','EN',''],['Review','RV','3'],['Reports','RP',''],['Lab','LB','2'],['Config','CF','']];
+const active = 'Dashboard';
+const nav = items.map(([label,code,count]) => ({ label, code, count, cls: label === active ? 'nav on' : 'nav' }));
+const money = [{ccy:'USD',amt:'4,812,330.17',n:'902',res:'12.40'},{ccy:'CAD',amt:'612,004.50',n:'188',res:'0.30'},{ccy:'EUR',amt:'233,118.92',n:'71',res:'0.00'},{ccy:'INR',amt:'18,220,410.00',n:'123',res:'3.47'}];
+const fixes = [['RECEIPT_NOT_YET_AVAILABLE','212',84],['AMOUNT_VARIANCE','71',62],['FUSION_LOCKED','58',100],['INVOICE_NOT_FOUND','49',41],['RECEIPT_AMBIGUOUS','38',18]].map(([code,n,r]) => ({ code, n, rate: r + '% fixed', style: 'display:block;height:6px;border-radius:3px;width:' + r + '%;background:' + (r > 60 ? '#5fe6d8' : '#ffc96b') }));
+const models = [
+{role:'Reader A',model:'claude-opus-5-5',calls:'1,402',cost:'$412.30',nul:'0.4%',agree:'—',corr:'3.1%',acc:'96.8% · n 212'},
+{role:'Reader B',model:'cohere.command-a-vision',calls:'1,398',cost:'cluster',nul:'n/a',agree:'—',corr:'5.0%',acc:'95.1% · n 212'},
+{role:'Adjudicator',model:'claude-opus-5-5',calls:'1,398',cost:'$188.04',nul:'0.2%',agree:'93.1%',corr:'—',acc:'—'},
+{role:'Workhorse',model:'claude-haiku-5-5',calls:'6,920',cost:'$38.10',nul:'1.1%',agree:'—',corr:'—',acc:'—'}];
+return { nav, money, fixes, models };
+}
+}
+</script>
+</body>
+</html>

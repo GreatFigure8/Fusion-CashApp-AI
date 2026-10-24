@@ -19,7 +19,6 @@ from opentelemetry.trace import Span, Status, StatusCode
 
 from cashapp.domain.stages import Stage
 from cashapp.observability.redaction import sanitize_mapping
-from cashapp.settings import Settings
 
 _INSTRUMENTATION_NAME: Final = "cashapp"
 
@@ -27,7 +26,10 @@ _provider: TracerProvider = TracerProvider(resource=Resource.create({"service.na
 
 
 def configure_tracing(
-    settings: Settings, *, service_name: str = "cashapp", exporter: SpanExporter | None = None
+    otlp_endpoint: str | None = None,
+    *,
+    service_name: str = "cashapp",
+    exporter: SpanExporter | None = None,
 ) -> TracerProvider:
     """Build and install the tracer provider.
 
@@ -36,7 +38,7 @@ def configure_tracing(
     """
     global _provider
     provider = TracerProvider(resource=Resource.create({"service.name": service_name}))
-    endpoint = settings.observability.otlp_endpoint
+    endpoint = otlp_endpoint
     if endpoint is not None:
         provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint)))
     elif exporter is not None:

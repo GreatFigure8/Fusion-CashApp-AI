@@ -6,6 +6,9 @@ export { publicEnv } from "./env.public";
 
 export const serverEnvSchema = z.object({
   OIDC_ISSUER: z.string().url(),
+  // Only when the discovery document names a different issuer than the URL it is fetched from
+  // (OCI IAM Identity Domains name https://identity.oraclecloud.com/).
+  OIDC_EXPECTED_ISSUER: z.string().url().optional(),
   OIDC_CLIENT_ID: z.string().min(1),
   OIDC_CLIENT_SECRET: z.string().min(1),
   SESSION_SECRET: z.string().min(32),

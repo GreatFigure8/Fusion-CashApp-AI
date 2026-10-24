@@ -7,11 +7,11 @@ from fastapi import APIRouter, Depends
 from cashapp.api.deps import UowFactoryDep
 from cashapp.api.errors import ERROR_RESPONSES
 from cashapp.api.fusion_deps import FusionClientDep
+from cashapp.api.runtime_deps import RuntimeSettingsDep
 from cashapp.api.schemas.reversal import ReverseIn, ReverseOut, reversal_error_to_api
 from cashapp.auth.deps import require_permission
 from cashapp.domain.principal import Permission, Principal
 from cashapp.services.reversal import ReversalError, ReversalService
-from cashapp.settings import get_settings
 
 router = APIRouter(tags=["reversal"], responses=ERROR_RESPONSES)
 
@@ -30,8 +30,10 @@ async def reverse_application(
     principal: ReverserDep,
     uow_factory: UowFactoryDep,
     fusion: FusionClientDep,
+    runtime: RuntimeSettingsDep,
 ) -> ReverseOut:
-    service = ReversalService(fusion, unapply_verified=get_settings().fusion.unapply_verified)
+    writes = await runtime.fusion_writes()
+    service = ReversalService(fusion, unapply_verified=writes.unapply_verified)
     try:
         async with uow_factory() as uow:
             result = await service.reverse(

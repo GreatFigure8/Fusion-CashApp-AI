@@ -9,11 +9,11 @@ attempt is recorded. Model ids containing "fable" are refused (zero data retenti
 
 import base64
 import time
-from collections.abc import AsyncIterator, Callable, Sequence
+from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
 from typing import Any, Self
 
 import anthropic
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, SecretStr, ValidationError
 
 from cashapp.integrations.llm.base import (
     ContentPart,
@@ -25,6 +25,10 @@ from cashapp.integrations.llm.base import (
     LlmUsage,
     PdfPart,
     TextPart,
+    ToolTurnComplete,
+    ToolTurnDelta,
+    ToolTurnEvent,
+    ToolTurnRequest,
 )
 
 PROVIDER = "anthropic"
@@ -78,10 +82,35 @@ def _messages(request: LlmRequest) -> list[dict[str, Any]]:
     return messages
 
 
+class AnthropicClientProvider:
+    """One shared SDK client, rebuilt when the resolved API key changes (rotation).
+
+    The key is resolved at call time through the secret resolver's TTL cache, so a rotated Vault
+    secret is picked up without a restart. SDK retries are off: the auto-fix engine owns retries.
+    """
+
+    def __init__(
+        self, api_key: Callable[[], Awaitable[SecretStr]], *, base_url: str | None = None
+    ) -> None:
+        self._api_key = api_key
+        self._base_url = base_url
+        self._client: anthropic.AsyncAnthropic | None = None
+        self._key: str | None = None
+
+    async def get(self) -> anthropic.AsyncAnthropic:
+        key = (await self._api_key()).get_secret_value()
+        if self._client is None or key != self._key:
+            self._client = anthropic.AsyncAnthropic(
+                api_key=key, base_url=self._base_url, max_retries=0
+            )
+            self._key = key
+        return self._client
+
+
 class AnthropicLlmClient:
     provider = PROVIDER
 
-    def __init__(self, client: anthropic.AsyncAnthropic, model_id: str) -> None:
+    def __init__(self, client: AnthropicClientProvider, model_id: str) -> None:
         refuse_fable(model_id)
         self._client = client
         self._model_id = model_id
@@ -138,7 +167,7 @@ class AnthropicLlmClient:
 
     async def parse[T: BaseModel](self, request: LlmRequest, schema: type[T]) -> LlmResult[T]:
         started = time.perf_counter()
-        client = self._client.with_options(timeout=request.timeout_s)
+        client = (await self._client.get()).with_options(timeout=request.timeout_s)
         try:
             response: Any = await client.messages.parse(
                 output_format=schema, **self._call_kwargs(request)
@@ -182,7 +211,7 @@ class AnthropicLlmClient:
     ) -> AsyncIterator[str]:
         """Text deltas of a plain-text reply; the final usage goes to ``on_usage``."""
         started = time.perf_counter()
-        client = self._client.with_options(timeout=request.timeout_s)
+        client = (await self._client.get()).with_options(timeout=request.timeout_s)
         try:
             async with client.messages.stream(**self._call_kwargs(request)) as stream:
                 async for delta in stream.text_stream:
@@ -193,3 +222,39 @@ class AnthropicLlmClient:
         on_usage(self._usage(final, started))
         if str(final.stop_reason) == "refusal":
             raise self._error(LlmErrorCode.LLM_REFUSAL, "model refused")
+
+    async def stream_tool_turn(self, request: ToolTurnRequest) -> AsyncIterator[ToolTurnEvent]:
+        """One tool-using turn: text deltas, then the final content blocks verbatim.
+
+        Adaptive thinking stays at its default (no ``thinking`` parameter), effort is explicit,
+        there is no forced ``tool_choice`` and no sampling parameter. A refusal stop reason is
+        raised before any content is read. The caller validates every tool input (eager input
+        streaming can deliver a truncated one).
+        """
+        started = time.perf_counter()
+        client = (await self._client.get()).with_options(timeout=request.timeout_s)
+        kwargs: dict[str, Any] = {
+            "model": self._model_id,
+            "max_tokens": request.max_tokens,
+            "system": request.system,
+            "messages": list(request.messages),
+            "tools": list(request.tools),
+            "cache_control": {"type": "ephemeral"},
+        }
+        if request.effort is not None:
+            kwargs["output_config"] = {"effort": request.effort}
+        try:
+            async with client.messages.stream(**kwargs) as stream:
+                async for delta in stream.text_stream:
+                    yield ToolTurnDelta(delta)
+                final: Any = await stream.get_final_message()
+        except Exception as exc:
+            raise self._map(exc) from exc
+        usage = self._usage(final, started)
+        stop_reason = str(final.stop_reason)
+        if stop_reason == "refusal":
+            raise self._error(LlmErrorCode.LLM_REFUSAL, "model refused", usage)
+        blocks: list[dict[str, Any]] = [
+            block.model_dump(mode="json", exclude_none=True) for block in final.content
+        ]
+        yield ToolTurnComplete(content=tuple(blocks), stop_reason=stop_reason, usage=usage)

@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { useEventStream, type StreamEvent, type StreamStatus } from "@/lib/api/use-event-stream";
+import { useEventStream, type StreamEvent, type StreamStatus } from "@/hooks/use-event-stream";
 import type { Schemas } from "@/lib/api/types";
 import { flowStreamDataSchema, type FlowStreamData } from "@/lib/flow/stream-schemas";
 

@@ -8,7 +8,7 @@ import asyncio
 import copy
 import datetime
 import logging
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from types import MappingProxyType
@@ -25,7 +25,7 @@ from cashapp.data.repositories.config import (
 from cashapp.data.uow import UnitOfWork, UowFactory
 from cashapp.domain import config_keys as ck
 from cashapp.domain.clock import Clock, SystemClock
-from cashapp.domain.config_keys import CONFIG_KEYS, ConfigKey
+from cashapp.domain.config_keys import CONFIG_GROUPS, CONFIG_KEYS, ConfigKey
 from cashapp.domain.paging import Page
 from cashapp.domain.principal import Permission, Principal
 from cashapp.services.config_groups import (
@@ -47,12 +47,14 @@ from cashapp.services.config_groups import (
     ReportsConfig,
     RetentionConfig,
     RetriesConfig,
+    UploadsConfig,
 )
 
 logger = logging.getLogger(__name__)
 
 FABLE_MESSAGE = "Claude Fable models are not allowed (zero data retention)"
 MAX_REASON_LENGTH = 1000
+RESTART_NOTE = " [takes effect on restart]"
 DEFAULT_TTL_SECONDS = 15.0
 
 type ErrorDict = dict[str, Any]
@@ -242,6 +244,12 @@ _EXTRA_CHECKS: Mapping[str, Callable[[Any], list[ErrorDict]]] = MappingProxyType
         ck.BUDGET_DAILY_USD.name: _non_negative_number,
         ck.NOTIFICATIONS_BATCH_WINDOW_SECONDS.name: _min_int(0),
         ck.REPORTS_DAILY_SUMMARY_CUTOVER.name: _check_cutover,
+        ck.UPLOADS_MAX_FILE_BYTES.name: _min_int(1),
+        ck.UPLOADS_MAX_FILES_PER_REQUEST.name: _min_int(1),
+        ck.UPLOADS_DAILY_PER_USER.name: _min_int(0),
+        ck.UPLOADS_MAX_PIXELS.name: _min_int(1),
+        ck.UPLOADS_MAX_PDF_PAGES.name: _min_int(1),
+        ck.UPLOADS_STAGE_TTL_SECONDS.name: _min_int(60),
     }
 )
 
@@ -268,7 +276,9 @@ def to_json[T](key: ConfigKey[T], value: T) -> JsonValue:
     return cast(JsonValue, key.dump(value))
 
 
-def normalize_reason(key: str, reason: str) -> str:
+def normalize_reason(key: str, reason: str, *, suffix: str = "") -> str:
+    """Trim and check a reason; `suffix` is appended after the length check is applied to the
+    text, so the stored reason stays within the limit."""
     cleaned = reason.strip()
     if not cleaned:
         raise ConfigValidationError(key, [_fail("A reason is required", "reason")])
@@ -276,6 +286,8 @@ def normalize_reason(key: str, reason: str) -> str:
         raise ConfigValidationError(
             key, [_fail(f"Reason must be at most {MAX_REASON_LENGTH} characters", "reason")]
         )
+    if suffix:
+        cleaned = cleaned[: MAX_REASON_LENGTH - len(suffix)] + suffix
     return cleaned
 
 
@@ -304,16 +316,17 @@ class DbConfigStore:
     async def load(self) -> Mapping[str, StoredSetting]:
         async with self._uow_factory() as uow:
             rows = await uow.repo(ConfigSettingRepository).all()
-        return {
-            row.key: StoredSetting(
-                key=row.key,
-                value=cast(JsonValue, row.value),
-                version=row.version,
-                updated_at=row.updated_at,
-                updated_by=row.updated_by,
-            )
-            for row in rows
-        }
+            # Mapped inside the unit of work: closing it expires the rows' attributes.
+            return {
+                row.key: StoredSetting(
+                    key=row.key,
+                    value=cast(JsonValue, row.value),
+                    version=row.version,
+                    updated_at=row.updated_at,
+                    updated_by=row.updated_by,
+                )
+                for row in rows
+            }
 
 
 def effective_value[T](key: ConfigKey[T], stored: StoredSetting | None) -> tuple[T, int]:
@@ -449,6 +462,18 @@ class ConfigSnapshot:
     def discount(self) -> DiscountConfig:
         return DiscountConfig(self.get(ck.DISCOUNT_ENABLED))
 
+    def uploads(self) -> UploadsConfig:
+        return UploadsConfig(
+            max_file_bytes=self.get(ck.UPLOADS_MAX_FILE_BYTES),
+            max_files_per_request=self.get(ck.UPLOADS_MAX_FILES_PER_REQUEST),
+            daily_per_user=self.get(ck.UPLOADS_DAILY_PER_USER),
+            allowed_types=tuple(self.get(ck.UPLOADS_ALLOWED_TYPES)),
+            max_pixels=self.get(ck.UPLOADS_MAX_PIXELS),
+            max_pdf_pages=self.get(ck.UPLOADS_MAX_PDF_PAGES),
+            stage_ttl_seconds=self.get(ck.UPLOADS_STAGE_TTL_SECONDS),
+            review_effort=self.get(ck.REVIEW_EFFORT),
+        )
+
 
 class RuntimeConfig:
     """Cached access to configuration: values are at most `ttl_seconds` old."""
@@ -551,6 +576,9 @@ class RuntimeConfig:
     async def discount(self) -> DiscountConfig:
         return (await self.snapshot()).discount()
 
+    async def uploads(self) -> UploadsConfig:
+        return (await self.snapshot()).uploads()
+
 
 def build_runtime_config(
     uow_factory: UowFactory,
@@ -562,6 +590,22 @@ def build_runtime_config(
 
 
 # --------------------------------------------------------------------------- audit + writer
+
+
+@dataclass(frozen=True, slots=True)
+class ChangeTag:
+    """Links change rows to one change set and, for a lab promote, to its candidate and replay."""
+
+    change_set_id: int | None = None
+    lab_candidate_id: int | None = None
+    lab_replay_id: int | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class KeyChange:
+    key: str
+    value: object
+    expected_version: int
 
 
 class ConfigAudit:
@@ -578,6 +622,7 @@ class ConfigAudit:
         reason: str,
         *,
         clock: Clock | None = None,
+        tag: ChangeTag | None = None,
     ) -> None:
         now = (clock if clock is not None else SystemClock()).now()
         await uow.repo(ConfigChangeRepository).add(
@@ -589,6 +634,9 @@ class ConfigAudit:
                 changed_by_name=principal.display_name,
                 changed_at=now,
                 reason=normalize_reason(key, reason),
+                change_set_id=tag.change_set_id if tag is not None else None,
+                lab_candidate_id=tag.lab_candidate_id if tag is not None else None,
+                lab_replay_id=tag.lab_replay_id if tag is not None else None,
             )
         )
 
@@ -597,6 +645,13 @@ class ConfigAudit:
         uow: UnitOfWork, key: str, *, offset: int = 0, limit: int = 50
     ) -> Page[ConfigChange]:
         return await uow.repo(ConfigChangeRepository).history(key, offset, limit)
+
+    @staticmethod
+    async def history_all(
+        uow: UnitOfWork, *, offset: int = 0, limit: int = 50
+    ) -> Page[ConfigChange]:
+        """Changes across every key, newest first."""
+        return await uow.repo(ConfigChangeRepository).history_all(offset, limit)
 
 
 class ConfigWriter:
@@ -613,12 +668,63 @@ class ConfigWriter:
         principal: Principal,
         reason: str,
         expected_version: int,
+        *,
+        permission: Permission = Permission.CONFIG_WRITE,
     ) -> int:
-        """Write `value` if the stored version is `expected_version`; return the new version."""
+        """Write `value` if the stored version is `expected_version`; return the new version.
+
+        ``permission`` is what the caller must hold: config:write by default, engine:control for
+        the engine's own keys.
+        """
+        return await self._write_one(
+            uow, key, value, principal, reason, expected_version, None, permission
+        )
+
+    async def set_many(
+        self,
+        uow: UnitOfWork,
+        changes: Sequence[KeyChange],
+        principal: Principal,
+        reason: str,
+        *,
+        tag: ChangeTag,
+        permission: Permission = Permission.CONFIG_WRITE,
+    ) -> dict[str, int]:
+        """Write several keys in the caller's one transaction; any conflict raises and the
+        caller rolls everything back. Returns each key's new version."""
+        versions: dict[str, int] = {}
+        for change in changes:
+            versions[change.key] = await self._write_one(
+                uow,
+                change.key,
+                change.value,
+                principal,
+                reason,
+                change.expected_version,
+                tag,
+                permission,
+            )
+        return versions
+
+    async def _write_one(
+        self,
+        uow: UnitOfWork,
+        key: ConfigKey[Any] | str,
+        value: object,
+        principal: Principal,
+        reason: str,
+        expected_version: int,
+        tag: ChangeTag | None,
+        permission: Permission,
+    ) -> int:
         registry_key = lookup_key(key if isinstance(key, str) else key.name)
-        if not principal.can(Permission.CONFIG_WRITE):
-            raise ConfigForbidden("Missing permission config:write")
-        cleaned_reason = normalize_reason(registry_key.name, reason)
+        if not principal.can(permission):
+            raise ConfigForbidden(f"Missing permission {permission.value}")
+        cleaned_reason = normalize_reason(
+            registry_key.name,
+            reason,
+            suffix=RESTART_NOTE if registry_key.restart_required else "",
+        )
         new_json = to_json(registry_key, validate_value(registry_key, value))
 
         repo = uow.repo(ConfigSettingRepository)
@@ -655,7 +761,14 @@ class ConfigWriter:
                 updated_by=principal.subject,
             )
         await ConfigAudit.record(
-            uow, registry_key.name, old_json, new_json, principal, cleaned_reason, clock=self._clock
+            uow,
+            registry_key.name,
+            old_json,
+            new_json,
+            principal,
+            cleaned_reason,
+            clock=self._clock,
+            tag=tag,
         )
         return new_version
 
@@ -675,6 +788,30 @@ class ConfigEntryData:
     updated_by_name: str | None
     updated_at: datetime.datetime | None
     admin_only_write: bool
+    restart_required: bool
+    secret_ref: bool
+    last_changed_at: datetime.datetime | None
+    last_changed_by: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class ConfigGroupData:
+    group: str
+    label: str
+    count: int
+    description: str
+
+
+def list_config_groups() -> list[ConfigGroupData]:
+    """Every group with its key count, by `GroupSpec.order` and then by name."""
+    counts: dict[str, int] = {}
+    for key in CONFIG_KEYS.values():
+        counts[key.group] = counts.get(key.group, 0) + 1
+    groups = [
+        ConfigGroupData(group, CONFIG_GROUPS[group].label, count, CONFIG_GROUPS[group].description)
+        for group, count in counts.items()
+    ]
+    return sorted(groups, key=lambda g: (CONFIG_GROUPS[g.group].order, g.group))
 
 
 async def list_config_entries(uow: UnitOfWork, only: str | None = None) -> list[ConfigEntryData]:
@@ -706,6 +843,10 @@ async def list_config_entries(uow: UnitOfWork, only: str | None = None) -> list[
                 updated_by_name=change.changed_by_name if change is not None else None,
                 updated_at=row.updated_at if row is not None else None,
                 admin_only_write=key.admin_only_write,
+                restart_required=key.restart_required,
+                secret_ref=key.secret_ref,
+                last_changed_at=change.changed_at if change is not None else None,
+                last_changed_by=change.changed_by_name if change is not None else None,
             )
         )
     return entries

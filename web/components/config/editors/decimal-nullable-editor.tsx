@@ -33,7 +33,7 @@ export function DecimalNullableEditor({ id, label, value, onChange, disabled, er
             aria-describedby={describedBy}
             disabled={disabled}
             value={text}
-            className="w-32 font-mono"
+            className="h-10 w-40 px-3 font-mono text-sm"
             onChange={(e) => {
               setText(e.target.value);
               onChange(e.target.value);

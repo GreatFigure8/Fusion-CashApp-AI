@@ -1,0 +1,292 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-23T15:00:00Z"
+ },
+ "title": "CashApp UI techy redesign",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 720,
+   "title": "Three directions",
+   "expand": "fill"
+  },
+  "phosphor/Shell.dc.html": {
+   "x": 0,
+   "y": 1140,
+   "w": 1440,
+   "h": 1500,
+   "title": "A Phosphor · 1 Shell + theme",
+   "expand": "fill"
+  },
+  "phosphor/Dashboard.dc.html": {
+   "x": 1520,
+   "y": 1140,
+   "w": 1440,
+   "h": 1500,
+   "title": "A Phosphor · 2 Progress dashboard",
+   "expand": "fill"
+  },
+  "phosphor/Engine.dc.html": {
+   "x": 3040,
+   "y": 1140,
+   "w": 1440,
+   "h": 1500,
+   "title": "A Phosphor · 3 Engine control",
+   "expand": "fill"
+  },
+  "phosphor/Exceptions.dc.html": {
+   "x": 4560,
+   "y": 1140,
+   "w": 1440,
+   "h": 1500,
+   "title": "A Phosphor · 4 Exception workbench",
+   "expand": "fill"
+  },
+  "phosphor/Chat.dc.html": {
+   "x": 6080,
+   "y": 1140,
+   "w": 1440,
+   "h": 1500,
+   "title": "A Phosphor · 5 Assistant agent (main interface)",
+   "expand": "fill"
+  },
+  "phosphor/Upload.dc.html": {
+   "x": 7600,
+   "y": 1140,
+   "w": 1440,
+   "h": 1500,
+   "title": "A Phosphor · 6 Failed-receipt review",
+   "expand": "fill"
+  },
+  "glass/Shell.dc.html": {
+   "x": 0,
+   "y": 3060,
+   "w": 1440,
+   "h": 1500,
+   "title": "B Glass Orbit · 1 Shell + theme",
+   "expand": "fill"
+  },
+  "glass/Dashboard.dc.html": {
+   "x": 1520,
+   "y": 3060,
+   "w": 1440,
+   "h": 1500,
+   "title": "B Glass Orbit · 2 Progress dashboard",
+   "expand": "fill"
+  },
+  "glass/Engine.dc.html": {
+   "x": 3040,
+   "y": 3060,
+   "w": 1440,
+   "h": 1500,
+   "title": "B Glass Orbit · 3 Engine control",
+   "expand": "fill"
+  },
+  "glass/Exceptions.dc.html": {
+   "x": 4560,
+   "y": 3060,
+   "w": 1440,
+   "h": 1500,
+   "title": "B Glass Orbit · 4 Exception workbench",
+   "expand": "fill"
+  },
+  "glass/Chat.dc.html": {
+   "x": 6080,
+   "y": 3060,
+   "w": 1440,
+   "h": 1500,
+   "title": "B Glass Orbit · 5 Assistant agent (main interface)",
+   "expand": "fill"
+  },
+  "glass/Upload.dc.html": {
+   "x": 7600,
+   "y": 3060,
+   "w": 1440,
+   "h": 1500,
+   "title": "B Glass Orbit · 6 Failed-receipt review",
+   "expand": "fill"
+  },
+  "deck/Shell.dc.html": {
+   "x": 0,
+   "y": 4980,
+   "w": 1440,
+   "h": 1500,
+   "title": "C Instrument Deck · 1 Shell + theme",
+   "expand": "fill"
+  },
+  "deck/Dashboard.dc.html": {
+   "x": 1520,
+   "y": 4980,
+   "w": 1440,
+   "h": 1500,
+   "title": "C Instrument Deck · 2 Progress dashboard",
+   "expand": "fill"
+  },
+  "deck/Engine.dc.html": {
+   "x": 3040,
+   "y": 4980,
+   "w": 1440,
+   "h": 1500,
+   "title": "C Instrument Deck · 3 Engine control",
+   "expand": "fill"
+  },
+  "deck/Exceptions.dc.html": {
+   "x": 4560,
+   "y": 4980,
+   "w": 1440,
+   "h": 1500,
+   "title": "C Instrument Deck · 4 Exception workbench",
+   "expand": "fill"
+  },
+  "deck/Chat.dc.html": {
+   "x": 6080,
+   "y": 4980,
+   "w": 1440,
+   "h": 1500,
+   "title": "C Instrument Deck · 5 Assistant agent (main interface)",
+   "expand": "fill"
+  },
+  "deck/Upload.dc.html": {
+   "x": 7600,
+   "y": 4980,
+   "w": 1440,
+   "h": 1500,
+   "title": "C Instrument Deck · 6 Failed-receipt review",
+   "expand": "fill"
+  },
+  "phosphor/Lab.dc.html": {
+   "x": 9120,
+   "y": 1140,
+   "w": 1440,
+   "h": 1500,
+   "title": "A Phosphor · 7 Matching Lab",
+   "expand": "fill"
+  },
+  "phosphor/Reports.dc.html": {
+   "x": 10640,
+   "y": 1140,
+   "w": 1440,
+   "h": 1500,
+   "title": "A Phosphor · 8 Reports + export",
+   "expand": "fill"
+  },
+  "phosphor/Settings.dc.html": {
+   "x": 12160,
+   "y": 1140,
+   "w": 1440,
+   "h": 1500,
+   "title": "A Phosphor · 9 Settings",
+   "expand": "fill"
+  },
+  "glass/Lab.dc.html": {
+   "x": 9120,
+   "y": 3060,
+   "w": 1440,
+   "h": 1500,
+   "title": "B Glass Orbit · 7 Matching Lab",
+   "expand": "fill"
+  },
+  "glass/Reports.dc.html": {
+   "x": 10640,
+   "y": 3060,
+   "w": 1440,
+   "h": 1500,
+   "title": "B Glass Orbit · 8 Reports + export",
+   "expand": "fill"
+  },
+  "glass/Settings.dc.html": {
+   "x": 12160,
+   "y": 3060,
+   "w": 1440,
+   "h": 1500,
+   "title": "B Glass Orbit · 9 Settings",
+   "expand": "fill"
+  },
+  "deck/Lab.dc.html": {
+   "x": 9120,
+   "y": 4980,
+   "w": 1440,
+   "h": 1500,
+   "title": "C Instrument Deck · 7 Matching Lab",
+   "expand": "fill"
+  },
+  "deck/Reports.dc.html": {
+   "x": 10640,
+   "y": 4980,
+   "w": 1440,
+   "h": 1500,
+   "title": "C Instrument Deck · 8 Reports + export",
+   "expand": "fill"
+  },
+  "deck/Settings.dc.html": {
+   "x": 12160,
+   "y": 4980,
+   "w": 1440,
+   "h": 1500,
+   "title": "C Instrument Deck · 9 Settings",
+   "expand": "fill"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "phosphor/Shell.dc.html",
+  "phosphor/Dashboard.dc.html",
+  "phosphor/Engine.dc.html",
+  "phosphor/Exceptions.dc.html",
+  "phosphor/Chat.dc.html",
+  "phosphor/Upload.dc.html",
+  "glass/Shell.dc.html",
+  "glass/Dashboard.dc.html",
+  "glass/Engine.dc.html",
+  "glass/Exceptions.dc.html",
+  "glass/Chat.dc.html",
+  "glass/Upload.dc.html",
+  "deck/Shell.dc.html",
+  "deck/Dashboard.dc.html",
+  "deck/Engine.dc.html",
+  "deck/Exceptions.dc.html",
+  "deck/Chat.dc.html",
+  "deck/Upload.dc.html",
+  "phosphor/Lab.dc.html",
+  "phosphor/Reports.dc.html",
+  "phosphor/Settings.dc.html",
+  "glass/Lab.dc.html",
+  "glass/Reports.dc.html",
+  "glass/Settings.dc.html",
+  "deck/Lab.dc.html",
+  "deck/Reports.dc.html",
+  "deck/Settings.dc.html"
+ ],
+ "notes": {
+  "rowA": {
+   "x": 0,
+   "y": 880,
+   "text": "A · Phosphor Console: terminal ops console, mono everywhere, phosphor green on black",
+   "kind": "title1",
+   "maxW": 13600
+  },
+  "rowB": {
+   "x": 0,
+   "y": 2800,
+   "text": "B · Glass Orbit: refined dark glass, blueprint dots, electric-blue and teal accents (payroll-compare tokens)",
+   "kind": "title1",
+   "maxW": 13600
+  },
+  "rowC": {
+   "x": 0,
+   "y": 4720,
+   "text": "C · Instrument Deck: dense Bloomberg-style terminal, amber function keys, condensed type",
+   "kind": "title1",
+   "maxW": 13600
+  }
+ },
+ "designSystems": []
+}

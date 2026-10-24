@@ -27,7 +27,7 @@ export function HistorySheet({ title, children }: { title: string; children: Rea
 
   return (
     <Sheet open onOpenChange={(open) => (open ? undefined : close())}>
-      <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
+      <SheetContent className="w-full overflow-y-auto border-line bg-surface-1 sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
           <SheetDescription>Newest changes first.</SheetDescription>

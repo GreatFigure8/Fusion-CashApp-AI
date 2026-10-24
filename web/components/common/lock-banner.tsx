@@ -16,7 +16,7 @@ function message({ variant, ownerName, since }: LockBannerProps): string {
   const time = since ? formatLockTime(since) : "";
   switch (variant) {
     case "mine":
-      return `Locked by you since ${time}. Automation won't touch this item until you requeue or release it.`;
+      return `Locked by you since ${time}. Automation won't act on this item.`;
     case "other":
       return `Locked by ${ownerName ?? "someone"} since ${time}`;
     case "expired":
@@ -32,15 +32,15 @@ export function LockBanner(props: LockBannerProps): React.JSX.Element {
     <div
       role="status"
       className={cn(
-        "flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2 text-sm",
+        "flex flex-wrap items-center gap-3 rounded-xl border px-3 py-2 text-[13px]",
         locked
-          ? "border-status-locked/50 bg-status-locked/5"
-          : "border-status-attention/50 bg-status-attention/5",
+          ? "border-locked/30 bg-locked-soft text-locked-ink"
+          : "border-warn/30 bg-warn-soft text-warn-ink",
       )}
     >
       <Lock
         aria-hidden
-        className={cn("size-4 shrink-0", locked ? "text-status-locked" : "text-status-attention")}
+        className="size-4 shrink-0"
       />
       <span className="min-w-0 flex-1" suppressHydrationWarning>
         {message(props)}

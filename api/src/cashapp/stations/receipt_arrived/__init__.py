@@ -10,15 +10,17 @@ if TYPE_CHECKING:
 
 def build(container: Container) -> "ReceiptArrivedConsumer":
     from cashapp.pipeline.events import TopicNamer
+    from cashapp.services.engine.pause_gate import PauseGate
     from cashapp.stations.receipt_arrived.consumer import ReceiptArrivedConsumer
 
     return ReceiptArrivedConsumer(
         uow_factory=container.uow_factory,
         bus=container.bus,
-        group=container.settings.streaming.consumer_group,
+        group=container.runtime.streaming().consumer_group,
         config=container.config,
         clock=container.clock,
-        namer=TopicNamer.from_settings(container.settings.streaming),
+        namer=TopicNamer.from_config(container.runtime.streaming(), container.runtime.env),
+        pause_gate=PauseGate(container.config),
     )
 
 

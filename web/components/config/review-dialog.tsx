@@ -5,17 +5,9 @@ import { useState, useTransition } from "react";
 
 import { saveConfigChanges } from "@/app/(shell)/config/actions";
 import { ErrorAlert } from "@/components/common/error-alert";
+import { ConfirmDialog } from "@/components/common/confirm-dialog";
+import { DiffBlock } from "@/components/common/diff-block";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import type { ApiError } from "@/lib/api/errors";
 
 import { GROUP_ROLE_KEY } from "./config-registry";
@@ -33,10 +25,10 @@ function ResultLine({
 }) {
   switch (result.outcome) {
     case "saved":
-      return <span className="text-status-success">✓ Saved</span>;
+      return <span className="text-ok-ink">✓ Saved</span>;
     case "conflict":
       return (
-        <span className="text-destructive">
+        <span className="text-err-ink">
           ✗ {result.message}{" "}
           <Button type="button" variant="outline" size="xs" onClick={() => onReload(result.key)}>
             Reload
@@ -44,9 +36,9 @@ function ResultLine({
         </span>
       );
     case "invalid":
-      return <span className="text-destructive">✗ Invalid: {result.message}</span>;
+      return <span className="text-err-ink">✗ Invalid: {result.message}</span>;
     case "failed":
-      return <span className="text-destructive">✗ {result.error.message}</span>;
+      return <span className="text-err-ink">✗ {result.error.message}</span>;
   }
 }
 
@@ -54,14 +46,14 @@ function ResultLine({
 export function ReviewDialog({
   open,
   onOpenChange,
+  nextVersion,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  nextVersion: number;
 }) {
   const router = useRouter();
   const { state, dispatch } = useStaging();
-  const [reason, setReason] = useState("");
-  const [reasonError, setReasonError] = useState<string | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
   const [results, setResults] = useState<Record<string, KeyResult>>({});
   const [pending, startTransition] = useTransition();
@@ -69,13 +61,12 @@ export function ReviewDialog({
   const diff = stagedDiff(state);
   const blocked = Object.values(state.errors).some((e) => e.length > 0);
 
-  function submit() {
+  function submit({ reason }: { reason: string }) {
     const parsedReason = reasonSchema.safeParse(reason);
     if (!parsedReason.success) {
-      setReasonError(parsedReason.error.issues[0]?.message ?? "Enter a reason.");
+      setError(null);
       return;
     }
-    setReasonError(null);
     setError(null);
     const roleRow = diff.find((d) => d.key === GROUP_ROLE_KEY);
     const mappings = roleRow ? groupRolesSchema.safeParse(roleRow.newValue) : null;
@@ -95,7 +86,6 @@ export function ReviewDialog({
       dispatch({ type: "results", results: saved });
       setResults(Object.fromEntries(saved.map((r) => [r.key, r])));
       if (saved.every((r) => r.outcome === "saved")) {
-        setReason("");
         setResults({});
         onOpenChange(false);
       }
@@ -115,72 +105,48 @@ export function ReviewDialog({
   const resultList = Object.values(results).filter((r) => r.outcome !== "saved");
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
-        <DialogHeader>
-          <DialogTitle>Review and save</DialogTitle>
-          <DialogDescription>
+    <ConfirmDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={`Save as v${nextVersion}`}
+      body={
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">
             Each change is saved on its own. One reason is recorded for all of them.
-          </DialogDescription>
-        </DialogHeader>
-        <ul className="max-h-64 space-y-2 overflow-y-auto text-sm">
-          {diff.map((d) => (
-            <li key={d.key} className="rounded-lg border p-2">
-              <p className="font-medium">{d.label}</p>
-              <p className="break-words">
-                <span className="text-muted-foreground">
-                  {formatConfigValue(d.editor, d.oldValue, d.unit)}
-                </span>
-                {" → "}
-                {formatConfigValue(d.editor, d.newValue, d.unit)}
-              </p>
-              {results[d.key] ? (
-                <p className="mt-1">
-                  <ResultLine result={results[d.key]!} onReload={reload} />
-                </p>
-              ) : null}
-            </li>
-          ))}
-          {resultList
-            .filter((r) => !diff.some((d) => d.key === r.key))
-            .map((r) => (
-              <li key={r.key} className="rounded-lg border p-2">
-                <ResultLine result={r} onReload={reload} />
+          </p>
+          <ul className="max-h-64 space-y-2 overflow-y-auto text-sm">
+            {diff.map((d) => (
+              <li key={d.key} className="space-y-1">
+                <DiffBlock
+                  lines={[
+                    { op: "-", text: `${d.key} ${formatConfigValue(d.editor, d.oldValue, d.unit)}` },
+                    { op: "+", text: `${d.key} ${formatConfigValue(d.editor, d.newValue, d.unit)}` },
+                  ]}
+                />
+                {results[d.key] ? <ResultLine result={results[d.key]!} onReload={reload} /> : null}
               </li>
             ))}
-        </ul>
-        <div className="space-y-1">
-          <Label htmlFor="config-reason">Reason</Label>
-          <Textarea
-            id="config-reason"
-            value={reason}
-            aria-invalid={reasonError !== null}
-            aria-describedby={reasonError ? "config-reason-error" : undefined}
-            onChange={(e) => setReason(e.target.value)}
-            rows={3}
-            maxLength={1000}
-          />
-          {reasonError ? (
-            <p id="config-reason-error" role="alert" className="text-sm text-destructive">
-              {reasonError}
+            {resultList
+              .filter((r) => !diff.some((d) => d.key === r.key))
+              .map((r) => (
+                <li key={r.key}>
+                  <ResultLine result={r} onReload={reload} />
+                </li>
+              ))}
+          </ul>
+          {blocked ? (
+            <p role="alert" className="text-sm text-err-ink">
+              Fix the highlighted settings before saving.
             </p>
           ) : null}
         </div>
-        {error ? <ErrorAlert error={error} title="Couldn't save the changes" /> : null}
-        {blocked ? (
-          <p role="alert" className="text-sm text-destructive">
-            Fix the highlighted settings before saving.
-          </p>
-        ) : null}
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Close
-          </Button>
-          <Button type="button" disabled={pending || diff.length === 0 || blocked} onClick={submit}>
-            {pending ? "Saving…" : "Save changes"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      }
+      confirmLabel={`Save as v${nextVersion}`}
+      tone="accent"
+      expectedVersion={nextVersion - 1}
+      pending={pending || blocked || diff.length === 0}
+      error={error ? <ErrorAlert error={error} title="Couldn't save the changes" /> : null}
+      onConfirm={submit}
+    />
   );
 }

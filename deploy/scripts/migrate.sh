@@ -10,4 +10,5 @@ validate_env "$env_name"
 
 run_in_vcn="${RUN_IN_VCN:-$(dirname "${BASH_SOURCE[0]}")/run_in_vcn.sh}"
 log "applying migrations to $env_name with $image_ref"
-"$run_in_vcn" "$env_name" "$image_ref" -- alembic upgrade head
+# The migration container alone gets the legacy variables the s48 seed reads (output migration_env).
+RUN_IN_VCN_ENV_OUTPUT=migration_env "$run_in_vcn" "$env_name" "$image_ref" -- alembic upgrade head

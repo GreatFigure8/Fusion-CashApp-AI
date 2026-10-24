@@ -206,6 +206,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/chat/threads/{thread_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Chat Thread */
+        get: operations["get_chat_thread_chat_threads__thread_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chat/tool-calls/{call_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Tool Call */
+        post: operations["cancel_tool_call_chat_tool_calls__call_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chat/tool-calls/{call_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm Tool Call */
+        post: operations["confirm_tool_call_chat_tool_calls__call_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chat/tools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Chat Tools */
+        get: operations["list_chat_tools_chat_tools_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/config": {
         parameters: {
             query?: never;
@@ -250,6 +318,217 @@ export interface paths {
         /** Config History */
         get: operations["config_history_config__key__history_get"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/config/groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Groups */
+        get: operations["list_groups_config_groups_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/config/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Config History All */
+        get: operations["config_history_all_config_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Engine Audit
+         * @description Who did what to the engine, newest first. The default page size is a setting.
+         */
+        get: operations["list_engine_audit_engine_audit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/dead-letters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Dead Letters */
+        get: operations["list_dead_letters_engine_dead_letters_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/dead-letters/replay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Replay Dead Letters
+         * @description Send chosen dead letters back to their stage; locked, done and repeated ones are skipped.
+         */
+        post: operations["replay_dead_letters_engine_dead_letters_replay_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/stations/{station}/drain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Drain Station
+         * @description Pause a station and report DRAINED once nothing is in flight.
+         */
+        post: operations["drain_station_engine_stations__station__drain_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/stations/{station}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pause Station
+         * @description Pause a station: in-flight work finishes; new deliveries stay uncommitted on the bus.
+         */
+        post: operations["pause_station_engine_stations__station__pause_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/stations/{station}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resume Station
+         * @description Resume a paused or drained station.
+         */
+        post: operations["resume_station_engine_stations__station__resume_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Engine Status
+         * @description Per station: state, lag, throughput, in-flight against its limit, dead letters.
+         */
+        get: operations["get_engine_status_engine_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Stream Engine
+         * @description SSE: a ``status`` event on connect and whenever the status changes; a ping every 15 s.
+         */
+        get: operations["stream_engine_engine_stream_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/engine/throttle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Throttle
+         * @description Set items per stage (1 to 32) and Fusion applies per receipt (1 to 8).
+         */
+        put: operations["put_throttle_engine_throttle_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -336,6 +615,43 @@ export interface paths {
         get: operations["health_health_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integrations/mcp/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Status */
+        get: operations["get_status_integrations_mcp_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integrations/mcp/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Test
+         * @description Never a 5xx for a server failure: the failure is reported in `error`.
+         */
+        post: operations["run_test_integrations_mcp_test_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -534,6 +850,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/lab/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Candidates */
+        get: operations["list_candidates_lab_candidates_get"];
+        put?: never;
+        /** Create Candidate */
+        post: operations["create_candidate_lab_candidates_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/lab/candidates/{candidate_id}/discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Discard Candidate */
+        post: operations["discard_candidate_lab_candidates__candidate_id__discard_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/lab/candidates/{candidate_id}/promote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Promote Candidate */
+        post: operations["promote_candidate_lab_candidates__candidate_id__promote_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/lab/candidates/{candidate_id}/replays": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start Replay */
+        post: operations["start_replay_lab_candidates__candidate_id__replays_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/lab/replays/{replay_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Replay */
+        get: operations["get_replay_lab_replays__replay_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/lab/replays/{replay_id}/items.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Replay Items Csv */
+        get: operations["replay_items_csv_lab_replays__replay_id__items_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/lab/replays/{replay_id}/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stream Replay */
+        get: operations["stream_replay_lab_replays__replay_id__stream_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/llm-usage/cohere-utilisation": {
         parameters: {
             query?: never;
@@ -594,6 +1030,125 @@ export interface paths {
         };
         /** Get Me */
         get: operations["get_me_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Activity */
+        get: operations["get_activity_metrics_activity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics/autofix": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Autofix */
+        get: operations["get_autofix_metrics_autofix_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics/models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Models */
+        get: operations["get_models_metrics_models_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics/money-by-currency": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Money By Currency */
+        get: operations["get_money_by_currency_metrics_money_by_currency_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stream Metrics */
+        get: operations["stream_metrics_metrics_stream_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Summary */
+        get: operations["get_summary_metrics_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics/throughput": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Throughput */
+        get: operations["get_throughput_metrics_throughput_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -670,6 +1225,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/html/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Export Html Report */
+        post: operations["export_html_report_reports_html_export_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/html/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Html Exports */
+        get: operations["list_html_exports_reports_html_exports_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/html/exports/{export_id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download Html Export */
+        get: operations["download_html_export_reports_html_exports__export_id__file_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/html/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Preview Html Report */
+        get: operations["preview_html_report_reports_html_preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reports/partially-paid": {
         parameters: {
             query?: never;
@@ -681,6 +1304,94 @@ export interface paths {
         get: operations["get_partially_paid_reports_partially_paid_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/review/items/{item_id}/result": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Result */
+        get: operations["review_result_review_items__item_id__result_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/review/limits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Limits */
+        get: operations["review_limits_review_limits_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/review/queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Queue */
+        get: operations["review_queue_review_queue_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/review/quota": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Quota */
+        get: operations["review_quota_review_quota_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/review/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Files
+         * @description Submit files for in-depth review, or only stage them for a chat message (``stage_only``).
+         */
+        post: operations["upload_files_review_uploads_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -704,20 +1415,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/secrets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Secrets */
+        get: operations["get_secrets_secrets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/secrets/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Put Secret */
+        put: operations["put_secret_secrets__name__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** ActionData */
-        ActionData: {
-            /** Args */
-            args: {
-                [key: string]: string | number | boolean | null;
-            };
+        /** ActivityEvent */
+        ActivityEvent: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
             /** Id */
-            id: string;
-            /** Label */
-            label: string;
+            id: number;
+            /** Item Id */
+            item_id: number | null;
+            kind: components["schemas"]["ActivityKind"];
+            /** Text */
+            text: string;
+        };
+        /**
+         * ActivityKind
+         * @enum {string}
+         */
+        ActivityKind: "APPLIED" | "RECEIPT_ARRIVED" | "AUTOFIX" | "ESCALATED";
+        /** ActivityOut */
+        ActivityOut: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Data */
+            data: components["schemas"]["ActivityEvent"][];
+            window: components["schemas"]["MetricsWindow"];
         };
         /**
          * ActorKind
@@ -783,6 +1548,20 @@ export interface components {
             /** Currency */
             currency: string;
         };
+        /** AppliedOut */
+        AppliedOut: {
+            /** Currency */
+            currency: string;
+            /** Lines */
+            lines: number;
+            /** Receipt Number */
+            receipt_number: string;
+            /**
+             * Residual
+             * @example 12480.00
+             */
+            residual: string;
+        };
         /** AutofixAttemptOut */
         AutofixAttemptOut: {
             /**
@@ -800,6 +1579,27 @@ export interface components {
             /** Reasoning */
             reasoning: string | null;
         };
+        /** AutofixOut */
+        AutofixOut: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Data */
+            data: components["schemas"]["AutofixOutcome"][];
+            window: components["schemas"]["MetricsWindow"];
+        };
+        /** AutofixOutcome */
+        AutofixOutcome: {
+            /** Count */
+            count: number;
+            error_code: components["schemas"]["ErrorCode"];
+            /** Fixed */
+            fixed: number;
+            /** Rate */
+            rate: number | null;
+        };
         /**
          * AwaitingBucketsOut
          * @description Awaiting-receipt items by whole days waited.
@@ -813,6 +1613,15 @@ export interface components {
             "3-7d": number;
             /** 8-30D */
             "8-30d": number;
+        };
+        /** AwaitingReceipt */
+        AwaitingReceipt: {
+            /** Aging Limit Days */
+            aging_limit_days: number;
+            /** Count */
+            count: number;
+            /** Oldest Age Days */
+            oldest_age_days: number | null;
         };
         /** BacklogBatchCreate */
         BacklogBatchCreate: {
@@ -910,6 +1719,65 @@ export interface components {
             /** Y */
             y: number;
         };
+        /** CancelOut */
+        CancelOut: {
+            /** Call Id */
+            call_id: string;
+            /**
+             * Status
+             * @default CANCELLED
+             * @constant
+             */
+            status?: "CANCELLED";
+        };
+        /** CandidateCreateIn */
+        CandidateCreateIn: {
+            /** Changes */
+            changes: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            /** Rationale */
+            rationale: string;
+        };
+        /** CandidateListOut */
+        CandidateListOut: {
+            /** Items */
+            items: components["schemas"]["CandidateOut"][];
+            /** Live Version */
+            live_version: number;
+            /** Open Count */
+            open_count: number;
+        };
+        /** CandidateOut */
+        CandidateOut: {
+            /** Base Version */
+            base_version: number;
+            /** Changes */
+            changes: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            /** Config Diff */
+            config_diff: components["schemas"]["ConfigDiffRow"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Created By */
+            created_by: string;
+            /** Created By Name */
+            created_by_name: string;
+            /** Id */
+            id: string;
+            latest_replay: components["schemas"]["ReplaySummaryOut"] | null;
+            /** Live Version */
+            live_version: number;
+            /** Promoted Version */
+            promoted_version: number | null;
+            /** Rationale */
+            rationale: string;
+            status: components["schemas"]["CandidateStatus"];
+        };
         /** CandidateReceiptOut */
         CandidateReceiptOut: {
             /** Amount */
@@ -935,42 +1803,87 @@ export interface components {
             /** Stale */
             stale: boolean;
         };
+        /**
+         * CandidateStatus
+         * @enum {string}
+         */
+        CandidateStatus: "OPEN" | "PROMOTED" | "DISCARDED";
+        /** CardStat */
+        CardStat: {
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+        };
+        /** CardStatus */
+        CardStatus: {
+            /** Label */
+            label: string;
+            /**
+             * Tone
+             * @enum {string}
+             */
+            tone: "ok" | "accent" | "warn" | "err" | "locked" | "muted";
+        };
         /** ChatContextIn */
         ChatContextIn: {
             /** Id */
             id?: string | null;
-            kind: components["schemas"]["PromptKey"];
-        };
-        /** ChatMessageIn */
-        ChatMessageIn: {
-            /** Content */
-            content: string;
             /**
-             * Role
+             * Kind
+             * @default none
              * @enum {string}
              */
-            role: "user" | "assistant";
+            kind?: "none" | "item" | "flow";
         };
         /**
          * ChatStreamEventsDoc
          * @description Documents the SSE wire format. Each frame is exactly one of these payloads, named by its
-         *     ``event:`` field (``token``, ``action``, ``done``, ``stream-error``) with the payload as
-         *     ``data:``. It carries the payload models into the OpenAPI schema.
+         *     ``event:`` field with the payload as ``data:``. It carries the payload models into the
+         *     OpenAPI schema.
          */
         ChatStreamEventsDoc: {
-            action?: components["schemas"]["ActionData"] | null;
+            confirm_required?: components["schemas"]["ConfirmRequiredData"] | null;
             done?: components["schemas"]["DoneData"] | null;
-            "stream-error"?: components["schemas"]["StreamErrorData"] | null;
-            token?: components["schemas"]["TokenData"] | null;
+            error?: components["schemas"]["StreamErrorData"] | null;
+            text_delta?: components["schemas"]["TextDeltaData"] | null;
+            tool_finished?: components["schemas"]["ToolFinishedData"] | null;
+            tool_progress?: components["schemas"]["ToolProgressData"] | null;
+            tool_started?: components["schemas"]["ToolStartedData"] | null;
         };
         /** ChatStreamIn */
         ChatStreamIn: {
-            /** Allowed Actions */
-            allowed_actions?: string[];
-            context: components["schemas"]["ChatContextIn"];
+            context?: components["schemas"]["ChatContextIn"];
+            /** Message */
+            message: string;
+            /** @default assistant */
+            system_prompt_key?: components["schemas"]["PromptKey"];
+            /** Thread Id */
+            thread_id?: number | null;
+            /** Tool Groups */
+            tool_groups?: components["schemas"]["ToolGroup"][] | null;
+        };
+        /** ChatThreadOut */
+        ChatThreadOut: {
+            context: components["schemas"]["ThreadContextOut"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
             /** Messages */
-            messages: components["schemas"]["ChatMessageIn"][];
-            system_prompt_key: components["schemas"]["PromptKey"];
+            messages: components["schemas"]["ThreadMessageItemOut"][];
+            pending?: components["schemas"]["PendingOut"] | null;
+            prompt_key: components["schemas"]["PromptKey"];
+            /** Title */
+            title: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * ClassificationOrigin
@@ -1061,6 +1974,13 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** ConfigDiffRow */
+        ConfigDiffRow: {
+            after: components["schemas"]["JsonValue"];
+            before: components["schemas"]["JsonValue"];
+            /** Key */
+            key: string;
+        };
         /** ConfigEntry */
         ConfigEntry: {
             /** Admin Only Write */
@@ -1072,6 +1992,14 @@ export interface components {
             group: string;
             /** Key */
             key: string;
+            /** Last Changed At */
+            last_changed_at: string | null;
+            /** Last Changed By */
+            last_changed_by: string | null;
+            /** Restart Required */
+            restart_required: boolean;
+            /** Secret Ref */
+            secret_ref: boolean;
             /** Updated At */
             updated_at: string | null;
             /** Updated By */
@@ -1082,6 +2010,17 @@ export interface components {
             /** Version */
             version: number;
         };
+        /** ConfigGroupOut */
+        ConfigGroupOut: {
+            /** Count */
+            count: number;
+            /** Description */
+            description: string;
+            /** Group */
+            group: string;
+            /** Label */
+            label: string;
+        };
         /** ConfigUpdate */
         ConfigUpdate: {
             /** Expected Version */
@@ -1089,6 +2028,54 @@ export interface components {
             /** Reason */
             reason: string;
             value: components["schemas"]["JsonValue"];
+        };
+        /** ConfirmIn */
+        ConfirmIn: {
+            /** Expected Version */
+            expected_version?: number | null;
+            /** Reason */
+            reason: string;
+        };
+        /** ConfirmPreview */
+        ConfirmPreview: {
+            /** After */
+            after: string;
+            /** Before */
+            before: string;
+            /**
+             * Details
+             * @default []
+             */
+            details?: components["schemas"]["PreviewField"][];
+            /**
+             * Diff
+             * @default []
+             */
+            diff?: components["schemas"]["DiffLine"][];
+            /** Expected Version */
+            expected_version?: number | null;
+            /**
+             * Reason Prompt
+             * @default Why are you making this change?
+             */
+            reason_prompt?: string;
+            /** What */
+            what: string;
+            /** Who */
+            who: string;
+        };
+        /** ConfirmRequiredData */
+        ConfirmRequiredData: {
+            /** Call Id */
+            call_id: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            preview: components["schemas"]["ConfirmPreview"];
+            /** Tool */
+            tool: string;
         };
         /** ContextWarningOut */
         ContextWarningOut: {
@@ -1101,6 +2088,11 @@ export interface components {
              */
             section: "customer" | "invoices" | "credit_memos" | "receipts";
         };
+        /**
+         * CostBasis
+         * @enum {string}
+         */
+        CostBasis: "PER_CALL" | "CLUSTER";
         /** CreditMemoApplicationOut */
         CreditMemoApplicationOut: {
             /**
@@ -1150,6 +2142,23 @@ export interface components {
             amount: string;
             /** Currency */
             currency: string;
+        };
+        /** CurrencyTotal */
+        CurrencyTotal: {
+            /**
+             * Amount
+             * @example 12480.00
+             */
+            amount: string;
+            /** Currency */
+            currency: string;
+            /** Receipts */
+            receipts: number;
+            /**
+             * Residual
+             * @example 12480.00
+             */
+            residual: string;
         };
         /** CustomerContextOut */
         CustomerContextOut: {
@@ -1259,6 +2268,51 @@ export interface components {
          * @enum {string}
          */
         DateKind: "payment" | "issue" | "order" | "deposit" | "other";
+        /** DeadLetterOut */
+        DeadLetterOut: {
+            /** Attempts */
+            attempts: number;
+            /**
+             * Dead Since
+             * Format: date-time
+             */
+            dead_since: string;
+            /** Error Code */
+            error_code: string | null;
+            /**
+             * Event Id
+             * Format: uuid
+             */
+            event_id: string;
+            /** Item Id */
+            item_id: number | null;
+            /**
+             * Stage
+             * @enum {string}
+             */
+            stage: "intake" | "classify" | "extract.reader_a" | "extract.reader_b" | "adjudicate" | "validate" | "resolve_customer" | "match_receipt" | "await_receipt" | "match_lines" | "apply" | "write_back";
+        };
+        /** DeadLetterPage */
+        DeadLetterPage: {
+            /** Items */
+            items: components["schemas"]["DeadLetterOut"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /** DiffLine */
+        DiffLine: {
+            /**
+             * Op
+             * @enum {string}
+             */
+            op: "-" | "+" | " ";
+            /** Text */
+            text: string;
+        };
         /** Disagreement */
         Disagreement: {
             /**
@@ -1275,8 +2329,22 @@ export interface components {
             /** Value B */
             value_b: string | null;
         };
+        /** DiscardIn */
+        DiscardIn: {
+            /** Reason */
+            reason?: string | null;
+        };
         /** DoneData */
         DoneData: {
+            /** Message Id */
+            message_id: number;
+            /**
+             * Stop
+             * @enum {string}
+             */
+            stop: "end_turn" | "awaiting_confirmation" | "tool_limit";
+            /** Thread Id */
+            thread_id: number;
             usage: components["schemas"]["UsageData"];
         };
         /** EmailRequest */
@@ -1303,6 +2371,115 @@ export interface components {
             emailed_at: string;
             /** Emailed To */
             emailed_to: string[];
+        };
+        /** EngineActionIn */
+        EngineActionIn: {
+            /** Expected Version */
+            expected_version: number;
+            /** Reason */
+            reason: string;
+        };
+        /** EngineActionOut */
+        EngineActionOut: {
+            audit: components["schemas"]["EngineAuditOut"];
+            status: components["schemas"]["EngineStatusOut"];
+        };
+        /** EngineAuditOut */
+        EngineAuditOut: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "PAUSE" | "RESUME" | "DRAIN" | "THROTTLE" | "REPLAY";
+            /** Actor Id */
+            actor_id: string;
+            /** Actor Name */
+            actor_name: string;
+            /** Actor Role */
+            actor_role: string;
+            /** After */
+            after: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Before */
+            before: {
+                [key: string]: unknown;
+            } | null;
+            /** Config Version */
+            config_version: number;
+            /** Id */
+            id: number;
+            /** Reason */
+            reason: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "api" | "chat";
+            /** Stations */
+            stations: ("intake" | "classify" | "extract.reader_a" | "extract.reader_b" | "adjudicate" | "validate" | "resolve_customer" | "match_receipt" | "await_receipt" | "match_lines" | "apply" | "write_back")[];
+        };
+        /** EngineAuditPage */
+        EngineAuditPage: {
+            /** Items */
+            items: components["schemas"]["EngineAuditOut"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /** EnginePollerOut */
+        EnginePollerOut: {
+            /** Healthy */
+            healthy: boolean;
+            /** Interval Seconds */
+            interval_seconds: number;
+            /** Last Beat At */
+            last_beat_at: string | null;
+            /**
+             * Name
+             * @enum {string}
+             */
+            name: "intake-poller" | "receipt-watcher";
+        };
+        /** EngineStatusOut */
+        EngineStatusOut: {
+            /** Bus Healthy */
+            bus_healthy: boolean;
+            /**
+             * Config Version
+             * @description Send this back as expected_version.
+             */
+            config_version: number;
+            /** Consumer Group */
+            consumer_group: string;
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Dlq Total */
+            dlq_total: number;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Pollers */
+            pollers: components["schemas"]["EnginePollerOut"][];
+            /** Region */
+            region: string;
+            /** Stations */
+            stations: components["schemas"]["StationOut"][];
+            throttle: components["schemas"]["ThrottleOut"];
+            /** Total Lag */
+            total_lag: number;
         };
         /** ErrorBody */
         ErrorBody: {
@@ -1369,6 +2546,33 @@ export interface components {
             payment_status: components["schemas"]["PaymentStatus"] | null;
             stage: components["schemas"]["Stage"];
             state: components["schemas"]["ItemState"];
+        };
+        /** ExportCard */
+        ExportCard: {
+            /** Download Href */
+            download_href: string;
+            /** Filename */
+            filename: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "export_card";
+            /**
+             * Media Type
+             * @default text/html
+             * @constant
+             */
+            media_type?: "text/html";
+            /** Preview Href */
+            preview_href: string;
+            /**
+             * Self Contained
+             * @default true
+             */
+            self_contained?: boolean;
+            /** Size Bytes */
+            size_bytes: number;
         };
         /** Extracted[Annotated[Decimal, BeforeValidator, PlainSerializer, WithJsonSchema]] */
         Extracted_Annotated_Decimal__BeforeValidator__PlainSerializer__WithJsonSchema__: {
@@ -1519,6 +2723,12 @@ export interface components {
             /** Path */
             path: string;
         };
+        /**
+         * FieldSource
+         * @description Where the adjudicated value of a field came from.
+         * @enum {string}
+         */
+        FieldSource: "A_EQ_B" | "A_B_DIFFERED" | "A_ONLY" | "B_ONLY";
         /** FlowKpisOut */
         FlowKpisOut: {
             /** Applied By Currency */
@@ -1685,6 +2895,22 @@ export interface components {
             to_stage: components["schemas"]["Stage"] | null;
             to_state: components["schemas"]["ItemState"] | null;
         };
+        /**
+         * HtmlExportRequest
+         * @description Body of ``POST /reports/html/export``: the same three fields the preview takes.
+         */
+        HtmlExportRequest: {
+            kind: components["schemas"]["HtmlReportKind"];
+            /** Sections */
+            sections: components["schemas"]["ReportSection"][];
+            window: components["schemas"]["ReportWindow"];
+        };
+        /**
+         * HtmlReportKind
+         * @description The kinds of self-contained HTML progress report. They differ only in default sections.
+         * @enum {string}
+         */
+        HtmlReportKind: "PROGRESS_SUMMARY" | "EXCEPTIONS_AGING" | "MODEL_EFFICIENCY";
         /** InvoiceContextOut */
         InvoiceContextOut: {
             /** Bill To Customer */
@@ -1779,6 +3005,23 @@ export interface components {
          */
         ItemState: "PENDING" | "IN_PROGRESS" | "AWAITING_RECEIPT" | "ESCALATED" | "DONE" | "ARCHIVED";
         JsonValue: unknown;
+        /** LabMoneyByCurrencyOut */
+        LabMoneyByCurrencyOut: {
+            /** Currency */
+            currency: string;
+            /** Items */
+            items: number;
+            /**
+             * Newly Matched
+             * @example 12480.00
+             */
+            newly_matched: string;
+            /**
+             * Newly Unmatched
+             * @example 12480.00
+             */
+            newly_unmatched: string;
+        };
         /** LastGeneratedOut */
         LastGeneratedOut: {
             /**
@@ -1876,20 +3119,131 @@ export interface components {
             /** Owner Name */
             owner_name: string;
         };
+        /** McpLastCallOut */
+        McpLastCallOut: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Duration Ms */
+            duration_ms: number;
+            /** Rows */
+            rows: number | null;
+            /** Tool */
+            tool: string;
+        };
+        /** McpStatusOut */
+        McpStatusOut: {
+            /** Client Id */
+            client_id: string;
+            /** Error */
+            error: string | null;
+            /** Healthy */
+            healthy: boolean;
+            last_call: components["schemas"]["McpLastCallOut"] | null;
+            /** Latency Ms */
+            latency_ms: number | null;
+            /**
+             * Secret In Vault
+             * @default true
+             * @constant
+             */
+            secret_in_vault?: true;
+            /** Server Url */
+            server_url: string;
+            /** Source */
+            source: string;
+        };
+        /** McpTestOut */
+        McpTestOut: {
+            /** Error */
+            error: string | null;
+            /** Probe Ms */
+            probe_ms: number | null;
+            /**
+             * Probe Tool
+             * @constant
+             */
+            probe_tool: "fusion_rest_get";
+            /** Token Valid */
+            token_valid: boolean;
+            /** Tools Count */
+            tools_count: number;
+        };
         /** MeResponse */
         MeResponse: {
+            /** Access Request Url */
+            access_request_url: string | null;
             /** Display Name */
             display_name: string;
             /** Email */
             email: string | null;
+            /**
+             * Env
+             * @enum {string}
+             */
+            env: "local" | "dev" | "test" | "prod";
             /** Groups */
             groups: string[];
             /** Permissions */
             permissions: components["schemas"]["Permission"][];
             /** Roles */
             roles: components["schemas"]["Role"][];
+            /** Sample Data */
+            sample_data: boolean;
             /** Subject */
             subject: string;
+        };
+        /**
+         * MetricsSummaryFrame
+         * @description SSE ``event: summary``. Documentation only; the stream serialises it directly.
+         */
+        MetricsSummaryFrame: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            data: components["schemas"]["ProgressSummary"];
+            window: components["schemas"]["MetricsWindow"];
+        };
+        /**
+         * MetricsWindow
+         * @enum {string}
+         */
+        MetricsWindow: "24h" | "7d" | "30d" | "mtd";
+        /** ModelEfficiencyRow */
+        ModelEfficiencyRow: {
+            /** Accuracy */
+            accuracy: number | null;
+            /** Accuracy N */
+            accuracy_n: number;
+            /** Agreement Rate */
+            agreement_rate: number | null;
+            /** Calls */
+            calls: number;
+            cost_basis: components["schemas"]["CostBasis"];
+            /** Cost Unknown Share */
+            cost_unknown_share: number | null;
+            /** Cost Usd */
+            cost_usd: string | null;
+            /** Human Correction Rate */
+            human_correction_rate: number | null;
+            /** Model Id */
+            model_id: string;
+            role: components["schemas"]["LlmRole"];
+        };
+        /** ModelsOut */
+        ModelsOut: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Data */
+            data: components["schemas"]["ModelEfficiencyRow"][];
+            window: components["schemas"]["MetricsWindow"];
         };
         /** Money */
         Money: {
@@ -1900,6 +3254,17 @@ export interface components {
             amount: string;
             /** Currency */
             currency: string;
+        };
+        /** MoneyByCurrencyOut */
+        MoneyByCurrencyOut: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Data */
+            data: components["schemas"]["CurrencyTotal"][];
+            window: components["schemas"]["MetricsWindow"];
         };
         /** NotificationLogOut */
         NotificationLogOut: {
@@ -1940,6 +3305,15 @@ export interface components {
             limit: number;
             /** Offset */
             offset: number;
+            /** Total */
+            total: number;
+        };
+        /** OpenExceptions */
+        OpenExceptions: {
+            /** Dead Lettered */
+            dead_lettered: number;
+            /** Locked */
+            locked: number;
             /** Total */
             total: number;
         };
@@ -2012,11 +3386,24 @@ export interface components {
          * @enum {string}
          */
         PaymentStatus: "payment-success" | "payment-less-than-total-due-success" | "payment-more-than-total-due-success" | "payment-previously-applied" | "invoice-not-found" | "customer-not-found" | "missing-payment-date" | "receipt-not-found" | "zero-amount" | "payment-apply-failed-system" | "payment-apply-failed-receipt-closed" | "payment-apply-failed-zero-balance";
+        /** PendingOut */
+        PendingOut: {
+            /** Call Id */
+            call_id: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            preview: components["schemas"]["ConfirmPreview"];
+            /** Tool */
+            tool: string;
+        };
         /**
          * Permission
          * @enum {string}
          */
-        Permission: "items:read" | "items:work" | "apply:reverse" | "classification:override" | "config:read" | "config:write" | "reports:read" | "backlog:run" | "chat:use";
+        Permission: "items:read" | "items:work" | "apply:reverse" | "classification:override" | "config:read" | "config:write" | "reports:read" | "backlog:run" | "chat:use" | "engine:control" | "lab:run";
         /** PollerOut */
         PollerOut: {
             /** Last Cycle At */
@@ -2024,11 +3411,84 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** PreviewField */
+        PreviewField: {
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+        };
+        /** PreviewOut */
+        PreviewOut: {
+            /** Artifact Key */
+            artifact_key: string;
+            kind: components["schemas"]["PartKind"];
+            /** Media Type */
+            media_type: string;
+            /** Page */
+            page: number;
+            /** Part No */
+            part_no: number;
+            region: components["schemas"]["RegionOut"] | null;
+        };
+        /** ProgressSummary */
+        ProgressSummary: {
+            /** Autofix Rate */
+            autofix_rate: number | null;
+            /** Automation Rate */
+            automation_rate: number | null;
+            awaiting_receipt: components["schemas"]["AwaitingReceipt"];
+            /** Done Items */
+            done_items: number;
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /** Human Correction Rate */
+            human_correction_rate: number | null;
+            open_exceptions: components["schemas"]["OpenExceptions"];
+            /** Receipts Matched */
+            receipts_matched: number;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+            window: components["schemas"]["MetricsWindow"];
+        };
+        /** PromoteIn */
+        PromoteIn: {
+            /** Expected Version */
+            expected_version: number;
+            /** Reason */
+            reason: string;
+            /** Replay Id */
+            replay_id: string;
+        };
+        /** PromoteOut */
+        PromoteOut: {
+            /** Candidate Id */
+            candidate_id: string;
+            /** Keys */
+            keys: string[];
+            /** New Version */
+            new_version: number;
+            /**
+             * Promoted At
+             * Format: date-time
+             */
+            promoted_at: string;
+            /** Promoted By */
+            promoted_by: string;
+            /** Replay Id */
+            replay_id: string;
+        };
         /**
          * PromptKey
          * @enum {string}
          */
-        PromptKey: "item" | "flow";
+        PromptKey: "item" | "flow" | "assistant" | "matching";
         /** PurgeReportResponse */
         PurgeReportResponse: {
             /** Adjudications */
@@ -2039,6 +3499,8 @@ export interface components {
             dry_run: boolean;
             /** History Payloads */
             history_payloads: number;
+            /** Lab Replay Items */
+            lab_replay_items: number;
             /** Objects Deleted */
             objects_deleted: number;
             /** Objects Kept Shared */
@@ -2064,6 +3526,13 @@ export interface components {
         PurgeRequest: {
             /** Dry Run */
             dry_run: boolean;
+        };
+        /** QuotaOut */
+        QuotaOut: {
+            /** Limit */
+            limit: number;
+            /** Used */
+            used: number;
         };
         /**
          * ReaderSlot
@@ -2101,6 +3570,17 @@ export interface components {
             reservation_status: string | null;
             /** Score */
             score: number | null;
+        };
+        /** RegionOut */
+        RegionOut: {
+            /** H */
+            h: number;
+            /** W */
+            w: number;
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
         };
         /** RelationshipOut */
         RelationshipOut: {
@@ -2168,6 +3648,246 @@ export interface components {
              */
             sales_order_refs: string[];
         };
+        /** ReplayCard */
+        ReplayCard: {
+            /** Candidate Id */
+            candidate_id: string;
+            /** Changed */
+            changed: number;
+            /**
+             * Currencies
+             * @default []
+             */
+            currencies?: components["schemas"]["ReplayCurrency"][];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "replay_card";
+            /** Lab Href */
+            lab_href: string;
+            /** Newly Ambiguous */
+            newly_ambiguous: number;
+            /** Newly Failed */
+            newly_failed: number;
+            /** Newly Matched */
+            newly_matched: number;
+            /** Replay Id */
+            replay_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "RUNNING" | "DONE" | "FAILED" | "STALE";
+        };
+        /** ReplayCurrency */
+        ReplayCurrency: {
+            /** Currency */
+            currency: string;
+            /** Items */
+            items: number;
+            /**
+             * Newly Matched
+             * @example 12480.00
+             */
+            newly_matched: string;
+            /**
+             * Newly Unmatched
+             * @example 12480.00
+             */
+            newly_unmatched: string;
+        };
+        /** ReplayIn */
+        ReplayIn: {
+            /** Event Ids */
+            event_ids: string[];
+            /** Reason */
+            reason: string;
+        };
+        /** ReplayItemOut */
+        ReplayItemOut: {
+            after: components["schemas"]["ReplayOutcome"];
+            /** Amount */
+            amount: string | null;
+            before: components["schemas"]["ReplayOutcome"];
+            /** Currency */
+            currency: string | null;
+            /** Item Id */
+            item_id: number;
+            /** Receipt After */
+            receipt_after: number | null;
+            /** Receipt Before */
+            receipt_before: number | null;
+            /** Since Applied */
+            since_applied: boolean;
+        };
+        /** ReplayOut */
+        ReplayOut: {
+            /** Audit Id */
+            audit_id: number;
+            /** Replayed */
+            replayed: number;
+            /** Skipped */
+            skipped: components["schemas"]["ReplaySkipOut"][];
+        };
+        /**
+         * ReplayOutcome
+         * @enum {string}
+         */
+        ReplayOutcome: "matched" | "no_receipt" | "ambiguous" | "variance" | "lines_failed" | "no_input";
+        /** ReplayResultOut */
+        ReplayResultOut: {
+            /** Base Version */
+            base_version: number;
+            /** Candidate Id */
+            candidate_id: string;
+            /** Changed */
+            changed: number;
+            /** Config Diff */
+            config_diff: components["schemas"]["ConfigDiffRow"][];
+            /** Done */
+            done: number;
+            /** Duration Ms */
+            duration_ms: number | null;
+            /** Error */
+            error: string | null;
+            /** Finished At */
+            finished_at: string | null;
+            /** Id */
+            id: string;
+            /** Items */
+            items: components["schemas"]["ReplayItemOut"][];
+            /** Live Version */
+            live_version: number;
+            /** Money By Currency */
+            money_by_currency: components["schemas"]["LabMoneyByCurrencyOut"][];
+            /** Newly Ambiguous */
+            newly_ambiguous: number;
+            /** Newly Failed */
+            newly_failed: number;
+            /** Newly Matched */
+            newly_matched: number;
+            /** Stale Message */
+            stale_message: string | null;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            status: components["schemas"]["ReplayStatus"];
+            /** Total */
+            total: number;
+            /** Window Days */
+            window_days: number;
+        };
+        /** ReplaySkipOut */
+        ReplaySkipOut: {
+            /**
+             * Event Id
+             * Format: uuid
+             */
+            event_id: string;
+            /**
+             * Why
+             * @enum {string}
+             */
+            why: "locked" | "done" | "already_replayed" | "moved_on" | "not_found";
+        };
+        /** ReplayStartIn */
+        ReplayStartIn: {
+            /** Window Days */
+            window_days?: number | null;
+        };
+        /** ReplayStartOut */
+        ReplayStartOut: {
+            /** Candidate Id */
+            candidate_id: string;
+            /** Id */
+            id: string;
+            /**
+             * Status
+             * @constant
+             */
+            status: "RUNNING";
+            /** Total */
+            total: number;
+        };
+        /**
+         * ReplayStatus
+         * @enum {string}
+         */
+        ReplayStatus: "RUNNING" | "DONE" | "FAILED" | "STALE";
+        /**
+         * ReplayStreamFrameOut
+         * @description Documents the SSE payloads: ``progress``, ``done`` and ``failed`` carry subsets of this.
+         */
+        ReplayStreamFrameOut: {
+            /** Changed */
+            changed?: number | null;
+            /** Done */
+            done?: number | null;
+            /** Duration Ms */
+            duration_ms?: number | null;
+            /** Message */
+            message?: string | null;
+            /** Newly Ambiguous */
+            newly_ambiguous?: number | null;
+            /** Newly Failed */
+            newly_failed?: number | null;
+            /** Newly Matched */
+            newly_matched?: number | null;
+            /** Replay Id */
+            replay_id: string;
+            status: components["schemas"]["ReplayStatus"];
+            /** Total */
+            total?: number | null;
+        };
+        /** ReplaySummaryOut */
+        ReplaySummaryOut: {
+            /** Done */
+            done: number;
+            /** Id */
+            id: string;
+            status: components["schemas"]["ReplayStatus"];
+            /** Total */
+            total: number;
+        };
+        /** ReportExportOut */
+        ReportExportOut: {
+            /** Actor Name */
+            actor_name: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Bytes */
+            bytes: number;
+            /** Filename */
+            filename: string;
+            /** Id */
+            id: number;
+            kind: components["schemas"]["HtmlReportKind"];
+            /** Sections */
+            sections: components["schemas"]["ReportSection"][];
+            window: components["schemas"]["ReportWindow"];
+        };
+        /** ReportExportsResponse */
+        ReportExportsResponse: {
+            /** Data */
+            data: components["schemas"]["ReportExportOut"][];
+        };
+        /**
+         * ReportSection
+         * @enum {string}
+         */
+        ReportSection: "HEADLINE" | "MONEY_BY_CURRENCY" | "THROUGHPUT" | "EXCEPTIONS_BY_REASON" | "MODEL_EFFICIENCY";
+        /**
+         * ReportWindow
+         * @description The windows an HTML report offers. Values equal the metrics window of the same name.
+         * @enum {string}
+         */
+        ReportWindow: "7d" | "30d" | "mtd";
         /** RequeueIn */
         RequeueIn: {
             corrected_extraction?: components["schemas"]["RemittanceExtraction"] | null;
@@ -2237,6 +3957,59 @@ export interface components {
              */
             status: "REVERSED";
         };
+        /** ReviewFieldOut */
+        ReviewFieldOut: {
+            /** Field */
+            field: string;
+            source: components["schemas"]["FieldSource"];
+            /** Value */
+            value: string | null;
+        };
+        /** ReviewQueuePage */
+        ReviewQueuePage: {
+            /** Items */
+            items: components["schemas"]["ReviewQueueRowOut"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /** ReviewQueueRowOut */
+        ReviewQueueRowOut: {
+            /** Age Seconds */
+            age_seconds: number;
+            /** Confidence */
+            confidence: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Filename */
+            filename: string | null;
+            /** Item Id */
+            item_id: number;
+            payment_status: components["schemas"]["PaymentStatus"] | null;
+            stage: components["schemas"]["Stage"];
+            status: components["schemas"]["ItemState"];
+        };
+        /** ReviewResultOut */
+        ReviewResultOut: {
+            /** Adjudication Note */
+            adjudication_note: string | null;
+            applied: components["schemas"]["AppliedOut"] | null;
+            /** Confidence */
+            confidence: number | null;
+            /** Fields */
+            fields: components["schemas"]["ReviewFieldOut"][];
+            /** Item Id */
+            item_id: number;
+            payment_status: components["schemas"]["PaymentStatus"] | null;
+            preview: components["schemas"]["PreviewOut"] | null;
+            status: components["schemas"]["ItemState"];
+        };
         /**
          * Role
          * @enum {string}
@@ -2260,6 +4033,30 @@ export interface components {
         SearchOut: {
             /** Hits */
             hits: components["schemas"]["SearchHitOut"][];
+        };
+        /** SecretOut */
+        SecretOut: {
+            /** Name */
+            name: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Updated By */
+            updated_by: string;
+            /** Version */
+            version: number;
+        };
+        /** SecretUpdate */
+        SecretUpdate: {
+            /** Reason */
+            reason: string;
+            /**
+             * Value
+             * Format: password
+             */
+            value: string;
         };
         /** SourceLocation */
         SourceLocation: {
@@ -2286,6 +4083,14 @@ export interface components {
          * @enum {string}
          */
         Stage: "INTAKE" | "CLASSIFY" | "EXTRACT" | "ADJUDICATE" | "VALIDATE" | "RESOLVE_CUSTOMER" | "FAST_PATH" | "MATCH_RECEIPT" | "MATCH_LINES" | "APPLY" | "WRITE_BACK" | "DONE";
+        /** StagedUploadsOut */
+        StagedUploadsOut: {
+            /** Files */
+            files: components["schemas"]["UploadFileResultOut"][];
+            quota: components["schemas"]["QuotaOut"];
+            /** Upload Ids */
+            upload_ids: string[];
+        };
         /** StageItemOut */
         StageItemOut: {
             /** Amount */
@@ -2319,21 +4124,333 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** StateCard */
+        StateCard: {
+            /** History Id */
+            history_id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "state_card";
+            /**
+             * Stats
+             * @default []
+             */
+            stats?: components["schemas"]["CardStat"][];
+            status: components["schemas"]["CardStatus"];
+            /** Title */
+            title: string;
+        };
+        /** StationOut */
+        StationOut: {
+            /** Dlq Depth */
+            dlq_depth: number;
+            /** In Flight */
+            in_flight: number;
+            /**
+             * Lag
+             * @description Messages not yet committed; null when unknown.
+             */
+            lag: number | null;
+            /** Limit */
+            limit: number;
+            /**
+             * Name
+             * @enum {string}
+             */
+            name: "intake" | "classify" | "extract.reader_a" | "extract.reader_b" | "adjudicate" | "validate" | "resolve_customer" | "match_receipt" | "await_receipt" | "match_lines" | "apply" | "write_back";
+            /**
+             * Saturated
+             * @description in_flight is at or above limit.
+             */
+            saturated: boolean;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "RUNNING" | "PAUSED" | "DRAINING" | "DRAINED";
+            /**
+             * Throughput Per Min
+             * @description Mean over the last five minutes.
+             */
+            throughput_per_min: number;
+            /**
+             * Waiting
+             * @description await_receipt only: items waiting for a receipt.
+             */
+            waiting: number | null;
+        };
         /** StreamErrorData */
         StreamErrorData: {
+            /** Call Id */
+            call_id?: string | null;
             /**
              * Code
              * @enum {string}
              */
-            code: "timeout" | "llm_unavailable" | "refused" | "internal_error";
+            code: "FORBIDDEN" | "UNKNOWN_TOOL" | "INVALID_TOOL_INPUT" | "TOOL_LIMIT" | "TIMEOUT" | "LLM_UNAVAILABLE" | "REFUSED" | "INTERNAL_ERROR";
+            /** Fatal */
+            fatal: boolean;
             /** Message */
             message: string;
+            /** Thread Id */
+            thread_id: number;
         };
-        /** TokenData */
-        TokenData: {
+        /** SummaryOut */
+        SummaryOut: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            data: components["schemas"]["ProgressSummary"];
+            window: components["schemas"]["MetricsWindow"];
+        };
+        /** TableCard */
+        TableCard: {
+            /** Columns */
+            columns: components["schemas"]["TableColumn"][];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "table_card";
+            /** Rows */
+            rows: {
+                [key: string]: string | number | null;
+            }[];
+            /** Title */
+            title: string;
+            /** Total */
+            total?: number | null;
+            /**
+             * Truncated
+             * @default false
+             */
+            truncated?: boolean;
+        };
+        /** TableColumn */
+        TableColumn: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Numeric
+             * @default false
+             */
+            numeric?: boolean;
+        };
+        /** TextDeltaData */
+        TextDeltaData: {
             /** Text */
             text: string;
         };
+        /** ThreadContextOut */
+        ThreadContextOut: {
+            /** Id */
+            id?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "none" | "item" | "flow";
+        };
+        /** ThreadMessageItemOut */
+        ThreadMessageItemOut: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "user" | "assistant";
+            /** Seq */
+            seq: number;
+            /** Text */
+            text: string;
+            /** Tools */
+            tools: components["schemas"]["ThreadToolRunOut"][];
+        };
+        /** ThreadToolRunOut */
+        ThreadToolRunOut: {
+            /** Call Id */
+            call_id: string;
+            /** Duration Ms */
+            duration_ms: number;
+            group: components["schemas"]["ToolGroup"];
+            /** Ok */
+            ok: boolean;
+            /** Result Card */
+            result_card?: (components["schemas"]["StateCard"] | components["schemas"]["ReplayCard"] | components["schemas"]["ExportCard"] | components["schemas"]["TableCard"]) | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "done" | "failed" | "waiting" | "cancelled" | "expired";
+            /** Summary */
+            summary: string;
+            /** Tool */
+            tool: string;
+        };
+        /** ThrottleIn */
+        ThrottleIn: {
+            /** Apply Per Receipt */
+            apply_per_receipt: number;
+            /** Expected Version */
+            expected_version: number;
+            /**
+             * Per Stage
+             * @description Written as concurrency.per_stage {"*": n}; other entries clamped.
+             */
+            per_stage: number;
+            /** Reason */
+            reason: string;
+        };
+        /** ThrottleOut */
+        ThrottleOut: {
+            /** Apply Per Receipt */
+            apply_per_receipt: number;
+            /** Per Stage */
+            per_stage: {
+                [key: string]: number;
+            };
+        };
+        /**
+         * ThroughputBucket
+         * @enum {string}
+         */
+        ThroughputBucket: "hour" | "day";
+        /** ThroughputOut */
+        ThroughputOut: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Data */
+            data: components["schemas"]["ThroughputPoint"][];
+            window: components["schemas"]["MetricsWindow"];
+        };
+        /** ThroughputPoint */
+        ThroughputPoint: {
+            /** Applied */
+            applied: number;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Escalated */
+            escalated: number;
+        };
+        /** ToolErrorData */
+        ToolErrorData: {
+            /** Code */
+            code: string;
+            /** Message */
+            message: string;
+        };
+        /** ToolFinishedData */
+        ToolFinishedData: {
+            /** Call Id */
+            call_id: string;
+            /** Duration Ms */
+            duration_ms: number;
+            error?: components["schemas"]["ToolErrorData"] | null;
+            /** Ok */
+            ok: boolean;
+            /** Result Card */
+            result_card?: (components["schemas"]["StateCard"] | components["schemas"]["ReplayCard"] | components["schemas"]["ExportCard"] | components["schemas"]["TableCard"]) | null;
+            /** Summary */
+            summary?: string | null;
+            /** Tool */
+            tool: string;
+        };
+        /**
+         * ToolGroup
+         * @enum {string}
+         */
+        ToolGroup: "engine" | "lab" | "settings" | "reports" | "review" | "exceptions" | "fusion_reads" | "metrics";
+        /** ToolGroupOut */
+        ToolGroupOut: {
+            /** Allowed */
+            allowed: boolean;
+            group: components["schemas"]["ToolGroup"];
+            /** Tools */
+            tools: components["schemas"]["ToolOut"][];
+        };
+        /** ToolOut */
+        ToolOut: {
+            /** Allowed */
+            allowed: boolean;
+            /** Description */
+            description: string;
+            /** Mutating */
+            mutating: boolean;
+            /** Name */
+            name: string;
+        };
+        /** ToolProgressData */
+        ToolProgressData: {
+            /** Call Id */
+            call_id: string;
+            /** Done */
+            done: number;
+            /** Total */
+            total: number;
+        };
+        /** ToolStartedData */
+        ToolStartedData: {
+            /** Call Id */
+            call_id: string;
+            group: components["schemas"]["ToolGroup"];
+            /** Mutating */
+            mutating: boolean;
+            /** Summary */
+            summary: string;
+            /** Tool */
+            tool: string;
+        };
+        /** UploadFileResultOut */
+        UploadFileResultOut: {
+            /** Filename */
+            filename: string;
+            /** Item Id */
+            item_id: number | null;
+            /** Message */
+            message: string;
+            status: components["schemas"]["UploadStatus"];
+        };
+        /**
+         * UploadLimitsOut
+         * @description The configured upload limits, so the page shows them instead of hard-coding them.
+         */
+        UploadLimitsOut: {
+            /** Allowed Types */
+            allowed_types: string[];
+            /** Max File Bytes */
+            max_file_bytes: number;
+            /** Max Files Per Request */
+            max_files_per_request: number;
+        };
+        /** UploadResultOut */
+        UploadResultOut: {
+            /** Files */
+            files: components["schemas"]["UploadFileResultOut"][];
+            quota: components["schemas"]["QuotaOut"];
+        };
+        /**
+         * UploadStatus
+         * @enum {string}
+         */
+        UploadStatus: "STORED" | "DUPLICATE" | "TOO_LARGE" | "NOT_ALLOWED" | "QUOTA";
         /** UsageCallOut */
         UsageCallOut: {
             /** Cost Usd */
@@ -2968,13 +5085,175 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Server-Sent Events: `token`, `action`, `done` or `stream-error` frames, each with a monotonic `id`. */
+            /** @description Server-Sent Events: `text_delta`, `tool_started`, `tool_progress`, `tool_finished`, `confirm_required`, `error` or `done` frames, each with a monotonic `id`. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": components["schemas"]["ChatStreamEventsDoc"];
+                };
+            };
+        };
+    };
+    get_chat_thread_chat_threads__thread_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                thread_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatThreadOut"];
+                };
+            };
+        };
+    };
+    cancel_tool_call_chat_tool_calls__call_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                call_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CancelOut"];
+                };
+            };
+        };
+    };
+    confirm_tool_call_chat_tool_calls__call_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                call_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server-Sent Events: `text_delta`, `tool_started`, `tool_progress`, `tool_finished`, `confirm_required`, `error` or `done` frames, each with a monotonic `id`. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatStreamEventsDoc"];
+                };
+            };
+        };
+    };
+    list_chat_tools_chat_tools_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToolGroupOut"][];
                 };
             };
         };
@@ -3100,6 +5379,462 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConfigChangePage"];
+                };
+            };
+        };
+    };
+    list_groups_config_groups_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConfigGroupOut"][];
+                };
+            };
+        };
+    };
+    config_history_all_config_history_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConfigChangePage"];
+                };
+            };
+        };
+    };
+    list_engine_audit_engine_audit_get: {
+        parameters: {
+            query?: {
+                limit?: number | null;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineAuditPage"];
+                };
+            };
+        };
+    };
+    list_dead_letters_engine_dead_letters_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+                /** @description Only this station's dead letters. */
+                station?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeadLetterPage"];
+                };
+            };
+        };
+    };
+    replay_dead_letters_engine_dead_letters_replay_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplayIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReplayOut"];
+                };
+            };
+        };
+    };
+    drain_station_engine_stations__station__drain_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                station: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EngineActionIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineActionOut"];
+                };
+            };
+        };
+    };
+    pause_station_engine_stations__station__pause_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                station: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EngineActionIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineActionOut"];
+                };
+            };
+        };
+    };
+    resume_station_engine_stations__station__resume_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                station: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EngineActionIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineActionOut"];
+                };
+            };
+        };
+    };
+    get_engine_status_engine_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineStatusOut"];
+                };
+            };
+        };
+    };
+    stream_engine_engine_stream_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineStatusOut"];
+                    "text/event-stream": unknown;
+                };
+            };
+        };
+    };
+    put_throttle_engine_throttle_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThrottleIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EngineActionOut"];
                 };
             };
         };
@@ -3312,6 +6047,82 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    get_status_integrations_mcp_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["McpStatusOut"];
+                };
+            };
+        };
+    };
+    run_test_integrations_mcp_test_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["McpTestOut"];
                 };
             };
         };
@@ -3856,6 +6667,342 @@ export interface operations {
             };
         };
     };
+    list_candidates_lab_candidates_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                status?: components["schemas"]["CandidateStatus"] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandidateListOut"];
+                };
+            };
+        };
+    };
+    create_candidate_lab_candidates_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CandidateCreateIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandidateOut"];
+                };
+            };
+        };
+    };
+    discard_candidate_lab_candidates__candidate_id__discard_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                candidate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscardIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandidateOut"];
+                };
+            };
+        };
+    };
+    promote_candidate_lab_candidates__candidate_id__promote_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                candidate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PromoteIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromoteOut"];
+                };
+            };
+        };
+    };
+    start_replay_lab_candidates__candidate_id__replays_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                candidate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplayStartIn"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReplayStartOut"];
+                };
+            };
+        };
+    };
+    get_replay_lab_replays__replay_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                replay_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReplayResultOut"];
+                };
+            };
+        };
+    };
+    replay_items_csv_lab_replays__replay_id__items_csv_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                replay_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    stream_replay_lab_replays__replay_id__stream_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                replay_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReplayStreamFrameOut"];
+                    "text/event-stream": unknown;
+                };
+            };
+        };
+    };
     get_cohere_utilisation_llm_usage_cohere_utilisation_get: {
         parameters: {
             query?: {
@@ -4012,6 +7159,298 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+        };
+    };
+    get_activity_metrics_activity_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityOut"];
+                };
+            };
+        };
+    };
+    get_autofix_metrics_autofix_get: {
+        parameters: {
+            query?: {
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutofixOut"];
+                };
+            };
+        };
+    };
+    get_models_metrics_models_get: {
+        parameters: {
+            query?: {
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelsOut"];
+                };
+            };
+        };
+    };
+    get_money_by_currency_metrics_money_by_currency_get: {
+        parameters: {
+            query?: {
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MoneyByCurrencyOut"];
+                };
+            };
+        };
+    };
+    stream_metrics_metrics_stream_get: {
+        parameters: {
+            query?: {
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: {
+                "Last-Event-ID"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description event: summary / activity / stream-error */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetricsSummaryFrame"];
+                    "text/event-stream": unknown;
+                };
+            };
+        };
+    };
+    get_summary_metrics_summary_get: {
+        parameters: {
+            query?: {
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SummaryOut"];
+                };
+            };
+        };
+    };
+    get_throughput_metrics_throughput_get: {
+        parameters: {
+            query?: {
+                bucket?: components["schemas"]["ThroughputBucket"] | null;
+                /** @description 24h, 7d, 30d or mtd */
+                window?: components["schemas"]["MetricsWindow"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThroughputOut"];
                 };
             };
         };
@@ -4185,6 +7624,170 @@ export interface operations {
             };
         };
     };
+    export_html_report_reports_html_export_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HtmlExportRequest"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": unknown;
+                };
+            };
+        };
+    };
+    list_html_exports_reports_html_exports_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportExportsResponse"];
+                };
+            };
+        };
+    };
+    download_html_export_reports_html_exports__export_id__file_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                export_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": unknown;
+                };
+            };
+        };
+    };
+    preview_html_report_reports_html_preview_get: {
+        parameters: {
+            query: {
+                kind: components["schemas"]["HtmlReportKind"];
+                sections: components["schemas"]["ReportSection"][];
+                window: components["schemas"]["ReportWindow"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": unknown;
+                };
+            };
+        };
+    };
     get_partially_paid_reports_partially_paid_get: {
         parameters: {
             query?: {
@@ -4227,6 +7830,204 @@ export interface operations {
             };
         };
     };
+    review_result_review_items__item_id__result_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewResultOut"];
+                };
+            };
+        };
+    };
+    review_limits_review_limits_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadLimitsOut"];
+                };
+            };
+        };
+    };
+    review_queue_review_queue_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+                open_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewQueuePage"];
+                };
+            };
+        };
+    };
+    review_quota_review_quota_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuotaOut"];
+                };
+            };
+        };
+    };
+    upload_files_review_uploads_post: {
+        parameters: {
+            query?: {
+                stage_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadResultOut"] | components["schemas"]["StagedUploadsOut"];
+                };
+            };
+        };
+    };
     search_search_get: {
         parameters: {
             query: {
@@ -4263,6 +8064,88 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SearchOut"];
+                };
+            };
+        };
+    };
+    get_secrets_secrets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecretOut"][];
+                };
+            };
+        };
+    };
+    put_secret_secrets__name__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SecretUpdate"];
+            };
+        };
+        responses: {
+            /** @description Client Error */
+            "4XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Server Error */
+            "5XX": {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecretOut"];
                 };
             };
         };

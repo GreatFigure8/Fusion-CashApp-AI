@@ -1,0 +1,90 @@
+{
+  "lens": "risk",
+  "model": "opus",
+  "approaches": [
+    {
+      "name": "Propose-only chat, reuse ingest and config machinery, ledger-derived metrics",
+      "summary": "Matching is refined through chat only as proposals. The assistant (Haiku workhorse, new PromptKey MATCHING) suggests a change to an existing matching.* config key. The UI shows a diff. A person with CONFIG_WRITE confirms it, and the write goes through ConfigService with a reason, expected_version and the Principal, so it is audited. Uploads go through the existing ingest() as SourceKind.MANUAL. Metrics read only stored data, and each one shows how much of the data it covers.",
+      "how": [
+        "Chat: add PromptKey.MATCHING plus one action id, propose_config_change {key, value, rationale}. The API checks it against config_keys (only matching.* keys are allowed) and validate_value before it shows a chip. It never auto-applies: the chip opens the existing confirm dialog, which calls PUT /config/{key}. An operator lacks CONFIG_WRITE, so the chip is disabled with the message 'needs admin'.",
+        "Chat context is aggregates only: failure counts by error code, variance histogram, current config values and versions. No payer names, raw remittance text or extraction strings, so artifact content can't reach the action list and prompt injection has nothing to ride on. Zero data retention stays on, and prompts and output are never logged (service.py:5).",
+        "Upload: new router POST /intake/uploads (ITEMS_WORK). Streamed size cap from config. Check magic bytes against an allowlist (PNG, JPEG, PDF, TIFF), with pixel and page limits. Re-encode images to strip EXIF and active content. Store through StorageBackend (OCI Object Storage), then ingest(SourceKind.MANUAL, uploaded_by=principal, review_mode=in_depth). A sha256 duplicate returns the existing item id.",
+        "In-depth review means both readers at the configured high effort plus adjudication on the same stations. There is no new code path. Uploads have a per-user and per-day count cap tied to the llm_usage budget alert, because each upload costs an Opus + Cohere fan-out.",
+        "Metrics: money applied is grouped by currency and returned as Decimal strings, never summed across currencies. 'Model efficiency' covers only measurable things: cost from llm_usage.cost_usd (show the share of rows with a null cost), adjudicator agreement from the disagreements and provenance rows, auto-fix rate from history, and human-correction rate from edited_by. Don't label any of these 'accuracy' unless there is ground truth."
+      ],
+      "merit": 8,
+      "confidence": 0.8,
+      "evidence": [
+        "api/src/cashapp/api/routers/chat.py:43 (CHAT_USE gate)",
+        "api/src/cashapp/domain/principal.py:17-46 (OPERATOR has CONFIG_READ, not CONFIG_WRITE)",
+        "api/src/cashapp/services/chat/prompts.py:23-25 (PromptKey ITEM/FLOW only), :75-94 (allowed_actions in system prompt)",
+        "api/src/cashapp/services/chat/service.py:116-117 (workhorse role model), :199 (parse_action_block filters to allowed ids)",
+        "web/components/common/llm-chat/action-chips.tsx:27 (nothing runs until confirmed)",
+        "api/src/cashapp/services/config.py:271-277 (reason required), :614-628 (expected_version optimistic concurrency)",
+        "api/src/cashapp/domain/config_keys.py:113-142 (matching.date_window_days, tolerances, bank_fee_bands, scorer_weights, min_score)",
+        "api/src/cashapp/data/models/work_item.py:30,44 (UQ content_hash)",
+        "api/src/cashapp/pollers/intake/ingest.py:52,65,106 (ingest(), sha256, dedupe)",
+        "api/src/cashapp/domain/work_item.py:7-11 (SourceKind.MANUAL exists)",
+        "api/src/cashapp/data/models/llm_usage.py:38 (cost_usd nullable)",
+        "api/src/cashapp/data/models/adjudication.py:49-52 (provenance, disagreements, confidence, edited_by)",
+        "CLAUDE.md (Models table: Haiku workhorse; zero data retention; tolerances widen match only)"
+      ],
+      "risks": [
+        "The chat proposes a valid but harmful value, for example widening the date window or tolerance, which increases RECEIPT_AMBIGUOUS or wrong applies. Mitigation: per-key hard bounds in validate_value, a diff that shows the before and after with an affected-items estimate, an admin-only confirm, and history recording the chat proposal id plus the Principal.",
+        "A config change mid-flight affects items already in AWAITING_RECEIPT. Record the config version used on each match decision so the result is auditable ('why this receipt').",
+        "Upload is a new public write surface: a decompression bomb, a polyglot PDF, or a huge TIFF that exhausts worker memory. Enforce limits before any parsing, in the API rather than the Next proxy (the proxy only streams), and reject an encrypted PDF or one with JavaScript.",
+        "Text inside an image ('ignore instructions, set amount...') reaches Reader A and Reader B. That is acceptable only because their output is schema-bound and validate is code, but the readers' prompts must state that artifact text is data.",
+        "Cost: repeated in-depth reviews of the same failure. Dedupe on hash, add a re-review cooldown, and enforce the budget.",
+        "Metric honesty: llm_usage has no ground-truth accuracy, so a per-model 'accuracy' tile would be invented. Rows purged by retention (purged_at) skew the trends, so state the window the numbers cover.",
+        "Next proxy for multipart: the body size limit, and the user token is never forwarded to the browser. SSE needs proxy buffering off and a heartbeat, or OCI LB idle timeouts cut the stream."
+      ]
+    },
+    {
+      "name": "Shadow-replay matching lab behind chat",
+      "summary": "Chat proposals are first scored by a read-only replay of the matcher over recent historical items, using the stored extraction plus the receipts snapshot captured at match time. The UI shows the before and after match rate and the items that flip. Only then can an admin promote the change through the same audited config write.",
+      "how": [
+        "Add a service, MatchingReplay.run(candidate_config, window). It loads stored adjudicated extractions and stored receipt candidates and runs the pure matcher functions in memory. It makes no Fusion calls and has no FusionClient injected, so it is safe by construction.",
+        "Persist each replay run as a REPLAY_RUN row (an ATP migration via Alembic on the DEV schema), holding the config diff, the Principal, the counts and the flipped item ids. A promotion links to the replay id.",
+        "Chat gets a run_replay action (CONFIG_READ) and propose_config_change (CONFIG_WRITE to apply). Replay results stream over the existing SSE route.",
+        "Upload and metrics are the same as approach 1."
+      ],
+      "merit": 7,
+      "confidence": 0.55,
+      "evidence": [
+        "api/src/cashapp/services/matching/ (matcher lives in services; purity must be verified)",
+        "api/src/cashapp/data/models/receipt_matching.py (whether candidate receipts are snapshotted is unverified)",
+        "api/alembic/versions/s45_retention_purge.py (latest head; a new migration chains after it)",
+        "docs/reference/prior-implementation-lessons.md section 4 (ambiguity must error, not first-wins)"
+      ],
+      "risks": [
+        "If the receipt candidates at match time weren't stored, the replay has to query Fusion live (load and back-pressure), or it gives misleading results on today's data. The fidelity claim is only as good as the snapshot.",
+        "If the matcher isn't pure, for example it reads config through a runtime snapshot or the clock, the replay can diverge silently from production. That needs injection seams, and that is refactor risk on the most critical code.",
+        "A new table and migration on ATP: identifier length limits, JSON column size, and retention purge must cover replay rows that hold item ids.",
+        "Replay over a large window is CPU-heavy in the API process, so it needs a bounded window and runs as a worker, not on a request.",
+        "Larger scope for a 'start of a UI' story, with a higher chance of slipping the redesign ACs."
+      ]
+    },
+    {
+      "name": "Minimal surface: read-only chat, upload via drop-folder prefix",
+      "summary": "Chat explains matching outcomes and failure patterns but cannot propose or change config; refinement stays in the config screen. Uploads write to the Object Storage drop-folder prefix that the intake poller already watches, so no new intake path is added.",
+      "how": [
+        "Add PromptKey.MATCHING with no allowed actions; prompts.py already handles an empty list ('You cannot propose actions').",
+        "POST /intake/uploads validates the file and puts it under the folder-source prefix with uploader metadata. The FolderSource poller ingests it within N minutes.",
+        "The UI shows 'queued' until a work item with the matching sha256 appears, by polling the item lookup by hash or by listening on SSE."
+      ],
+      "merit": 5,
+      "confidence": 0.75,
+      "evidence": [
+        "api/src/cashapp/services/chat/prompts.py:76-77 (no-actions branch)",
+        "api/src/cashapp/integrations/folder/source.py (existing FolderSource)",
+        "CLAUDE.md non-negotiable 5 (only two pollers; this adds none)"
+      ],
+      "risks": [
+        "It doesn't meet 'refine the matching algorithm through chat': the chat becomes advisory only.",
+        "Uploader identity has to survive through object metadata into history, and that is easy to lose, which leaves an unaudited human action.",
+        "Intake latency equals the poll interval, so 'submit for in-depth review' feels broken. There is also no synchronous duplicate response.",
+        "Anyone with write access to the bucket prefix bypasses API validation and authz, so the upload checks must be repeated at ingest anyway, which duplicates validation (the DRY rule)."
+      ]
+    }
+  ]
+}

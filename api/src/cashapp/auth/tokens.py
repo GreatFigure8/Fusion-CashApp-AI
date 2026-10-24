@@ -14,7 +14,7 @@ from jwt import PyJWKClient, PyJWKClientConnectionError, PyJWKClientError
 from cashapp.api.errors import ApiError
 
 if TYPE_CHECKING:
-    from cashapp.settings import IdentitySettings
+    from cashapp.services.runtime_settings import IdentityConfig
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +121,7 @@ class TokenValidator:
         )
 
     @classmethod
-    def from_settings(cls, identity: "IdentitySettings") -> "TokenValidator":
+    def from_config(cls, identity: "IdentityConfig") -> "TokenValidator":
         return cls(issuer=identity.issuer, audience=identity.audience, jwks_url=identity.jwks_url)
 
     async def validate(self, token: str) -> Claims:
@@ -132,7 +132,12 @@ class TokenValidator:
             raise ApiError(503, "identity_unavailable", "Identity provider is unavailable") from exc
         except (jwt.PyJWTError, PyJWKClientError, TokenError) as exc:
             reason = exc.reason if isinstance(exc, TokenError) else type(exc).__name__
-            logger.warning("token refused", extra={"reason": reason})
+            extra: dict[str, Any] = {"reason": reason}
+            if isinstance(exc, jwt.InvalidAudienceError | jwt.InvalidIssuerError):
+                # The claims an operator needs to fix the identity settings; never the token.
+                seen = jwt.decode(token, options={"verify_signature": False})
+                extra |= {"token_aud": seen.get("aud"), "token_iss": seen.get("iss")}
+            logger.warning("token refused", extra=extra)
             raise ApiError(401, "invalid_token", "Invalid or expired access token") from exc
         return _to_claims(raw)
 

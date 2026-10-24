@@ -11,8 +11,8 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import Any, Final
 
+from cashapp.domain.config_keys import FusionTestData
 from cashapp.integrations.fusion.query import FIELDS_REMITTANCE_REFERENCE
-from cashapp.settings import FusionTestDataSettings
 from cashapp.tools.testdata.models import PlannedReceipt, PlannedTransaction
 from cashapp.tools.testdata.tagging import tag_marker
 
@@ -41,7 +41,7 @@ def _transaction_body(
     *,
     tag: str,
     customer_account: str,
-    defaults: FusionTestDataSettings,
+    defaults: FusionTestData,
     bill_to_site: str | None,
 ) -> dict[str, Any]:
     body: dict[str, Any] = {
@@ -74,7 +74,7 @@ def invoice_payload(
     *,
     tag: str,
     customer_account: str,
-    defaults: FusionTestDataSettings,
+    defaults: FusionTestData,
     bill_to_site: str | None = None,
 ) -> dict[str, Any]:
     body = _transaction_body(
@@ -93,7 +93,7 @@ def credit_memo_payload(
     *,
     tag: str,
     customer_account: str,
-    defaults: FusionTestDataSettings,
+    defaults: FusionTestData,
     bill_to_site: str | None = None,
 ) -> dict[str, Any]:
     """Same shape as an invoice on the credit memo resource; the line price is negative."""
@@ -113,7 +113,7 @@ def receipt_payload(
     *,
     tag: str,
     customer_account: str,
-    defaults: FusionTestDataSettings,
+    defaults: FusionTestData,
 ) -> dict[str, Any]:
     """An unapplied receipt: there is deliberately no application child in the body."""
     body: dict[str, Any] = {

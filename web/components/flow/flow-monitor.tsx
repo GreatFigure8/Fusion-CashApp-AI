@@ -1,32 +1,25 @@
 "use client";
 
-import { MessageSquareIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { refreshFlowSummary } from "@/app/(shell)/flow/actions";
-import { EmptyState } from "@/components/common/empty-state";
-import { ErrorAlert } from "@/components/common/error-alert";
+import { describeError } from "@/components/common/error-alert";
+import { GlassPanel } from "@/components/common/glass-panel";
+import { Pill } from "@/components/common/pill";
+import { StateCard } from "@/components/common/state-card";
 import { KpiCard } from "@/components/common/kpi-card";
-import { LlmChat, type ChatActionHandler, type ChatActionSpec } from "@/components/common/llm-chat";
 import { Money } from "@/components/common/money";
 import { BacklogBar } from "@/components/flow/backlog-bar";
 import { StageTile } from "@/components/flow/stage-tile";
 import { useFlowStream } from "@/components/shell/flow-stream";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ApiError } from "@/lib/api/errors";
 import type { Schemas } from "@/lib/api/types";
 import { minutesSince } from "@/lib/format";
-import { err, ok, type Result } from "@/lib/result";
+import type { Result } from "@/lib/result";
 import { cn } from "@/lib/utils";
 
 type FlowSummary = Schemas["FlowSummaryOut"];
-
-/** Navigation only: a chat action never mutates anything. */
-export const FLOW_CHAT_ACTIONS: readonly ChatActionSpec[] = [
-  { id: "open_stage", label: "Open stage" },
-];
 
 type Local = { summary: FlowSummary | null; error: ApiError | null };
 
@@ -81,13 +74,11 @@ export function FlowMonitor({
   initial: Result<FlowSummary, ApiError>;
   canPauseBacklog: boolean;
 }) {
-  const router = useRouter();
   const live = useFlowStream().summary;
   const [local, setLocal] = useState<Local>(
     initial.ok ? { summary: initial.value, error: null } : { summary: null, error: initial.error },
   );
   const [retrying, startRetry] = useTransition();
-  const [chatOpen, setChatOpen] = useState(false);
 
   // The newest summary wins, and a fresh one clears the error.
   const liveWins = live !== null && (local.summary === null || stamp(live) >= stamp(local.summary));
@@ -105,39 +96,24 @@ export function FlowMonitor({
       );
     });
 
-  const onAction: ChatActionHandler = async (id, args) => {
-    const stage = args["stage"];
-    if (id === "open_stage" && typeof stage === "string" && /^[A-Za-z_]+$/.test(stage)) {
-      router.push(`/flow/${stage.toLowerCase()}`);
-      return ok(undefined);
-    }
-    return err({
-      status: 422,
-      code: "unsupported_action",
-      message: "That action isn't available here.",
-      requestId: null,
-      details: [],
-    });
-  };
-
   return (
     <div className="flex min-w-0 flex-col gap-4">
-      <div className="flex items-center justify-between gap-2">
-        <h1 className="text-lg font-semibold tracking-tight">Flow</h1>
+      {stale ? (
         <div className="flex items-center gap-2">
-          {stale ? <Badge variant="outline">stale</Badge> : null}
-          <Button variant="outline" size="sm" onClick={() => setChatOpen(true)}>
-            <MessageSquareIcon /> Ask
-          </Button>
+          <Pill tone="warn">stale</Pill>
         </div>
-      </div>
+      ) : null}
 
       {error ? (
-        <ErrorAlert
-          error={error}
-          title="Couldn't load the flow"
-          onRetry={retry}
-          retrying={retrying}
+        <StateCard
+          kind="error"
+          headline="Couldn't load the flow"
+          body={describeError(error)}
+          actions={
+            <Button size="sm" variant="outline" onClick={retry} disabled={retrying}>
+              {retrying ? "Retrying…" : "Retry"}
+            </Button>
+          }
         />
       ) : null}
 
@@ -147,33 +123,29 @@ export function FlowMonitor({
           <BacklogBar key={batch.id} batch={batch} canPause={canPauseBacklog} />
         ))}
         {summary && summary.kpis.in_today === 0 ? (
-          <EmptyState title="Nothing has arrived yet today." description={pollerLine(summary)} />
+          <StateCard
+            kind="empty"
+            headline="Nothing has arrived yet today."
+            body={pollerLine(summary)}
+          />
         ) : null}
         {summary ? (
-          <div
-            data-slot="stage-line"
-            className="flex flex-col gap-2 md:flex-row md:overflow-x-auto md:pb-2"
-          >
-            {summary.stages.map((tile) => (
-              <StageTile
-                key={tile.stage}
-                tile={tile}
-                cohereUtilisationPct={summary.cohere_utilisation_pct}
-              />
-            ))}
-          </div>
+          <GlassPanel as="div" className="p-3">
+            <div
+              data-slot="stage-line"
+              className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-3"
+            >
+              {summary.stages.map((tile) => (
+                <StageTile
+                  key={tile.stage}
+                  tile={tile}
+                  cohereUtilisationPct={summary.cohere_utilisation_pct}
+                />
+              ))}
+            </div>
+          </GlassPanel>
         ) : null}
       </div>
-
-      <LlmChat
-        context={{ kind: "flow" }}
-        systemPromptKey="flow"
-        actions={FLOW_CHAT_ACTIONS}
-        onAction={onAction}
-        variant="sheet"
-        open={chatOpen}
-        onOpenChange={setChatOpen}
-      />
     </div>
   );
 }

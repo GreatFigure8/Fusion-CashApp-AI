@@ -20,7 +20,7 @@ export function NumberEditor({ id, label, value, onChange, disabled, errors, des
         aria-describedby={describedBy}
         disabled={disabled}
         value={text}
-        className="w-40"
+        className="h-10 w-56 px-3 text-sm"
         onChange={(e) => {
           setText(e.target.value);
           onChange(e.target.value.trim() === "" ? Number.NaN : Number(e.target.value));

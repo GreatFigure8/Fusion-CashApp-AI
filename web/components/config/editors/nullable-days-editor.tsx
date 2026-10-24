@@ -38,7 +38,7 @@ export function NullableDaysEditor({ id, label, value, onChange, disabled, error
             aria-describedby={describedBy}
             disabled={disabled}
             value={text}
-            className="w-32"
+            className="h-10 w-40 px-3 text-sm"
             onChange={(e) => {
               setText(e.target.value);
               onChange(e.target.value.trim() === "" ? Number.NaN : Number(e.target.value));

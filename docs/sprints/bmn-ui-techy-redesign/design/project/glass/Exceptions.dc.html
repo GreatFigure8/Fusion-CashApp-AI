@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glass Orbit: exception workbench</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#05060a}
+a{color:#9db8ff}a:hover{color:#c7d6ff}
+.gl{font-family:Geist,system-ui,sans-serif;font-size:14px;line-height:1.5;color:#e6eaf2;min-height:1500px;background-color:#05060a;background-image:radial-gradient(circle,#ffffff12 1.4px,transparent 1.6px);background-size:22px 22px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.gl *{box-sizing:border-box}
+.glass{background:#0a0c11b8;backdrop-filter:blur(14px);border:1px solid #ffffff1f;border-radius:16px;box-shadow:0 1px 0 #ffffff0a inset,0 30px 80px -30px #000000e6}
+.wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.rail{flex:1 1 200px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.main{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:#a9b2c3;text-decoration:none;min-height:40px}
+.nav.on{background:#4f7cff1f;color:#c7d6ff;box-shadow:inset 0 0 0 1px #4f7cff66,0 0 28px -10px #4f7cff}
+.code{font-family:'Geist Mono',monospace;font-size:10.5px;width:26px;height:22px;border-radius:6px;border:1px solid #ffffff1f;display:inline-flex;align-items:center;justify-content:center;color:#8a94a6}
+.nav.on .code{border-color:#4f7cff;color:#9db8ff}
+.mono{font-family:'Geist Mono',monospace}
+.lab{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a94a6}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 16px}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #ffffff12}
+.bd{padding:16px 18px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;white-space:nowrap}
+.ok{background:#5fe6d817;color:#8cf2e7}.wa{background:#ffc96b14;color:#ffd98f}.er{background:#f8717117;color:#fca5a5}.ac{background:#4f7cff1f;color:#9db8ff}.mu{background:#ffffff0d;color:#a9b2c3}.lk{background:#b794ff1a;color:#d4bfff}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:#5fe6d8;box-shadow:0 0 10px #5fe6d8}
+.btn{font-family:Geist,sans-serif;font-size:13px;font-weight:500;border-radius:10px;padding:8px 14px;min-height:36px;cursor:pointer;border:1px solid #ffffff1f;background:#ffffff08;color:#e6eaf2}
+.btn.pri{background:#2f5bdb;border-color:#4f7cff;color:#fff;box-shadow:0 0 24px -8px #4f7cff}
+.chip{font-family:Geist,sans-serif;font-size:12.5px;border-radius:999px;border:1px solid #ffffff1f;background:#ffffff06;color:#a9b2c3;padding:5px 12px;min-height:32px;cursor:pointer}
+.chip.on{border-color:#4f7cff;background:#4f7cff1f;color:#c7d6ff}
+.split{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.list{flex:999 1 480px;min-width:0}
+.sheet{flex:1 1 420px;min-width:0;box-shadow:0 0 0 1px #4f7cff55,0 30px 80px -30px #000,0 0 60px -30px #4f7cff}
+.t{width:100%;border-collapse:collapse}
+.t th{font-family:'Geist Mono',monospace;font-weight:400;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8a94a6;text-align:left;padding:8px 12px;border-bottom:1px solid #ffffff12;white-space:nowrap}
+.t td{padding:10px 12px;border-bottom:1px solid #ffffff0a;white-space:nowrap}
+.t tr.sel td{background:#4f7cff14}
+.num{text-align:right;font-family:'Geist Mono',monospace}
+.inp{font-family:'Geist Mono',monospace;font-size:13px;color:#e6eaf2;background:#ffffff06;border:1px solid #ffffff1f;border-radius:8px;padding:6px 10px;width:100%}
+.step{display:flex;gap:10px;font-size:13px}
+.node{width:10px;height:10px;border-radius:50%;margin-top:5px;flex:none}
+.states{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.st{padding:18px;min-height:180px;display:flex;flex-direction:column;gap:10px}
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,#ffffff08,#ffffff14,#ffffff08)}
+</style>
+</helmet>
+<div class="gl">
+<div class="wrap">
+<nav class="rail glass" aria-label="Primary">
+<div style="display:flex;align-items:center;gap:10px;padding:6px 8px 14px"><span style="width:28px;height:28px;border-radius:8px;background:#2f5bdb;box-shadow:0 0 20px -4px #4f7cff;display:inline-flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;color:#fff">CA</span><span style="font-weight:600">CashApp</span><span class="lab" style="margin-left:auto">AI</span></div>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="7"><a class="{{n.cls}}" href="#"><span class="code">{{n.code}}</span><span>{{n.label}}</span><span class="mono" style="margin-left:auto;font-size:11px;color:#5d6778">{{n.count}}</span></a></sc-for>
+</nav>
+<main class="main">
+<div class="glass top"><span style="font-size:18px;font-weight:600">Exceptions</span><span class="pill wa mono">DEV</span><span class="pill ok"><span class="dot"></span>Live</span><span class="pill mu">Sample data</span>
+<label style="margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:#a9b2c3"><input type="checkbox" checked="{{showApplied}}" onChange="{{noop}}" style="accent-color:#4f7cff"> Show applied items</label></div>
+<div style="display:flex;flex-wrap:wrap;gap:8px"><button class="chip on" type="button">All · 63</button><button class="chip" type="button">Ambiguous receipt · 14</button><button class="chip" type="button">Amount variance · 11</button><button class="chip" type="button">Invoice not found · 17</button><button class="chip" type="button">Customer not found · 6</button><button class="chip" type="button">Always a person · 9</button><button class="chip" type="button">Locked · 12</button></div>
+<div class="split">
+<div class="glass list" style="overflow-x:auto"><table class="t"><thead><tr><th>Item</th><th>Payer</th><th class="num">Amount</th><th>Reason</th><th class="num">Age</th><th></th></tr></thead><tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="10"><tr class="{{r.cls}}"><td class="mono" style="color:#9db8ff">{{r.id}}</td><td>{{r.payer}}</td><td class="num">{{r.amt}}</td><td><span class="{{r.pcls}}">{{r.err}}</span></td><td class="num" style="color:#8a94a6">{{r.age}}</td><td style="color:#d4bfff;font-size:12px">{{r.lock}}</td></tr></sc-for>
+</tbody></table>
+<div style="padding:12px 18px;font-size:12px;color:#8a94a6">63 exceptions · 1,221 applied items hidden</div></div>
+<aside class="glass sheet" aria-label="Item WI-20431">
+<div class="hd"><span style="display:flex;flex-direction:column;gap:2px"><span class="mono" style="font-size:12px;color:#8a94a6">WI-20431 · USD 18,400.00</span><span style="font-size:17px;font-weight:600">Two receipts qualify</span></span><button class="btn" type="button" aria-label="Close" style="min-width:36px;padding:0">×</button></div>
+<div style="margin:12px 18px 0;padding:10px 12px;border-radius:10px;background:#b794ff14;border:1px solid #b794ff44;color:#d4bfff;font-size:13px">Locked by you since 14:05. Automation won’t act on this item.</div>
+<div class="bd" style="display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;flex-direction:column;gap:6px"><span class="lab">Why it’s stuck</span><span style="font-size:13.5px;color:#c4cbd8">Same currency and amount, both inside the ±5 day window. The matcher never picks the first one.</span>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+<div style="border:1px solid #4f7cff66;border-radius:10px;padding:10px;background:#4f7cff0f"><span class="mono" style="font-size:12.5px">RCPT-88120</span><br><span style="font-size:12px;color:#8a94a6">19 Oct · anchor customer</span></div>
+<div style="border:1px solid #ffffff1f;border-radius:10px;padding:10px"><span class="mono" style="font-size:12.5px">RCPT-88177</span><br><span style="font-size:12px;color:#8a94a6">21 Oct · pay-on-behalf</span></div></div></div>
+<div style="display:flex;flex-direction:column;gap:10px"><span class="lab">Auto-fixes tried · 3 of 3</span>
+<div class="step"><span class="node" style="background:#ffc96b"></span><span>Narrow by remittance reference <span class="mono">PMT-55102</span><br><span style="color:#8a94a6;font-size:12px">No receipt carries it · 13:12</span></span></div>
+<div class="step"><span class="node" style="background:#ffc96b"></span><span>Narrow to payment date ±2 days<br><span style="color:#8a94a6;font-size:12px">Both remain · 13:12</span></span></div>
+<div class="step"><span class="node" style="background:#ffc96b"></span><span>Prefer anchor-owned receipt<br><span style="color:#8a94a6;font-size:12px">Blocked, related receipt is an exact match too · 13:13</span></span></div>
+<div class="step"><span class="node" style="background:#f87171"></span><span>Escalated to a person<br><span style="color:#8a94a6;font-size:12px">Handlers exhausted · 13:13</span></span></div></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span class="lab">Lines</span>
+<div style="display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center">
+<input class="inp" aria-label="Invoice 1" value="INV-104822" onChange="{{noop}}"><input class="inp" aria-label="Amount 1" value="12,000.00" onChange="{{noop}}" style="text-align:right"><span class="pill ok">A+B</span>
+<input class="inp" aria-label="Invoice 2" value="INV-104830" onChange="{{noop}}"><input class="inp" aria-label="Amount 2" value="6,400.00" onChange="{{noop}}" style="text-align:right"><span class="pill mu">A</span></div></div>
+<label style="display:flex;flex-direction:column;gap:6px"><span class="lab">Receipt to use</span><select class="inp" value="RCPT-88120" onChange="{{noop}}"><option>RCPT-88120</option><option>RCPT-88177</option></select></label>
+<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><button class="btn pri" type="button">Requeue to match receipt</button><button class="btn" type="button">Unlock</button><a href="#" style="font-size:13px;margin-left:auto">Full history</a></div>
+</div></aside>
+</div>
+</main>
+</div>
+<div role="region" aria-label="Assistant dock" style="align-self:center;width:min(880px,100%);display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center"><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Where are items waiting longest?</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Pause apply until 15:00</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Export this week’s report</button></div>
+<div style="display:flex;align-items:center;gap:10px;border:1px solid #ffffff1f;background:#0e1117;border-radius:16px;padding:10px 12px 10px 16px;box-shadow:0 0 0 4px #4f7cff1f,0 30px 60px -30px #000"><span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9db8ff">Assistant</span><input aria-label="Ask the assistant" placeholder="Ask or tell CashApp to do something…" style="flex:1;background:transparent;border:0;outline:none;color:#e6eaf2;font-family:Geist,sans-serif;font-size:15px"><a href="#" style="font-size:12.5px">Full screen</a><button type="button" aria-label="Send" style="width:32px;height:32px;border-radius:8px;background:#2f5bdb;color:#fff;border:0;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
+<span style="text-align:center;font-family:'Geist Mono',monospace;font-size:10.75px;text-transform:uppercase;letter-spacing:.04em;color:#8a94a6">Acts with your permissions · every change asks you to confirm · ⌘K</span>
+</div>
+<section class="states" aria-label="States">
+<div class="glass st"><span class="lab">Loading</span><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+<div class="glass st"><span class="lab">Empty</span><span style="font-size:17px;font-weight:600">No exceptions right now</span><span style="font-size:13px;color:#a9b2c3">Everything applied or is fixing itself. Applied items stay hidden unless you show them.</span></div>
+<div class="glass st" style="border-color:#f8717155"><span class="lab" style="color:#fca5a5">Error · lock conflict</span><span style="font-size:17px;font-weight:600">M. Okafor locked this item first</span><span style="font-size:13px;color:#a9b2c3">You can view it read-only until they release it.</span><div><button class="btn" type="button">View read-only</button></div></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Dashboard','DB',''],['Flow','FL','312'],['Exceptions','EX','63'],['Engine','EN',''],['Review','RV','3'],['Reports','RP',''],['Lab','LB','2'],['Config','CF','']];
+const active = 'Exceptions';
+const nav = items.map(([label,code,count]) => ({ label, code, count, cls: label === active ? 'nav on' : 'nav' }));
+const data = [
+['WI-20431','[Payer 0142]','USD 18,400.00','Ambiguous receipt','2h','You','wa'],
+['WI-20429','[Payer 0088]','INR 412,330.00','Amount variance','3h','','wa'],
+['WI-20410','[Payer 0311]','CAD 9,120.75','Invoice not found','5h','','er'],
+['WI-20398','[Payer 0019]','USD 2,250.00','Customer not found','8h','M. Okafor','er'],
+['WI-20377','[Payer 0204]','USD 61,004.12','Prepayment','1d','','lk'],
+['WI-20360','[Payer 0142]','EUR 3,400.00','Low confidence','1d','','wa'],
+['WI-20344','[Payer 0077]','USD 740.00','PO reference only','2d','','lk'],
+['WI-20321','[Payer 0390]','INR 88,000.00','Amount variance','2d','','wa'],
+['WI-20302','[Payer 0008]','USD 15,980.40','Invoice not found','3d','','er'],
+['WI-20288','[Payer 0155]','CAD 1,200.00','Ambiguous receipt','4d','','wa']];
+const rows = data.map(([id,payer,amt,err,age,lock,tone]) => ({ id, payer, amt, err, age, lock, cls: id==='WI-20431' ? 'sel' : '', pcls: 'pill ' + tone }));
+return { nav, rows, showApplied: false, noop: () => {} };
+}
+}
+</script>
+</body>
+</html>

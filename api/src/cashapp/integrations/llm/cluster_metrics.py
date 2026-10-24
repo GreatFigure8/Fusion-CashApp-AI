@@ -7,7 +7,6 @@ is configured. The ledger-derived value (``cohere_utilisation``) always works wi
 """
 
 import asyncio
-import os
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import timedelta
@@ -16,7 +15,8 @@ from typing import Any, Literal, Protocol
 import oci as _oci  # pyright: ignore[reportMissingTypeStubs]
 
 from cashapp.domain.clock import Clock, SystemClock
-from cashapp.settings import Settings
+from cashapp.services.runtime_settings import RuntimeSettings
+from cashapp.settings import oci_signer
 
 oci: Any = _oci
 
@@ -115,35 +115,31 @@ class FakeClusterMetrics:
         return ClusterUtilisation(pct=self._result, source="oci_monitoring", metric="fake")
 
 
-def _monitoring_client() -> Any:
-    """Resource principal, then instance principal, then ``~/.oci/config`` (the s08 order)."""
-    if os.environ.get("OCI_RESOURCE_PRINCIPAL_VERSION"):
-        return oci.monitoring.MonitoringClient(
-            {}, signer=oci.auth.signers.get_resource_principals_signer()
-        )
-    try:
-        return oci.monitoring.MonitoringClient(
-            {}, signer=oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
-        )
-    except Exception:
-        # Not on OCI compute: fall back to the developer's config file.
-        return oci.monitoring.MonitoringClient(oci.config.from_file())
+def _monitoring_client(signer: Any | None) -> Any:
+    """The signer comes from `settings.oci_signer`; None falls back to ``~/.oci/config``."""
+    if signer is not None:
+        return oci.monitoring.MonitoringClient({}, signer=signer)
+    return oci.monitoring.MonitoringClient(oci.config.from_file())
 
 
 _ClientFactory = Callable[[], MonitoringQueryClient]
 
 
-def build_cluster_metrics(
-    settings: Settings, *, client_factory: _ClientFactory = _monitoring_client
+async def build_cluster_metrics(
+    runtime: RuntimeSettings, *, client_factory: _ClientFactory | None = None
 ) -> ClusterMetrics | None:
-    """``None`` unless the cluster OCID and the metric query are both configured."""
-    genai = settings.oci_genai
-    if not (genai.dedicated_cluster_ocid and genai.cluster_metric_query):
+    """``None`` unless the cluster OCID and the metric query are both configured.
+
+    The three metric keys are hot, so callers build this per request instead of holding it.
+    """
+    metric = await runtime.cluster_metric()
+    if not (metric.cluster_ocid and metric.query):
         return None
+    factory = client_factory or (lambda: _monitoring_client(oci_signer(runtime.settings)))
     return OciClusterMetrics(
-        client_factory(),
-        compartment_ocid=genai.compartment_ocid,
-        cluster_ocid=genai.dedicated_cluster_ocid,
-        namespace=genai.cluster_metric_namespace,
-        query_template=genai.cluster_metric_query,
+        factory(),
+        compartment_ocid=runtime.oci_genai().compartment_ocid,
+        cluster_ocid=metric.cluster_ocid,
+        namespace=metric.namespace,
+        query_template=metric.query,
     )

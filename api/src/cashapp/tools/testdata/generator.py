@@ -12,9 +12,9 @@ from datetime import date
 from typing import Any, Literal
 
 from cashapp.domain.clock import Clock, SystemClock
+from cashapp.domain.config_keys import FusionTestData
 from cashapp.domain.error_codes import ErrorCode
 from cashapp.integrations.fusion import ApplyRequest, FusionClient, FusionError, accounting_date_for
-from cashapp.settings import FusionTestDataSettings
 from cashapp.tools.testdata import payloads
 from cashapp.tools.testdata.models import CreatedRecord, GeneratedData, ScenarioPlan
 from cashapp.tools.testdata.tagging import validate_tag
@@ -61,7 +61,7 @@ async def _build(
     fusion: FusionClient,
     *,
     tag: str,
-    defaults: FusionTestDataSettings,
+    defaults: FusionTestData,
     bill_to_site: str | None,
     today: date,
     records: list[CreatedRecord],
@@ -150,7 +150,7 @@ async def generate(
     fusion: FusionClient,
     *,
     tag: str,
-    defaults: FusionTestDataSettings,
+    defaults: FusionTestData,
     bill_to_site: str | None = None,
     guard: Callable[[], None] | None = None,
     today: date | None = None,

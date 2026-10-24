@@ -13,7 +13,6 @@ from cashapp.api.request_context import get_request_id
 from cashapp.observability.context import current_item_context
 from cashapp.observability.redaction import RedactionFilter
 from cashapp.observability.tracing import current_trace_id
-from cashapp.settings import Settings
 
 LOG_FIELDS: Final = (
     "timestamp",
@@ -29,7 +28,7 @@ LOG_FIELDS: Final = (
 )
 
 # Libraries whose own handlers are removed so their lines come out as redacted JSON too.
-_ROUTED_LOGGERS: Final = ("uvicorn", "uvicorn.error", "uvicorn.access", "aiokafka", "httpx", "oci")
+_ROUTED_LOGGERS: Final = ("uvicorn", "uvicorn.error", "uvicorn.access", "httpx", "oci")
 # Their DEBUG lines can carry request bodies.
 _WARNING_FLOOR: Final = ("httpx", "oci")
 
@@ -98,16 +97,39 @@ def build_json_handler(stream: TextIO, *, service_name: str = "cashapp") -> logg
     return handler
 
 
+DEFAULT_LEVEL: Final = "INFO"
+
+
+def resolve_level(level: str) -> int:
+    """The numeric level for a name; a bad name falls back to INFO with a warning.
+
+    Resolved before it is applied: `setLevel` with a bad name raises after the handlers are gone.
+    """
+    resolved = logging.getLevelNamesMapping().get(level.upper())
+    if resolved is not None:
+        return resolved
+    logging.getLogger(__name__).warning(
+        "unknown log level; using INFO", extra={"requested_level": str(level)[:20]}
+    )
+    return logging.INFO
+
+
+def configure_logging_bootstrap(*, service_name: str = "cashapp") -> None:
+    """INFO to stderr, before settings are read, so the loader's own warnings land somewhere."""
+    configure_logging(DEFAULT_LEVEL, stream=sys.stderr, service_name=service_name)
+
+
 def configure_logging(
-    settings: Settings, *, stream: TextIO | None = None, service_name: str = "cashapp"
+    level: str = DEFAULT_LEVEL, *, stream: TextIO | None = None, service_name: str = "cashapp"
 ) -> None:
     """Install JSON logging on the root logger. Idempotent: calling twice leaves one handler."""
+    numeric_level = resolve_level(level)
     root = logging.getLogger()
     for existing in list(root.handlers):
         root.removeHandler(existing)
-    target = stream if stream is not None else sys.stdout
+    target = stream if stream is not None else sys.stderr
     root.addHandler(build_json_handler(target, service_name=service_name))
-    root.setLevel(settings.observability.log_level)
+    root.setLevel(numeric_level)
     for name in _ROUTED_LOGGERS:
         routed = logging.getLogger(name)
         for existing in list(routed.handlers):

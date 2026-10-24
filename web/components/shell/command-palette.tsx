@@ -1,11 +1,11 @@
 "use client";
 
-import { SearchIcon } from "lucide-react";
+import { MessageSquareIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { focusAssistantDock } from "@/components/common/llm-chat/dock";
 import { searchItems, type SearchHit } from "@/components/shell/actions";
-import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandDialog,
@@ -26,8 +26,19 @@ const KIND_LABEL: Record<SearchHit["kind"], string> = {
 
 type Found = { q: string; hits: SearchHit[] };
 
+type PaletteValue = { open: () => void };
+
+const PaletteContext = createContext<PaletteValue | null>(null);
+
+/** Opens the palette from anywhere in the shell (the top bar search field, the assistant). */
+export function useCommandPalette(): PaletteValue {
+  const value = useContext(PaletteContext);
+  if (value === null) throw new Error("useCommandPalette must be used inside CommandPaletteProvider");
+  return value;
+}
+
 /** ⌘K / Ctrl+K: jump to an item by WI id, receipt number or invoice number. */
-export function CommandPalette() {
+export function CommandPaletteProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -68,18 +79,12 @@ export function CommandPalette() {
   const direct = /^WI-\d+$/i.test(trimmed) ? parseWorkItemId(trimmed) : null;
   const hits = found !== null && found.q === trimmed ? found.hits : [];
 
+  const openPalette = useCallback(() => setOpen(true), []);
+  const value = useMemo<PaletteValue>(() => ({ open: openPalette }), [openPalette]);
+
   return (
-    <>
-      <Button
-        variant="outline"
-        size="sm"
-        className="gap-2 text-muted-foreground"
-        onClick={() => setOpen(true)}
-        aria-label="Search items"
-      >
-        <SearchIcon /> <span className="hidden sm:inline">Search</span>
-        <kbd className="hidden rounded border px-1 font-mono text-[10px] sm:inline">⌘K</kbd>
-      </Button>
+    <PaletteContext.Provider value={value}>
+      {children}
       <CommandDialog
         open={open}
         onOpenChange={setOpen}
@@ -93,6 +98,19 @@ export function CommandPalette() {
             placeholder="WI id, receipt number or invoice number…"
           />
           <CommandList>
+            <CommandGroup heading="Assistant">
+              <CommandItem
+                value="ask-the-assistant"
+                onSelect={() => {
+                  setOpen(false);
+                  setQuery("");
+                  // After the dialog closes, so the dialog's focus return doesn't win.
+                  setTimeout(focusAssistantDock, 0);
+                }}
+              >
+                <MessageSquareIcon /> Ask the assistant
+              </CommandItem>
+            </CommandGroup>
             {trimmed !== "" && hits.length === 0 && direct === null ? (
               <CommandEmpty>No matching item.</CommandEmpty>
             ) : null}
@@ -125,6 +143,6 @@ export function CommandPalette() {
           </CommandList>
         </Command>
       </CommandDialog>
-    </>
+    </PaletteContext.Provider>
   );
 }

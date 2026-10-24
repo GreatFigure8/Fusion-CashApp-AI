@@ -7,7 +7,12 @@ from fastapi import APIRouter, Depends, Query
 from cashapp.api.config_deps import RuntimeConfigDep, change_page, config_api_error
 from cashapp.api.deps import UowFactoryDep
 from cashapp.api.errors import ERROR_RESPONSES
-from cashapp.api.schemas.config import ConfigChangePage, ConfigEntry, ConfigUpdate
+from cashapp.api.schemas.config import (
+    ConfigChangePage,
+    ConfigEntry,
+    ConfigGroupOut,
+    ConfigUpdate,
+)
 from cashapp.auth.deps import require_permission
 from cashapp.domain.principal import Permission, Principal
 from cashapp.services.config import (
@@ -15,6 +20,7 @@ from cashapp.services.config import (
     ConfigError,
     ConfigWriter,
     list_config_entries,
+    list_config_groups,
     lookup_key,
 )
 
@@ -29,6 +35,11 @@ async def list_config(_: ReaderDep, uow_factory: UowFactoryDep) -> list[ConfigEn
     async with uow_factory() as uow:
         entries = await list_config_entries(uow)
     return [ConfigEntry.model_validate(e, from_attributes=True) for e in entries]
+
+
+@router.get("/config/groups", response_model=list[ConfigGroupOut])
+async def list_groups(_: ReaderDep) -> list[ConfigGroupOut]:
+    return [ConfigGroupOut.model_validate(g, from_attributes=True) for g in list_config_groups()]
 
 
 @router.get("/config/{key}/history", response_model=ConfigChangePage)

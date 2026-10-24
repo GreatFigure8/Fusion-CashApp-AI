@@ -1,44 +1,80 @@
 {
   "components": {
     "schemas": {
-      "ActionData": {
+      "ActivityEvent": {
         "properties": {
-          "args": {
-            "additionalProperties": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "title": "Args",
-            "type": "object"
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
           },
           "id": {
             "title": "Id",
-            "type": "string"
+            "type": "integer"
           },
-          "label": {
-            "maxLength": 80,
-            "title": "Label",
+          "item_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Id"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ActivityKind"
+          },
+          "text": {
+            "title": "Text",
             "type": "string"
           }
         },
         "required": [
           "id",
-          "label",
-          "args"
+          "at",
+          "kind",
+          "item_id",
+          "text"
         ],
-        "title": "ActionData",
+        "title": "ActivityEvent",
+        "type": "object"
+      },
+      "ActivityKind": {
+        "enum": [
+          "APPLIED",
+          "RECEIPT_ARRIVED",
+          "AUTOFIX",
+          "ESCALATED"
+        ],
+        "title": "ActivityKind",
+        "type": "string"
+      },
+      "ActivityOut": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ActivityEvent"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "ActivityOut",
         "type": "object"
       },
       "ActorKind": {
@@ -213,6 +249,38 @@
         "title": "AppliedMoneyOut",
         "type": "object"
       },
+      "AppliedOut": {
+        "properties": {
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "lines": {
+            "title": "Lines",
+            "type": "integer"
+          },
+          "receipt_number": {
+            "title": "Receipt Number",
+            "type": "string"
+          },
+          "residual": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Residual",
+            "type": "string"
+          }
+        },
+        "required": [
+          "receipt_number",
+          "lines",
+          "residual",
+          "currency"
+        ],
+        "title": "AppliedOut",
+        "type": "object"
+      },
       "AutofixAttemptOut": {
         "properties": {
           "at": {
@@ -286,6 +354,66 @@
         "title": "AutofixAttemptOut",
         "type": "object"
       },
+      "AutofixOut": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AutofixOutcome"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "AutofixOut",
+        "type": "object"
+      },
+      "AutofixOutcome": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "fixed": {
+            "title": "Fixed",
+            "type": "integer"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate"
+          }
+        },
+        "required": [
+          "error_code",
+          "count",
+          "fixed",
+          "rate"
+        ],
+        "title": "AutofixOutcome",
+        "type": "object"
+      },
       "AwaitingBucketsOut": {
         "description": "Awaiting-receipt items by whole days waited.",
         "properties": {
@@ -313,6 +441,36 @@
           ">30d"
         ],
         "title": "AwaitingBucketsOut",
+        "type": "object"
+      },
+      "AwaitingReceipt": {
+        "properties": {
+          "aging_limit_days": {
+            "title": "Aging Limit Days",
+            "type": "integer"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "oldest_age_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oldest Age Days"
+          }
+        },
+        "required": [
+          "count",
+          "oldest_age_days",
+          "aging_limit_days"
+        ],
+        "title": "AwaitingReceipt",
         "type": "object"
       },
       "BBox": {
@@ -622,6 +780,163 @@
         "title": "BacklogStatus",
         "type": "string"
       },
+      "CancelOut": {
+        "properties": {
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "status": {
+            "const": "CANCELLED",
+            "default": "CANCELLED",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "call_id"
+        ],
+        "title": "CancelOut",
+        "type": "object"
+      },
+      "CandidateCreateIn": {
+        "additionalProperties": false,
+        "properties": {
+          "changes": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "minProperties": 1,
+            "title": "Changes",
+            "type": "object"
+          },
+          "rationale": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Rationale",
+            "type": "string"
+          }
+        },
+        "required": [
+          "changes",
+          "rationale"
+        ],
+        "title": "CandidateCreateIn",
+        "type": "object"
+      },
+      "CandidateListOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CandidateOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "live_version": {
+            "title": "Live Version",
+            "type": "integer"
+          },
+          "open_count": {
+            "title": "Open Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "open_count",
+          "live_version"
+        ],
+        "title": "CandidateListOut",
+        "type": "object"
+      },
+      "CandidateOut": {
+        "properties": {
+          "base_version": {
+            "title": "Base Version",
+            "type": "integer"
+          },
+          "changes": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "title": "Changes",
+            "type": "object"
+          },
+          "config_diff": {
+            "items": {
+              "$ref": "#/components/schemas/ConfigDiffRow"
+            },
+            "title": "Config Diff",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "title": "Created By",
+            "type": "string"
+          },
+          "created_by_name": {
+            "title": "Created By Name",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "latest_replay": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReplaySummaryOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "live_version": {
+            "title": "Live Version",
+            "type": "integer"
+          },
+          "promoted_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promoted Version"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CandidateStatus"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "base_version",
+          "live_version",
+          "changes",
+          "config_diff",
+          "rationale",
+          "created_by",
+          "created_by_name",
+          "created_at",
+          "latest_replay",
+          "promoted_version"
+        ],
+        "title": "CandidateOut",
+        "type": "object"
+      },
       "CandidateReceiptOut": {
         "properties": {
           "amount": {
@@ -729,6 +1044,59 @@
         "title": "CandidateReceiptOut",
         "type": "object"
       },
+      "CandidateStatus": {
+        "enum": [
+          "OPEN",
+          "PROMOTED",
+          "DISCARDED"
+        ],
+        "title": "CandidateStatus",
+        "type": "string"
+      },
+      "CardStat": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "CardStat",
+        "type": "object"
+      },
+      "CardStatus": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "tone": {
+            "enum": [
+              "ok",
+              "accent",
+              "warn",
+              "err",
+              "locked",
+              "muted"
+            ],
+            "title": "Tone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "tone"
+        ],
+        "title": "CardStatus",
+        "type": "object"
+      },
       "ChatContextIn": {
         "properties": {
           "id": {
@@ -744,46 +1112,26 @@
             "title": "Id"
           },
           "kind": {
-            "$ref": "#/components/schemas/PromptKey"
+            "default": "none",
+            "enum": [
+              "none",
+              "item",
+              "flow"
+            ],
+            "title": "Kind",
+            "type": "string"
           }
         },
-        "required": [
-          "kind"
-        ],
         "title": "ChatContextIn",
         "type": "object"
       },
-      "ChatMessageIn": {
-        "properties": {
-          "content": {
-            "maxLength": 4000,
-            "minLength": 1,
-            "title": "Content",
-            "type": "string"
-          },
-          "role": {
-            "enum": [
-              "user",
-              "assistant"
-            ],
-            "title": "Role",
-            "type": "string"
-          }
-        },
-        "required": [
-          "role",
-          "content"
-        ],
-        "title": "ChatMessageIn",
-        "type": "object"
-      },
       "ChatStreamEventsDoc": {
-        "description": "Documents the SSE wire format. Each frame is exactly one of these payloads, named by its\n``event:`` field (``token``, ``action``, ``done``, ``stream-error``) with the payload as\n``data:``. It carries the payload models into the OpenAPI schema.",
+        "description": "Documents the SSE wire format. Each frame is exactly one of these payloads, named by its\n``event:`` field with the payload as ``data:``. It carries the payload models into the\nOpenAPI schema.",
         "properties": {
-          "action": {
+          "confirm_required": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ActionData"
+                "$ref": "#/components/schemas/ConfirmRequiredData"
               },
               {
                 "type": "null"
@@ -800,7 +1148,7 @@
               }
             ]
           },
-          "stream-error": {
+          "error": {
             "anyOf": [
               {
                 "$ref": "#/components/schemas/StreamErrorData"
@@ -810,10 +1158,40 @@
               }
             ]
           },
-          "token": {
+          "text_delta": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/TokenData"
+                "$ref": "#/components/schemas/TextDeltaData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tool_finished": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolFinishedData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tool_progress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolProgressData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tool_started": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolStartedData"
               },
               {
                 "type": "null"
@@ -826,37 +1204,105 @@
       },
       "ChatStreamIn": {
         "properties": {
-          "allowed_actions": {
-            "items": {
-              "pattern": "^[a-z][a-z0-9_]{0,39}$",
-              "type": "string"
-            },
-            "maxItems": 10,
-            "title": "Allowed Actions",
-            "type": "array"
-          },
           "context": {
             "$ref": "#/components/schemas/ChatContextIn"
           },
-          "messages": {
-            "items": {
-              "$ref": "#/components/schemas/ChatMessageIn"
-            },
-            "maxItems": 20,
-            "minItems": 1,
-            "title": "Messages",
-            "type": "array"
+          "message": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
           },
           "system_prompt_key": {
-            "$ref": "#/components/schemas/PromptKey"
+            "$ref": "#/components/schemas/PromptKey",
+            "default": "assistant"
+          },
+          "thread_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thread Id"
+          },
+          "tool_groups": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ToolGroup"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Groups"
           }
         },
         "required": [
-          "context",
-          "system_prompt_key",
-          "messages"
+          "message"
         ],
         "title": "ChatStreamIn",
+        "type": "object"
+      },
+      "ChatThreadOut": {
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ThreadContextOut"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/ThreadMessageItemOut"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "pending": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PendingOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "prompt_key": {
+            "$ref": "#/components/schemas/PromptKey"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "prompt_key",
+          "context",
+          "title",
+          "created_at",
+          "updated_at",
+          "messages"
+        ],
+        "title": "ChatThreadOut",
         "type": "object"
       },
       "ClassificationOrigin": {
@@ -1109,6 +1555,27 @@
         "title": "ConfigChangePage",
         "type": "object"
       },
+      "ConfigDiffRow": {
+        "properties": {
+          "after": {
+            "$ref": "#/components/schemas/JsonValue"
+          },
+          "before": {
+            "$ref": "#/components/schemas/JsonValue"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "before",
+          "after"
+        ],
+        "title": "ConfigDiffRow",
+        "type": "object"
+      },
       "ConfigEntry": {
         "properties": {
           "admin_only_write": {
@@ -1129,6 +1596,37 @@
           "key": {
             "title": "Key",
             "type": "string"
+          },
+          "last_changed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Changed At"
+          },
+          "last_changed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Changed By"
+          },
+          "restart_required": {
+            "title": "Restart Required",
+            "type": "boolean"
+          },
+          "secret_ref": {
+            "title": "Secret Ref",
+            "type": "boolean"
           },
           "updated_at": {
             "anyOf": [
@@ -1182,9 +1680,41 @@
           "updated_by",
           "updated_by_name",
           "updated_at",
-          "admin_only_write"
+          "admin_only_write",
+          "restart_required",
+          "secret_ref",
+          "last_changed_at",
+          "last_changed_by"
         ],
         "title": "ConfigEntry",
+        "type": "object"
+      },
+      "ConfigGroupOut": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "group": {
+            "title": "Group",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "group",
+          "label",
+          "count",
+          "description"
+        ],
+        "title": "ConfigGroupOut",
         "type": "object"
       },
       "ConfigUpdate": {
@@ -1210,6 +1740,120 @@
           "expected_version"
         ],
         "title": "ConfigUpdate",
+        "type": "object"
+      },
+      "ConfirmIn": {
+        "properties": {
+          "expected_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Version"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "ConfirmIn",
+        "type": "object"
+      },
+      "ConfirmPreview": {
+        "properties": {
+          "after": {
+            "title": "After",
+            "type": "string"
+          },
+          "before": {
+            "title": "Before",
+            "type": "string"
+          },
+          "details": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PreviewField"
+            },
+            "title": "Details",
+            "type": "array"
+          },
+          "diff": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/DiffLine"
+            },
+            "title": "Diff",
+            "type": "array"
+          },
+          "expected_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Version"
+          },
+          "reason_prompt": {
+            "default": "Why are you making this change?",
+            "title": "Reason Prompt",
+            "type": "string"
+          },
+          "what": {
+            "title": "What",
+            "type": "string"
+          },
+          "who": {
+            "title": "Who",
+            "type": "string"
+          }
+        },
+        "required": [
+          "what",
+          "before",
+          "after",
+          "who"
+        ],
+        "title": "ConfirmPreview",
+        "type": "object"
+      },
+      "ConfirmRequiredData": {
+        "properties": {
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "preview": {
+            "$ref": "#/components/schemas/ConfirmPreview"
+          },
+          "tool": {
+            "title": "Tool",
+            "type": "string"
+          }
+        },
+        "required": [
+          "call_id",
+          "tool",
+          "preview",
+          "expires_at"
+        ],
+        "title": "ConfirmRequiredData",
         "type": "object"
       },
       "ContextWarningOut": {
@@ -1239,6 +1883,14 @@
         ],
         "title": "ContextWarningOut",
         "type": "object"
+      },
+      "CostBasis": {
+        "enum": [
+          "PER_CALL",
+          "CLUSTER"
+        ],
+        "title": "CostBasis",
+        "type": "string"
       },
       "CreditMemoApplicationOut": {
         "properties": {
@@ -1348,6 +2000,43 @@
           "amount"
         ],
         "title": "CurrencyAmountOut",
+        "type": "object"
+      },
+      "CurrencyTotal": {
+        "properties": {
+          "amount": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency",
+            "type": "string"
+          },
+          "receipts": {
+            "title": "Receipts",
+            "type": "integer"
+          },
+          "residual": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Residual",
+            "type": "string"
+          }
+        },
+        "required": [
+          "currency",
+          "amount",
+          "receipts",
+          "residual"
+        ],
+        "title": "CurrencyTotal",
         "type": "object"
       },
       "CustomerContextOut": {
@@ -1690,6 +2379,128 @@
         "title": "DateKind",
         "type": "string"
       },
+      "DeadLetterOut": {
+        "properties": {
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "dead_since": {
+            "format": "date-time",
+            "title": "Dead Since",
+            "type": "string"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "event_id": {
+            "format": "uuid",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "item_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Id"
+          },
+          "stage": {
+            "enum": [
+              "intake",
+              "classify",
+              "extract.reader_a",
+              "extract.reader_b",
+              "adjudicate",
+              "validate",
+              "resolve_customer",
+              "match_receipt",
+              "await_receipt",
+              "match_lines",
+              "apply",
+              "write_back"
+            ],
+            "title": "Stage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "stage",
+          "item_id",
+          "error_code",
+          "attempts",
+          "dead_since"
+        ],
+        "title": "DeadLetterOut",
+        "type": "object"
+      },
+      "DeadLetterPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DeadLetterOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ],
+        "title": "DeadLetterPage",
+        "type": "object"
+      },
+      "DiffLine": {
+        "properties": {
+          "op": {
+            "enum": [
+              "-",
+              "+",
+              " "
+            ],
+            "title": "Op",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "op",
+          "text"
+        ],
+        "title": "DiffLine",
+        "type": "object"
+      },
       "Disagreement": {
         "additionalProperties": false,
         "properties": {
@@ -1745,13 +2556,51 @@
         "title": "Disagreement",
         "type": "object"
       },
+      "DiscardIn": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "title": "DiscardIn",
+        "type": "object"
+      },
       "DoneData": {
         "properties": {
+          "message_id": {
+            "title": "Message Id",
+            "type": "integer"
+          },
+          "stop": {
+            "enum": [
+              "end_turn",
+              "awaiting_confirmation",
+              "tool_limit"
+            ],
+            "title": "Stop",
+            "type": "string"
+          },
+          "thread_id": {
+            "title": "Thread Id",
+            "type": "integer"
+          },
           "usage": {
             "$ref": "#/components/schemas/UsageData"
           }
         },
         "required": [
+          "thread_id",
+          "message_id",
+          "stop",
           "usage"
         ],
         "title": "DoneData",
@@ -1816,6 +2665,308 @@
           "emailed_at"
         ],
         "title": "EmailResponse",
+        "type": "object"
+      },
+      "EngineActionIn": {
+        "properties": {
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "expected_version"
+        ],
+        "title": "EngineActionIn",
+        "type": "object"
+      },
+      "EngineActionOut": {
+        "properties": {
+          "audit": {
+            "$ref": "#/components/schemas/EngineAuditOut"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EngineStatusOut"
+          }
+        },
+        "required": [
+          "status",
+          "audit"
+        ],
+        "title": "EngineActionOut",
+        "type": "object"
+      },
+      "EngineAuditOut": {
+        "properties": {
+          "action": {
+            "enum": [
+              "PAUSE",
+              "RESUME",
+              "DRAIN",
+              "THROTTLE",
+              "REPLAY"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "actor_id": {
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "actor_name": {
+            "title": "Actor Name",
+            "type": "string"
+          },
+          "actor_role": {
+            "title": "Actor Role",
+            "type": "string"
+          },
+          "after": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "before": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Before"
+          },
+          "config_version": {
+            "title": "Config Version",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "api",
+              "chat"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "stations": {
+            "items": {
+              "enum": [
+                "intake",
+                "classify",
+                "extract.reader_a",
+                "extract.reader_b",
+                "adjudicate",
+                "validate",
+                "resolve_customer",
+                "match_receipt",
+                "await_receipt",
+                "match_lines",
+                "apply",
+                "write_back"
+              ],
+              "type": "string"
+            },
+            "title": "Stations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "at",
+          "actor_id",
+          "actor_name",
+          "actor_role",
+          "action",
+          "stations",
+          "before",
+          "after",
+          "reason",
+          "config_version",
+          "source"
+        ],
+        "title": "EngineAuditOut",
+        "type": "object"
+      },
+      "EngineAuditPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EngineAuditOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ],
+        "title": "EngineAuditPage",
+        "type": "object"
+      },
+      "EnginePollerOut": {
+        "properties": {
+          "healthy": {
+            "title": "Healthy",
+            "type": "boolean"
+          },
+          "interval_seconds": {
+            "title": "Interval Seconds",
+            "type": "integer"
+          },
+          "last_beat_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Beat At"
+          },
+          "name": {
+            "enum": [
+              "intake-poller",
+              "receipt-watcher"
+            ],
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "interval_seconds",
+          "last_beat_at",
+          "healthy"
+        ],
+        "title": "EnginePollerOut",
+        "type": "object"
+      },
+      "EngineStatusOut": {
+        "properties": {
+          "bus_healthy": {
+            "title": "Bus Healthy",
+            "type": "boolean"
+          },
+          "config_version": {
+            "description": "Send this back as expected_version.",
+            "title": "Config Version",
+            "type": "integer"
+          },
+          "consumer_group": {
+            "title": "Consumer Group",
+            "type": "string"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "enum": [
+                "running",
+                "paused",
+                "draining",
+                "drained"
+              ]
+            },
+            "title": "Counts",
+            "type": "object"
+          },
+          "dlq_total": {
+            "title": "Dlq Total",
+            "type": "integer"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "pollers": {
+            "items": {
+              "$ref": "#/components/schemas/EnginePollerOut"
+            },
+            "title": "Pollers",
+            "type": "array"
+          },
+          "region": {
+            "title": "Region",
+            "type": "string"
+          },
+          "stations": {
+            "items": {
+              "$ref": "#/components/schemas/StationOut"
+            },
+            "title": "Stations",
+            "type": "array"
+          },
+          "throttle": {
+            "$ref": "#/components/schemas/ThrottleOut"
+          },
+          "total_lag": {
+            "title": "Total Lag",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "bus_healthy",
+          "total_lag",
+          "dlq_total",
+          "pollers",
+          "region",
+          "consumer_group",
+          "stations",
+          "throttle",
+          "config_version",
+          "counts",
+          "generated_at"
+        ],
+        "title": "EngineStatusOut",
         "type": "object"
       },
       "ErrorBody": {
@@ -2073,6 +3224,51 @@
           "lock"
         ],
         "title": "ExceptionRowOut",
+        "type": "object"
+      },
+      "ExportCard": {
+        "properties": {
+          "download_href": {
+            "title": "Download Href",
+            "type": "string"
+          },
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "kind": {
+            "const": "export_card",
+            "default": "export_card",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "const": "text/html",
+            "default": "text/html",
+            "title": "Media Type",
+            "type": "string"
+          },
+          "preview_href": {
+            "title": "Preview Href",
+            "type": "string"
+          },
+          "self_contained": {
+            "default": true,
+            "title": "Self Contained",
+            "type": "boolean"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "filename",
+          "size_bytes",
+          "preview_href",
+          "download_href"
+        ],
+        "title": "ExportCard",
         "type": "object"
       },
       "ExtractedLine": {
@@ -2491,6 +3687,17 @@
         ],
         "title": "FieldChangeOut",
         "type": "object"
+      },
+      "FieldSource": {
+        "description": "Where the adjudicated value of a field came from.",
+        "enum": [
+          "A_EQ_B",
+          "A_B_DIFFERED",
+          "A_ONLY",
+          "B_ONLY"
+        ],
+        "title": "FieldSource",
+        "type": "string"
       },
       "FlowKpisOut": {
         "properties": {
@@ -3056,6 +4263,44 @@
         "title": "HistoryRowOut",
         "type": "object"
       },
+      "HtmlExportRequest": {
+        "additionalProperties": false,
+        "description": "Body of ``POST /reports/html/export``: the same three fields the preview takes.",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/HtmlReportKind"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/ReportSection"
+            },
+            "maxItems": 5,
+            "minItems": 1,
+            "title": "Sections",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/ReportWindow"
+          }
+        },
+        "required": [
+          "kind",
+          "window",
+          "sections"
+        ],
+        "title": "HtmlExportRequest",
+        "type": "object"
+      },
+      "HtmlReportKind": {
+        "description": "The kinds of self-contained HTML progress report. They differ only in default sections.",
+        "enum": [
+          "PROGRESS_SUMMARY",
+          "EXCEPTIONS_AGING",
+          "MODEL_EFFICIENCY"
+        ],
+        "title": "HtmlReportKind",
+        "type": "string"
+      },
       "InvoiceContextOut": {
         "properties": {
           "bill_to_customer": {
@@ -3404,6 +4649,42 @@
         "type": "string"
       },
       "JsonValue": {},
+      "LabMoneyByCurrencyOut": {
+        "properties": {
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "items": {
+            "title": "Items",
+            "type": "integer"
+          },
+          "newly_matched": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Newly Matched",
+            "type": "string"
+          },
+          "newly_unmatched": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Newly Unmatched",
+            "type": "string"
+          }
+        },
+        "required": [
+          "currency",
+          "newly_matched",
+          "newly_unmatched",
+          "items"
+        ],
+        "title": "LabMoneyByCurrencyOut",
+        "type": "object"
+      },
       "LastGeneratedOut": {
         "properties": {
           "at": {
@@ -3733,8 +5014,172 @@
         "title": "LockInfoOut",
         "type": "object"
       },
+      "McpLastCallOut": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "duration_ms": {
+            "title": "Duration Ms",
+            "type": "integer"
+          },
+          "rows": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rows"
+          },
+          "tool": {
+            "title": "Tool",
+            "type": "string"
+          }
+        },
+        "required": [
+          "at",
+          "tool",
+          "rows",
+          "duration_ms"
+        ],
+        "title": "McpLastCallOut",
+        "type": "object"
+      },
+      "McpStatusOut": {
+        "properties": {
+          "client_id": {
+            "title": "Client Id",
+            "type": "string"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "healthy": {
+            "title": "Healthy",
+            "type": "boolean"
+          },
+          "last_call": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/McpLastCallOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "latency_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency Ms"
+          },
+          "secret_in_vault": {
+            "const": true,
+            "default": true,
+            "title": "Secret In Vault",
+            "type": "boolean"
+          },
+          "server_url": {
+            "title": "Server Url",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "healthy",
+          "latency_ms",
+          "server_url",
+          "client_id",
+          "source",
+          "error",
+          "last_call"
+        ],
+        "title": "McpStatusOut",
+        "type": "object"
+      },
+      "McpTestOut": {
+        "properties": {
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "probe_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Probe Ms"
+          },
+          "probe_tool": {
+            "const": "fusion_rest_get",
+            "title": "Probe Tool",
+            "type": "string"
+          },
+          "token_valid": {
+            "title": "Token Valid",
+            "type": "boolean"
+          },
+          "tools_count": {
+            "title": "Tools Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "token_valid",
+          "tools_count",
+          "probe_tool",
+          "probe_ms",
+          "error"
+        ],
+        "title": "McpTestOut",
+        "type": "object"
+      },
       "MeResponse": {
         "properties": {
+          "access_request_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Access Request Url"
+          },
           "display_name": {
             "title": "Display Name",
             "type": "string"
@@ -3749,6 +5194,16 @@
               }
             ],
             "title": "Email"
+          },
+          "env": {
+            "enum": [
+              "local",
+              "dev",
+              "test",
+              "prod"
+            ],
+            "title": "Env",
+            "type": "string"
           },
           "groups": {
             "items": {
@@ -3771,6 +5226,10 @@
             "title": "Roles",
             "type": "array"
           },
+          "sample_data": {
+            "title": "Sample Data",
+            "type": "boolean"
+          },
           "subject": {
             "title": "Subject",
             "type": "string"
@@ -3782,9 +5241,166 @@
           "email",
           "groups",
           "roles",
-          "permissions"
+          "permissions",
+          "env",
+          "sample_data",
+          "access_request_url"
         ],
         "title": "MeResponse",
+        "type": "object"
+      },
+      "MetricsSummaryFrame": {
+        "description": "SSE ``event: summary``. Documentation only; the stream serialises it directly.",
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProgressSummary"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "MetricsSummaryFrame",
+        "type": "object"
+      },
+      "MetricsWindow": {
+        "enum": [
+          "24h",
+          "7d",
+          "30d",
+          "mtd"
+        ],
+        "title": "MetricsWindow",
+        "type": "string"
+      },
+      "ModelEfficiencyRow": {
+        "properties": {
+          "accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accuracy"
+          },
+          "accuracy_n": {
+            "title": "Accuracy N",
+            "type": "integer"
+          },
+          "agreement_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreement Rate"
+          },
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "cost_basis": {
+            "$ref": "#/components/schemas/CostBasis"
+          },
+          "cost_unknown_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Unknown Share"
+          },
+          "cost_usd": {
+            "anyOf": [
+              {
+                "examples": [
+                  "12480.00"
+                ],
+                "pattern": "^-?\\d+\\.\\d{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Usd"
+          },
+          "human_correction_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Human Correction Rate"
+          },
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/LlmRole"
+          }
+        },
+        "required": [
+          "role",
+          "model_id",
+          "calls",
+          "cost_basis",
+          "cost_usd",
+          "cost_unknown_share",
+          "agreement_rate",
+          "human_correction_rate",
+          "accuracy",
+          "accuracy_n"
+        ],
+        "title": "ModelEfficiencyRow",
+        "type": "object"
+      },
+      "ModelsOut": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ModelEfficiencyRow"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "ModelsOut",
         "type": "object"
       },
       "Money": {
@@ -3808,6 +5424,32 @@
           "currency"
         ],
         "title": "Money",
+        "type": "object"
+      },
+      "MoneyByCurrencyOut": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/CurrencyTotal"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "MoneyByCurrencyOut",
         "type": "object"
       },
       "NotificationLogOut": {
@@ -3921,6 +5563,29 @@
           "limit"
         ],
         "title": "NotificationLogPage",
+        "type": "object"
+      },
+      "OpenExceptions": {
+        "properties": {
+          "dead_lettered": {
+            "title": "Dead Lettered",
+            "type": "integer"
+          },
+          "locked": {
+            "title": "Locked",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "locked",
+          "dead_lettered"
+        ],
+        "title": "OpenExceptions",
         "type": "object"
       },
       "PartKind": {
@@ -4097,6 +5762,34 @@
         "title": "PaymentStatus",
         "type": "string"
       },
+      "PendingOut": {
+        "properties": {
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "preview": {
+            "$ref": "#/components/schemas/ConfirmPreview"
+          },
+          "tool": {
+            "title": "Tool",
+            "type": "string"
+          }
+        },
+        "required": [
+          "call_id",
+          "tool",
+          "preview",
+          "expires_at"
+        ],
+        "title": "PendingOut",
+        "type": "object"
+      },
       "Permission": {
         "enum": [
           "items:read",
@@ -4107,7 +5800,9 @@
           "config:write",
           "reports:read",
           "backlog:run",
-          "chat:use"
+          "chat:use",
+          "engine:control",
+          "lab:run"
         ],
         "title": "Permission",
         "type": "string"
@@ -4138,10 +5833,220 @@
         "title": "PollerOut",
         "type": "object"
       },
+      "PreviewField": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "PreviewField",
+        "type": "object"
+      },
+      "PreviewOut": {
+        "properties": {
+          "artifact_key": {
+            "title": "Artifact Key",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PartKind"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "part_no": {
+            "title": "Part No",
+            "type": "integer"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RegionOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "artifact_key",
+          "part_no",
+          "kind",
+          "media_type",
+          "page",
+          "region"
+        ],
+        "title": "PreviewOut",
+        "type": "object"
+      },
+      "ProgressSummary": {
+        "properties": {
+          "autofix_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Autofix Rate"
+          },
+          "automation_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Automation Rate"
+          },
+          "awaiting_receipt": {
+            "$ref": "#/components/schemas/AwaitingReceipt"
+          },
+          "done_items": {
+            "title": "Done Items",
+            "type": "integer"
+          },
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "human_correction_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Human Correction Rate"
+          },
+          "open_exceptions": {
+            "$ref": "#/components/schemas/OpenExceptions"
+          },
+          "receipts_matched": {
+            "title": "Receipts Matched",
+            "type": "integer"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "start",
+          "end",
+          "receipts_matched",
+          "done_items",
+          "automation_rate",
+          "awaiting_receipt",
+          "open_exceptions",
+          "autofix_rate",
+          "human_correction_rate"
+        ],
+        "title": "ProgressSummary",
+        "type": "object"
+      },
+      "PromoteIn": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "replay_id": {
+            "title": "Replay Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "replay_id",
+          "reason",
+          "expected_version"
+        ],
+        "title": "PromoteIn",
+        "type": "object"
+      },
+      "PromoteOut": {
+        "properties": {
+          "candidate_id": {
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "keys": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keys",
+            "type": "array"
+          },
+          "new_version": {
+            "title": "New Version",
+            "type": "integer"
+          },
+          "promoted_at": {
+            "format": "date-time",
+            "title": "Promoted At",
+            "type": "string"
+          },
+          "promoted_by": {
+            "title": "Promoted By",
+            "type": "string"
+          },
+          "replay_id": {
+            "title": "Replay Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate_id",
+          "replay_id",
+          "new_version",
+          "keys",
+          "promoted_by",
+          "promoted_at"
+        ],
+        "title": "PromoteOut",
+        "type": "object"
+      },
       "PromptKey": {
         "enum": [
           "item",
-          "flow"
+          "flow",
+          "assistant",
+          "matching"
         ],
         "title": "PromptKey",
         "type": "string"
@@ -4162,6 +6067,10 @@
           },
           "history_payloads": {
             "title": "History Payloads",
+            "type": "integer"
+          },
+          "lab_replay_items": {
+            "title": "Lab Replay Items",
             "type": "integer"
           },
           "objects_deleted": {
@@ -4205,7 +6114,8 @@
           "objects_deleted",
           "objects_kept_shared",
           "resumed",
-          "skipped"
+          "skipped",
+          "lab_replay_items"
         ],
         "title": "PurgeReportResponse",
         "type": "object"
@@ -4223,6 +6133,24 @@
           "dry_run"
         ],
         "title": "PurgeRequest",
+        "type": "object"
+      },
+      "QuotaOut": {
+        "properties": {
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "used": {
+            "title": "Used",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "used",
+          "limit"
+        ],
+        "title": "QuotaOut",
         "type": "object"
       },
       "ReaderSlot": {
@@ -4327,6 +6255,34 @@
           "reservation_status"
         ],
         "title": "ReceiptOut",
+        "type": "object"
+      },
+      "RegionOut": {
+        "properties": {
+          "h": {
+            "title": "H",
+            "type": "number"
+          },
+          "w": {
+            "title": "W",
+            "type": "number"
+          },
+          "x": {
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "title": "Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "w",
+          "h"
+        ],
+        "title": "RegionOut",
         "type": "object"
       },
       "RelationshipOut": {
@@ -4481,6 +6437,701 @@
         ],
         "title": "RemittanceExtraction",
         "type": "object"
+      },
+      "ReplayCard": {
+        "properties": {
+          "candidate_id": {
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "changed": {
+            "title": "Changed",
+            "type": "integer"
+          },
+          "currencies": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ReplayCurrency"
+            },
+            "title": "Currencies",
+            "type": "array"
+          },
+          "kind": {
+            "const": "replay_card",
+            "default": "replay_card",
+            "title": "Kind",
+            "type": "string"
+          },
+          "lab_href": {
+            "title": "Lab Href",
+            "type": "string"
+          },
+          "newly_ambiguous": {
+            "title": "Newly Ambiguous",
+            "type": "integer"
+          },
+          "newly_failed": {
+            "title": "Newly Failed",
+            "type": "integer"
+          },
+          "newly_matched": {
+            "title": "Newly Matched",
+            "type": "integer"
+          },
+          "replay_id": {
+            "title": "Replay Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "RUNNING",
+              "DONE",
+              "FAILED",
+              "STALE"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate_id",
+          "replay_id",
+          "status",
+          "changed",
+          "newly_matched",
+          "newly_failed",
+          "newly_ambiguous",
+          "lab_href"
+        ],
+        "title": "ReplayCard",
+        "type": "object"
+      },
+      "ReplayCurrency": {
+        "properties": {
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "items": {
+            "title": "Items",
+            "type": "integer"
+          },
+          "newly_matched": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Newly Matched",
+            "type": "string"
+          },
+          "newly_unmatched": {
+            "examples": [
+              "12480.00"
+            ],
+            "pattern": "^-?\\d+\\.\\d{2}$",
+            "title": "Newly Unmatched",
+            "type": "string"
+          }
+        },
+        "required": [
+          "currency",
+          "newly_matched",
+          "newly_unmatched",
+          "items"
+        ],
+        "title": "ReplayCurrency",
+        "type": "object"
+      },
+      "ReplayIn": {
+        "properties": {
+          "event_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Event Ids",
+            "type": "array"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_ids",
+          "reason"
+        ],
+        "title": "ReplayIn",
+        "type": "object"
+      },
+      "ReplayItemOut": {
+        "properties": {
+          "after": {
+            "$ref": "#/components/schemas/ReplayOutcome"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "examples": [
+                  "12480.00"
+                ],
+                "pattern": "^-?\\d+\\.\\d{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "before": {
+            "$ref": "#/components/schemas/ReplayOutcome"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "receipt_after": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receipt After"
+          },
+          "receipt_before": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receipt Before"
+          },
+          "since_applied": {
+            "title": "Since Applied",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "item_id",
+          "amount",
+          "currency",
+          "before",
+          "after",
+          "receipt_before",
+          "receipt_after",
+          "since_applied"
+        ],
+        "title": "ReplayItemOut",
+        "type": "object"
+      },
+      "ReplayOut": {
+        "properties": {
+          "audit_id": {
+            "title": "Audit Id",
+            "type": "integer"
+          },
+          "replayed": {
+            "title": "Replayed",
+            "type": "integer"
+          },
+          "skipped": {
+            "items": {
+              "$ref": "#/components/schemas/ReplaySkipOut"
+            },
+            "title": "Skipped",
+            "type": "array"
+          }
+        },
+        "required": [
+          "replayed",
+          "skipped",
+          "audit_id"
+        ],
+        "title": "ReplayOut",
+        "type": "object"
+      },
+      "ReplayOutcome": {
+        "enum": [
+          "matched",
+          "no_receipt",
+          "ambiguous",
+          "variance",
+          "lines_failed",
+          "no_input"
+        ],
+        "title": "ReplayOutcome",
+        "type": "string"
+      },
+      "ReplayResultOut": {
+        "properties": {
+          "base_version": {
+            "title": "Base Version",
+            "type": "integer"
+          },
+          "candidate_id": {
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "changed": {
+            "title": "Changed",
+            "type": "integer"
+          },
+          "config_diff": {
+            "items": {
+              "$ref": "#/components/schemas/ConfigDiffRow"
+            },
+            "title": "Config Diff",
+            "type": "array"
+          },
+          "done": {
+            "title": "Done",
+            "type": "integer"
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Ms"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ReplayItemOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "live_version": {
+            "title": "Live Version",
+            "type": "integer"
+          },
+          "money_by_currency": {
+            "items": {
+              "$ref": "#/components/schemas/LabMoneyByCurrencyOut"
+            },
+            "title": "Money By Currency",
+            "type": "array"
+          },
+          "newly_ambiguous": {
+            "title": "Newly Ambiguous",
+            "type": "integer"
+          },
+          "newly_failed": {
+            "title": "Newly Failed",
+            "type": "integer"
+          },
+          "newly_matched": {
+            "title": "Newly Matched",
+            "type": "integer"
+          },
+          "stale_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stale Message"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReplayStatus"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "window_days": {
+            "title": "Window Days",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "candidate_id",
+          "status",
+          "window_days",
+          "live_version",
+          "base_version",
+          "done",
+          "total",
+          "changed",
+          "newly_matched",
+          "newly_failed",
+          "newly_ambiguous",
+          "money_by_currency",
+          "items",
+          "config_diff",
+          "duration_ms",
+          "started_at",
+          "finished_at",
+          "error",
+          "stale_message"
+        ],
+        "title": "ReplayResultOut",
+        "type": "object"
+      },
+      "ReplaySkipOut": {
+        "properties": {
+          "event_id": {
+            "format": "uuid",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "why": {
+            "enum": [
+              "locked",
+              "done",
+              "already_replayed",
+              "moved_on",
+              "not_found"
+            ],
+            "title": "Why",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "why"
+        ],
+        "title": "ReplaySkipOut",
+        "type": "object"
+      },
+      "ReplayStartIn": {
+        "additionalProperties": false,
+        "properties": {
+          "window_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window Days"
+          }
+        },
+        "title": "ReplayStartIn",
+        "type": "object"
+      },
+      "ReplayStartOut": {
+        "properties": {
+          "candidate_id": {
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "const": "RUNNING",
+            "title": "Status",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "candidate_id",
+          "status",
+          "total"
+        ],
+        "title": "ReplayStartOut",
+        "type": "object"
+      },
+      "ReplayStatus": {
+        "enum": [
+          "RUNNING",
+          "DONE",
+          "FAILED",
+          "STALE"
+        ],
+        "title": "ReplayStatus",
+        "type": "string"
+      },
+      "ReplayStreamFrameOut": {
+        "description": "Documents the SSE payloads: ``progress``, ``done`` and ``failed`` carry subsets of this.",
+        "properties": {
+          "changed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Changed"
+          },
+          "done": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Done"
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Ms"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "newly_ambiguous": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Newly Ambiguous"
+          },
+          "newly_failed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Newly Failed"
+          },
+          "newly_matched": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Newly Matched"
+          },
+          "replay_id": {
+            "title": "Replay Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReplayStatus"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          }
+        },
+        "required": [
+          "replay_id",
+          "status"
+        ],
+        "title": "ReplayStreamFrameOut",
+        "type": "object"
+      },
+      "ReplaySummaryOut": {
+        "properties": {
+          "done": {
+            "title": "Done",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReplayStatus"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "done",
+          "total"
+        ],
+        "title": "ReplaySummaryOut",
+        "type": "object"
+      },
+      "ReportExportOut": {
+        "properties": {
+          "actor_name": {
+            "title": "Actor Name",
+            "type": "string"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "bytes": {
+            "title": "Bytes",
+            "type": "integer"
+          },
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/HtmlReportKind"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/ReportSection"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/ReportWindow"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "window",
+          "sections",
+          "filename",
+          "bytes",
+          "actor_name",
+          "at"
+        ],
+        "title": "ReportExportOut",
+        "type": "object"
+      },
+      "ReportExportsResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ReportExportOut"
+            },
+            "title": "Data",
+            "type": "array"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "ReportExportsResponse",
+        "type": "object"
+      },
+      "ReportSection": {
+        "enum": [
+          "HEADLINE",
+          "MONEY_BY_CURRENCY",
+          "THROUGHPUT",
+          "EXCEPTIONS_BY_REASON",
+          "MODEL_EFFICIENCY"
+        ],
+        "title": "ReportSection",
+        "type": "string"
+      },
+      "ReportWindow": {
+        "description": "The windows an HTML report offers. Values equal the metrics window of the same name.",
+        "enum": [
+          "7d",
+          "30d",
+          "mtd"
+        ],
+        "title": "ReportWindow",
+        "type": "string"
       },
       "RequeueIn": {
         "additionalProperties": false,
@@ -4710,6 +7361,215 @@
         "title": "ReverseOut",
         "type": "object"
       },
+      "ReviewFieldOut": {
+        "properties": {
+          "field": {
+            "title": "Field",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/FieldSource"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "field",
+          "value",
+          "source"
+        ],
+        "title": "ReviewFieldOut",
+        "type": "object"
+      },
+      "ReviewQueuePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewQueueRowOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ],
+        "title": "ReviewQueuePage",
+        "type": "object"
+      },
+      "ReviewQueueRowOut": {
+        "properties": {
+          "age_seconds": {
+            "title": "Age Seconds",
+            "type": "integer"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "filename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filename"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "payment_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaymentStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stage": {
+            "$ref": "#/components/schemas/Stage"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ItemState"
+          }
+        },
+        "required": [
+          "item_id",
+          "filename",
+          "stage",
+          "status",
+          "payment_status",
+          "age_seconds",
+          "created_at",
+          "confidence"
+        ],
+        "title": "ReviewQueueRowOut",
+        "type": "object"
+      },
+      "ReviewResultOut": {
+        "properties": {
+          "adjudication_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adjudication Note"
+          },
+          "applied": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AppliedOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewFieldOut"
+            },
+            "title": "Fields",
+            "type": "array"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "payment_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaymentStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PreviewOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/ItemState"
+          }
+        },
+        "required": [
+          "item_id",
+          "status",
+          "payment_status",
+          "fields",
+          "adjudication_note",
+          "confidence",
+          "applied",
+          "preview"
+        ],
+        "title": "ReviewResultOut",
+        "type": "object"
+      },
       "Role": {
         "enum": [
           "ADMIN",
@@ -4770,6 +7630,57 @@
           "hits"
         ],
         "title": "SearchOut",
+        "type": "object"
+      },
+      "SecretOut": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "updated_by": {
+            "title": "Updated By",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "updated_at",
+          "updated_by"
+        ],
+        "title": "SecretOut",
+        "type": "object"
+      },
+      "SecretUpdate": {
+        "properties": {
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "value": {
+            "format": "password",
+            "title": "Value",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "value",
+          "reason"
+        ],
+        "title": "SecretUpdate",
         "type": "object"
       },
       "SourceLocation": {
@@ -4968,15 +7879,613 @@
         "title": "StageItemsOut",
         "type": "object"
       },
+      "StagedUploadsOut": {
+        "properties": {
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/UploadFileResultOut"
+            },
+            "title": "Files",
+            "type": "array"
+          },
+          "quota": {
+            "$ref": "#/components/schemas/QuotaOut"
+          },
+          "upload_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Upload Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "upload_ids",
+          "files",
+          "quota"
+        ],
+        "title": "StagedUploadsOut",
+        "type": "object"
+      },
+      "StateCard": {
+        "properties": {
+          "history_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "History Id"
+          },
+          "kind": {
+            "const": "state_card",
+            "default": "state_card",
+            "title": "Kind",
+            "type": "string"
+          },
+          "stats": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CardStat"
+            },
+            "title": "Stats",
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CardStatus"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "status"
+        ],
+        "title": "StateCard",
+        "type": "object"
+      },
+      "StationOut": {
+        "properties": {
+          "dlq_depth": {
+            "title": "Dlq Depth",
+            "type": "integer"
+          },
+          "in_flight": {
+            "title": "In Flight",
+            "type": "integer"
+          },
+          "lag": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Messages not yet committed; null when unknown.",
+            "title": "Lag"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "name": {
+            "enum": [
+              "intake",
+              "classify",
+              "extract.reader_a",
+              "extract.reader_b",
+              "adjudicate",
+              "validate",
+              "resolve_customer",
+              "match_receipt",
+              "await_receipt",
+              "match_lines",
+              "apply",
+              "write_back"
+            ],
+            "title": "Name",
+            "type": "string"
+          },
+          "saturated": {
+            "description": "in_flight is at or above limit.",
+            "title": "Saturated",
+            "type": "boolean"
+          },
+          "state": {
+            "enum": [
+              "RUNNING",
+              "PAUSED",
+              "DRAINING",
+              "DRAINED"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "throughput_per_min": {
+            "description": "Mean over the last five minutes.",
+            "title": "Throughput Per Min",
+            "type": "number"
+          },
+          "waiting": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "await_receipt only: items waiting for a receipt.",
+            "title": "Waiting"
+          }
+        },
+        "required": [
+          "name",
+          "state",
+          "lag",
+          "throughput_per_min",
+          "dlq_depth",
+          "in_flight",
+          "limit",
+          "saturated",
+          "waiting"
+        ],
+        "title": "StationOut",
+        "type": "object"
+      },
       "StreamErrorData": {
         "properties": {
+          "call_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call Id"
+          },
           "code": {
             "enum": [
-              "timeout",
-              "llm_unavailable",
-              "refused",
-              "internal_error"
+              "FORBIDDEN",
+              "UNKNOWN_TOOL",
+              "INVALID_TOOL_INPUT",
+              "TOOL_LIMIT",
+              "TIMEOUT",
+              "LLM_UNAVAILABLE",
+              "REFUSED",
+              "INTERNAL_ERROR"
             ],
+            "title": "Code",
+            "type": "string"
+          },
+          "fatal": {
+            "title": "Fatal",
+            "type": "boolean"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "thread_id": {
+            "title": "Thread Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "fatal",
+          "thread_id"
+        ],
+        "title": "StreamErrorData",
+        "type": "object"
+      },
+      "SummaryOut": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProgressSummary"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "SummaryOut",
+        "type": "object"
+      },
+      "TableCard": {
+        "properties": {
+          "columns": {
+            "items": {
+              "$ref": "#/components/schemas/TableColumn"
+            },
+            "title": "Columns",
+            "type": "array"
+          },
+          "kind": {
+            "const": "table_card",
+            "default": "table_card",
+            "title": "Kind",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          },
+          "truncated": {
+            "default": false,
+            "title": "Truncated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "title",
+          "columns",
+          "rows"
+        ],
+        "title": "TableCard",
+        "type": "object"
+      },
+      "TableColumn": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "numeric": {
+            "default": false,
+            "title": "Numeric",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "TableColumn",
+        "type": "object"
+      },
+      "TextDeltaData": {
+        "properties": {
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "TextDeltaData",
+        "type": "object"
+      },
+      "ThreadContextOut": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "kind": {
+            "enum": [
+              "none",
+              "item",
+              "flow"
+            ],
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "ThreadContextOut",
+        "type": "object"
+      },
+      "ThreadMessageItemOut": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "role": {
+            "enum": [
+              "user",
+              "assistant"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "tools": {
+            "items": {
+              "$ref": "#/components/schemas/ThreadToolRunOut"
+            },
+            "title": "Tools",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "seq",
+          "role",
+          "text",
+          "tools",
+          "created_at"
+        ],
+        "title": "ThreadMessageItemOut",
+        "type": "object"
+      },
+      "ThreadToolRunOut": {
+        "properties": {
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "duration_ms": {
+            "title": "Duration Ms",
+            "type": "integer"
+          },
+          "group": {
+            "$ref": "#/components/schemas/ToolGroup"
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "result_card": {
+            "anyOf": [
+              {
+                "discriminator": {
+                  "mapping": {
+                    "export_card": "#/components/schemas/ExportCard",
+                    "replay_card": "#/components/schemas/ReplayCard",
+                    "state_card": "#/components/schemas/StateCard",
+                    "table_card": "#/components/schemas/TableCard"
+                  },
+                  "propertyName": "kind"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/StateCard"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ReplayCard"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ExportCard"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TableCard"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Card"
+          },
+          "status": {
+            "enum": [
+              "done",
+              "failed",
+              "waiting",
+              "cancelled",
+              "expired"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "tool": {
+            "title": "Tool",
+            "type": "string"
+          }
+        },
+        "required": [
+          "call_id",
+          "tool",
+          "group",
+          "summary",
+          "ok",
+          "duration_ms",
+          "status"
+        ],
+        "title": "ThreadToolRunOut",
+        "type": "object"
+      },
+      "ThrottleIn": {
+        "properties": {
+          "apply_per_receipt": {
+            "maximum": 8.0,
+            "minimum": 1.0,
+            "title": "Apply Per Receipt",
+            "type": "integer"
+          },
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "per_stage": {
+            "description": "Written as concurrency.per_stage {\"*\": n}; other entries clamped.",
+            "maximum": 32.0,
+            "minimum": 1.0,
+            "title": "Per Stage",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "expected_version",
+          "per_stage",
+          "apply_per_receipt"
+        ],
+        "title": "ThrottleIn",
+        "type": "object"
+      },
+      "ThrottleOut": {
+        "properties": {
+          "apply_per_receipt": {
+            "title": "Apply Per Receipt",
+            "type": "integer"
+          },
+          "per_stage": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Per Stage",
+            "type": "object"
+          }
+        },
+        "required": [
+          "per_stage",
+          "apply_per_receipt"
+        ],
+        "title": "ThrottleOut",
+        "type": "object"
+      },
+      "ThroughputBucket": {
+        "enum": [
+          "hour",
+          "day"
+        ],
+        "title": "ThroughputBucket",
+        "type": "string"
+      },
+      "ThroughputOut": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ThroughputPoint"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MetricsWindow"
+          }
+        },
+        "required": [
+          "window",
+          "as_of",
+          "data"
+        ],
+        "title": "ThroughputOut",
+        "type": "object"
+      },
+      "ThroughputPoint": {
+        "properties": {
+          "applied": {
+            "title": "Applied",
+            "type": "integer"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "escalated": {
+            "title": "Escalated",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "at",
+          "applied",
+          "escalated"
+        ],
+        "title": "ThroughputPoint",
+        "type": "object"
+      },
+      "ToolErrorData": {
+        "properties": {
+          "code": {
             "title": "Code",
             "type": "string"
           },
@@ -4989,21 +8498,304 @@
           "code",
           "message"
         ],
-        "title": "StreamErrorData",
+        "title": "ToolErrorData",
         "type": "object"
       },
-      "TokenData": {
+      "ToolFinishedData": {
         "properties": {
-          "text": {
-            "title": "Text",
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "duration_ms": {
+            "title": "Duration Ms",
+            "type": "integer"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolErrorData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "result_card": {
+            "anyOf": [
+              {
+                "discriminator": {
+                  "mapping": {
+                    "export_card": "#/components/schemas/ExportCard",
+                    "replay_card": "#/components/schemas/ReplayCard",
+                    "state_card": "#/components/schemas/StateCard",
+                    "table_card": "#/components/schemas/TableCard"
+                  },
+                  "propertyName": "kind"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/StateCard"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ReplayCard"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ExportCard"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TableCard"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Card"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "tool": {
+            "title": "Tool",
             "type": "string"
           }
         },
         "required": [
-          "text"
+          "call_id",
+          "tool",
+          "duration_ms",
+          "ok"
         ],
-        "title": "TokenData",
+        "title": "ToolFinishedData",
         "type": "object"
+      },
+      "ToolGroup": {
+        "enum": [
+          "engine",
+          "lab",
+          "settings",
+          "reports",
+          "review",
+          "exceptions",
+          "fusion_reads",
+          "metrics"
+        ],
+        "title": "ToolGroup",
+        "type": "string"
+      },
+      "ToolGroupOut": {
+        "properties": {
+          "allowed": {
+            "title": "Allowed",
+            "type": "boolean"
+          },
+          "group": {
+            "$ref": "#/components/schemas/ToolGroup"
+          },
+          "tools": {
+            "items": {
+              "$ref": "#/components/schemas/ToolOut"
+            },
+            "title": "Tools",
+            "type": "array"
+          }
+        },
+        "required": [
+          "group",
+          "allowed",
+          "tools"
+        ],
+        "title": "ToolGroupOut",
+        "type": "object"
+      },
+      "ToolOut": {
+        "properties": {
+          "allowed": {
+            "title": "Allowed",
+            "type": "boolean"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "mutating": {
+            "title": "Mutating",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "mutating",
+          "allowed"
+        ],
+        "title": "ToolOut",
+        "type": "object"
+      },
+      "ToolProgressData": {
+        "properties": {
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "done": {
+            "title": "Done",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "call_id",
+          "done",
+          "total"
+        ],
+        "title": "ToolProgressData",
+        "type": "object"
+      },
+      "ToolStartedData": {
+        "properties": {
+          "call_id": {
+            "title": "Call Id",
+            "type": "string"
+          },
+          "group": {
+            "$ref": "#/components/schemas/ToolGroup"
+          },
+          "mutating": {
+            "title": "Mutating",
+            "type": "boolean"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "tool": {
+            "title": "Tool",
+            "type": "string"
+          }
+        },
+        "required": [
+          "call_id",
+          "tool",
+          "group",
+          "summary",
+          "mutating"
+        ],
+        "title": "ToolStartedData",
+        "type": "object"
+      },
+      "UploadFileResultOut": {
+        "properties": {
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "item_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Id"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UploadStatus"
+          }
+        },
+        "required": [
+          "filename",
+          "status",
+          "item_id",
+          "message"
+        ],
+        "title": "UploadFileResultOut",
+        "type": "object"
+      },
+      "UploadLimitsOut": {
+        "description": "The configured upload limits, so the page shows them instead of hard-coding them.",
+        "properties": {
+          "allowed_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Types",
+            "type": "array"
+          },
+          "max_file_bytes": {
+            "title": "Max File Bytes",
+            "type": "integer"
+          },
+          "max_files_per_request": {
+            "title": "Max Files Per Request",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "max_file_bytes",
+          "max_files_per_request",
+          "allowed_types"
+        ],
+        "title": "UploadLimitsOut",
+        "type": "object"
+      },
+      "UploadResultOut": {
+        "properties": {
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/UploadFileResultOut"
+            },
+            "title": "Files",
+            "type": "array"
+          },
+          "quota": {
+            "$ref": "#/components/schemas/QuotaOut"
+          }
+        },
+        "required": [
+          "files",
+          "quota"
+        ],
+        "title": "UploadResultOut",
+        "type": "object"
+      },
+      "UploadStatus": {
+        "enum": [
+          "STORED",
+          "DUPLICATE",
+          "TOO_LARGE",
+          "NOT_ALLOWED",
+          "QUOTA"
+        ],
+        "title": "UploadStatus",
+        "type": "string"
       },
       "UsageCallOut": {
         "properties": {
@@ -6063,7 +9855,7 @@
                 }
               }
             },
-            "description": "Server-Sent Events: `token`, `action`, `done` or `stream-error` frames, each with a monotonic `id`."
+            "description": "Server-Sent Events: `text_delta`, `tool_started`, `tool_progress`, `tool_finished`, `confirm_required`, `error` or `done` frames, each with a monotonic `id`."
           },
           "4XX": {
             "content": {
@@ -6092,6 +9884,237 @@
           }
         ],
         "summary": "Chat Stream",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/chat/threads/{thread_id}": {
+      "get": {
+        "operationId": "get_chat_thread_chat_threads__thread_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "thread_id",
+            "required": true,
+            "schema": {
+              "title": "Thread Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatThreadOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Chat Thread",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/chat/tool-calls/{call_id}/cancel": {
+      "post": {
+        "operationId": "cancel_tool_call_chat_tool_calls__call_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "call_id",
+            "required": true,
+            "schema": {
+              "title": "Call Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancelOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Cancel Tool Call",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/chat/tool-calls/{call_id}/confirm": {
+      "post": {
+        "operationId": "confirm_tool_call_chat_tool_calls__call_id__confirm_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "call_id",
+            "required": true,
+            "schema": {
+              "title": "Call Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatStreamEventsDoc"
+                }
+              }
+            },
+            "description": "Server-Sent Events: `text_delta`, `tool_started`, `tool_progress`, `tool_finished`, `confirm_required`, `error` or `done` frames, each with a monotonic `id`."
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Confirm Tool Call",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/chat/tools": {
+      "get": {
+        "operationId": "list_chat_tools_chat_tools_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ToolGroupOut"
+                  },
+                  "title": "Response List Chat Tools Chat Tools Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Chat Tools",
         "tags": [
           "chat"
         ]
@@ -6142,6 +10165,127 @@
           }
         ],
         "summary": "List Config",
+        "tags": [
+          "config"
+        ]
+      }
+    },
+    "/config/groups": {
+      "get": {
+        "operationId": "list_groups_config_groups_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConfigGroupOut"
+                  },
+                  "title": "Response List Groups Config Groups Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Groups",
+        "tags": [
+          "config"
+        ]
+      }
+    },
+    "/config/history": {
+      "get": {
+        "operationId": "config_history_all_config_history_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigChangePage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Config History All",
         "tags": [
           "config"
         ]
@@ -6291,6 +10435,586 @@
         "summary": "Config History",
         "tags": [
           "config"
+        ]
+      }
+    },
+    "/engine/audit": {
+      "get": {
+        "description": "Who did what to the engine, newest first. The default page size is a setting.",
+        "operationId": "list_engine_audit_engine_audit_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 200,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineAuditPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Engine Audit",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/dead-letters": {
+      "get": {
+        "operationId": "list_dead_letters_engine_dead_letters_get",
+        "parameters": [
+          {
+            "description": "Only this station's dead letters.",
+            "in": "query",
+            "name": "station",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only this station's dead letters.",
+              "title": "Station"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeadLetterPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Dead Letters",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/dead-letters/replay": {
+      "post": {
+        "description": "Send chosen dead letters back to their stage; locked, done and repeated ones are skipped.",
+        "operationId": "replay_dead_letters_engine_dead_letters_replay_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplayIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Replay Dead Letters",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/stations/{station}/drain": {
+      "post": {
+        "description": "Pause a station and report DRAINED once nothing is in flight.",
+        "operationId": "drain_station_engine_stations__station__drain_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "station",
+            "required": true,
+            "schema": {
+              "title": "Station",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EngineActionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineActionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Drain Station",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/stations/{station}/pause": {
+      "post": {
+        "description": "Pause a station: in-flight work finishes; new deliveries stay uncommitted on the bus.",
+        "operationId": "pause_station_engine_stations__station__pause_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "station",
+            "required": true,
+            "schema": {
+              "title": "Station",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EngineActionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineActionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Pause Station",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/stations/{station}/resume": {
+      "post": {
+        "description": "Resume a paused or drained station.",
+        "operationId": "resume_station_engine_stations__station__resume_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "station",
+            "required": true,
+            "schema": {
+              "title": "Station",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EngineActionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineActionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Resume Station",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/status": {
+      "get": {
+        "description": "Per station: state, lag, throughput, in-flight against its limit, dead letters.",
+        "operationId": "get_engine_status_engine_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineStatusOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Engine Status",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/stream": {
+      "get": {
+        "description": "SSE: a ``status`` event on connect and whenever the status changes; a ping every 15 s.",
+        "operationId": "stream_engine_engine_stream_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineStatusOut"
+                }
+              },
+              "text/event-stream": {}
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Stream Engine",
+        "tags": [
+          "engine"
+        ]
+      }
+    },
+    "/engine/throttle": {
+      "put": {
+        "description": "Set items per stage (1 to 32) and Fusion applies per receipt (1 to 8).",
+        "operationId": "put_throttle_engine_throttle_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThrottleIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineActionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Put Throttle",
+        "tags": [
+          "engine"
         ]
       }
     },
@@ -6766,6 +11490,99 @@
         "summary": "Health",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/integrations/mcp/status": {
+      "get": {
+        "operationId": "get_status_integrations_mcp_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpStatusOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Status",
+        "tags": [
+          "integrations"
+        ]
+      }
+    },
+    "/integrations/mcp/test": {
+      "post": {
+        "description": "Never a 5xx for a server failure: the failure is reported in `error`.",
+        "operationId": "run_test_integrations_mcp_test_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpTestOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Run Test",
+        "tags": [
+          "integrations"
         ]
       }
     },
@@ -7591,6 +12408,507 @@
         ]
       }
     },
+    "/lab/candidates": {
+      "get": {
+        "operationId": "list_candidates_lab_candidates_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/CandidateStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateListOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Candidates",
+        "tags": [
+          "lab"
+        ]
+      },
+      "post": {
+        "operationId": "create_candidate_lab_candidates_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateCreateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Candidate",
+        "tags": [
+          "lab"
+        ]
+      }
+    },
+    "/lab/candidates/{candidate_id}/discard": {
+      "post": {
+        "operationId": "discard_candidate_lab_candidates__candidate_id__discard_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "candidate_id",
+            "required": true,
+            "schema": {
+              "title": "Candidate Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscardIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Discard Candidate",
+        "tags": [
+          "lab"
+        ]
+      }
+    },
+    "/lab/candidates/{candidate_id}/promote": {
+      "post": {
+        "operationId": "promote_candidate_lab_candidates__candidate_id__promote_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "candidate_id",
+            "required": true,
+            "schema": {
+              "title": "Candidate Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromoteIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromoteOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Promote Candidate",
+        "tags": [
+          "lab"
+        ]
+      }
+    },
+    "/lab/candidates/{candidate_id}/replays": {
+      "post": {
+        "operationId": "start_replay_lab_candidates__candidate_id__replays_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "candidate_id",
+            "required": true,
+            "schema": {
+              "title": "Candidate Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplayStartIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayStartOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start Replay",
+        "tags": [
+          "lab"
+        ]
+      }
+    },
+    "/lab/replays/{replay_id}": {
+      "get": {
+        "operationId": "get_replay_lab_replays__replay_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "replay_id",
+            "required": true,
+            "schema": {
+              "title": "Replay Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayResultOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Replay",
+        "tags": [
+          "lab"
+        ]
+      }
+    },
+    "/lab/replays/{replay_id}/items.csv": {
+      "get": {
+        "operationId": "replay_items_csv_lab_replays__replay_id__items_csv_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "replay_id",
+            "required": true,
+            "schema": {
+              "title": "Replay Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Replay Items Csv",
+        "tags": [
+          "lab"
+        ]
+      }
+    },
+    "/lab/replays/{replay_id}/stream": {
+      "get": {
+        "operationId": "stream_replay_lab_replays__replay_id__stream_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "replay_id",
+            "required": true,
+            "schema": {
+              "title": "Replay Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayStreamFrameOut"
+                }
+              },
+              "text/event-stream": {}
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Stream Replay",
+        "tags": [
+          "lab"
+        ]
+      }
+    },
     "/llm-usage/cohere-utilisation": {
       "get": {
         "operationId": "get_cohere_utilisation_llm_usage_cohere_utilisation_get",
@@ -7850,6 +13168,464 @@
         "summary": "Get Me",
         "tags": [
           "identity"
+        ]
+      }
+    },
+    "/metrics/activity": {
+      "get": {
+        "operationId": "get_activity_metrics_activity_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Activity",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/metrics/autofix": {
+      "get": {
+        "operationId": "get_autofix_metrics_autofix_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AutofixOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Autofix",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/metrics/models": {
+      "get": {
+        "operationId": "get_models_metrics_models_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Models",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/metrics/money-by-currency": {
+      "get": {
+        "operationId": "get_money_by_currency_metrics_money_by_currency_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoneyByCurrencyOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Money By Currency",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/metrics/stream": {
+      "get": {
+        "operationId": "stream_metrics_metrics_stream_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Last-Event-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Last-Event-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetricsSummaryFrame"
+                }
+              },
+              "text/event-stream": {}
+            },
+            "description": "event: summary / activity / stream-error"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Stream Metrics",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/metrics/summary": {
+      "get": {
+        "operationId": "get_summary_metrics_summary_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Summary",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/metrics/throughput": {
+      "get": {
+        "operationId": "get_throughput_metrics_throughput_get",
+        "parameters": [
+          {
+            "description": "24h, 7d, 30d or mtd",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MetricsWindow",
+              "default": "7d",
+              "description": "24h, 7d, 30d or mtd"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bucket",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ThroughputBucket"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bucket"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThroughputOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Throughput",
+        "tags": [
+          "metrics"
         ]
       }
     },
@@ -8166,6 +13942,245 @@
         ]
       }
     },
+    "/reports/html/export": {
+      "post": {
+        "operationId": "export_html_report_reports_html_export_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HtmlExportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/html": {}
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Export Html Report",
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/reports/html/exports": {
+      "get": {
+        "operationId": "list_html_exports_reports_html_exports_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportExportsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Html Exports",
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/reports/html/exports/{export_id}/file": {
+      "get": {
+        "operationId": "download_html_export_reports_html_exports__export_id__file_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "export_id",
+            "required": true,
+            "schema": {
+              "title": "Export Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/html": {}
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Download Html Export",
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/reports/html/preview": {
+      "get": {
+        "operationId": "preview_html_report_reports_html_preview_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/HtmlReportKind"
+            }
+          },
+          {
+            "in": "query",
+            "name": "window",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ReportWindow"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sections",
+            "required": true,
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/ReportSection"
+              },
+              "maxItems": 5,
+              "minItems": 1,
+              "title": "Sections",
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/html": {}
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Preview Html Report",
+        "tags": [
+          "reports"
+        ]
+      }
+    },
     "/reports/partially-paid": {
       "get": {
         "operationId": "get_partially_paid_reports_partially_paid_get",
@@ -8263,6 +14278,303 @@
         ]
       }
     },
+    "/review/items/{item_id}/result": {
+      "get": {
+        "operationId": "review_result_review_items__item_id__result_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResultOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Review Result",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/review/limits": {
+      "get": {
+        "operationId": "review_limits_review_limits_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadLimitsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Review Limits",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/review/queue": {
+      "get": {
+        "operationId": "review_queue_review_queue_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "open_only",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Open Only",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewQueuePage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Review Queue",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/review/quota": {
+      "get": {
+        "operationId": "review_quota_review_quota_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotaOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Review Quota",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/review/uploads": {
+      "post": {
+        "description": "Submit files for in-depth review, or only stage them for a chat message (``stage_only``).",
+        "operationId": "upload_files_review_uploads_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "stage_only",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Stage Only",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/UploadResultOut"
+                    },
+                    {
+                      "$ref": "#/components/schemas/StagedUploadsOut"
+                    }
+                  ],
+                  "title": "Response Upload Files Review Uploads Post"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Upload Files",
+        "tags": [
+          "review"
+        ]
+      }
+    },
     "/search": {
       "get": {
         "operationId": "search_search_get",
@@ -8319,6 +14631,123 @@
         "summary": "Search",
         "tags": [
           "items"
+        ]
+      }
+    },
+    "/secrets": {
+      "get": {
+        "operationId": "get_secrets_secrets_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SecretOut"
+                  },
+                  "title": "Response Get Secrets Secrets Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Secrets",
+        "tags": [
+          "secrets"
+        ]
+      }
+    },
+    "/secrets/{name}": {
+      "put": {
+        "operationId": "put_secret_secrets__name__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "title": "Name",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecretUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecretOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "4XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Client Error"
+          },
+          "5XX": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Put Secret",
+        "tags": [
+          "secrets"
         ]
       }
     }

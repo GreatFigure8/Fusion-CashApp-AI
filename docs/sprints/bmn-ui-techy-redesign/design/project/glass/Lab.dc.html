@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glass Orbit: matching lab</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#05060a}
+a{color:#9db8ff}a:hover{color:#c7d6ff}
+.gl{font-family:Geist,system-ui,sans-serif;font-size:14px;line-height:1.5;color:#e6eaf2;min-height:1500px;background-color:#05060a;background-image:radial-gradient(circle,#ffffff12 1.4px,transparent 1.6px);background-size:22px 22px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.gl *{box-sizing:border-box}
+.glass{background:#0a0c11b8;backdrop-filter:blur(14px);border:1px solid #ffffff1f;border-radius:16px;box-shadow:0 1px 0 #ffffff0a inset,0 30px 80px -30px #000000e6}
+.wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.rail{flex:1 1 200px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.main{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:#a9b2c3;text-decoration:none;min-height:40px}
+.nav.on{background:#4f7cff1f;color:#c7d6ff;box-shadow:inset 0 0 0 1px #4f7cff66,0 0 28px -10px #4f7cff}
+.code{font-family:'Geist Mono',monospace;font-size:10.5px;width:26px;height:22px;border-radius:6px;border:1px solid #ffffff1f;display:inline-flex;align-items:center;justify-content:center;color:#8a94a6}
+.nav.on .code{border-color:#4f7cff;color:#9db8ff}
+.mono{font-family:'Geist Mono',monospace}
+.lab{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a94a6}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 16px}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #ffffff12}
+.bd{padding:16px 18px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;white-space:nowrap}
+.ok{background:#5fe6d817;color:#8cf2e7}.wa{background:#ffc96b14;color:#ffd98f}.er{background:#f8717117;color:#fca5a5}.ac{background:#4f7cff1f;color:#9db8ff}.mu{background:#ffffff0d;color:#a9b2c3}.lk{background:#b794ff1a;color:#d4bfff}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:#5fe6d8}
+.btn{font-family:Geist,sans-serif;font-size:13px;font-weight:500;border-radius:10px;padding:8px 14px;min-height:36px;cursor:pointer;border:1px solid #ffffff1f;background:#ffffff08;color:#e6eaf2}
+.btn.pri{background:#2f5bdb;border-color:#4f7cff;color:#fff;box-shadow:0 0 24px -8px #4f7cff}
+.split{display:flex;flex-wrap:wrap;gap:16px;align-items:stretch}
+.chat{flex:1 1 380px;min-width:0;display:flex;flex-direction:column;background:#0a0c11;border:1px solid #ffffff1f;border-radius:16px;overflow:hidden}
+.res{flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.chh{display:flex;align-items:center;gap:12px;height:40px;border-bottom:1px solid #ffffff12;padding:0 16px;font-family:'Geist Mono',monospace;font-size:11.75px;text-transform:uppercase;letter-spacing:.04em}
+.thread{padding:20px 16px;display:flex;flex-direction:column;gap:20px}
+.ub{align-self:flex-end;max-width:85%;border:1px solid #ffffff1f;background:#151922;border-radius:12px;padding:10px 14px;font-size:15px;line-height:1.6}
+.md{font-size:14px;line-height:1.7}
+.act{display:flex;align-items:center;gap:8px;padding:10px 8px;font-size:14px;color:#8a94a6}
+.comp{padding:0 16px 12px;display:flex;flex-direction:column;gap:6px;margin-top:auto}
+.box{display:flex;flex-direction:column;gap:8px;border:1px solid #ffffff1f;background:#0e1117;border-radius:16px;padding:14px 16px 10px}
+.box textarea{background:transparent;border:0;outline:none;resize:none;color:#e6eaf2;font-family:Geist,sans-serif;font-size:15px;min-height:44px}
+.send{width:32px;height:32px;border-radius:8px;background:#2f5bdb;color:#fff;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.hints{display:flex;flex-wrap:wrap;gap:4px 14px;font-family:'Geist Mono',monospace;font-size:10.75px;text-transform:uppercase;color:#8a94a6}
+.k{border:1px solid #ffffff1f;border-radius:4px;padding:0 4px;margin-right:4px;background:#151922}
+.diff{font-family:'Geist Mono',monospace;font-size:13px}
+.del{background:#f8717117;color:#fca5a5;padding:4px 18px}
+.add{background:#5fe6d817;color:#8cf2e7;padding:4px 18px}
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.cmp div{padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.big{font-family:'Geist Mono',monospace;font-size:26px;font-weight:500}
+.t{width:100%;border-collapse:collapse}
+.t th{font-family:'Geist Mono',monospace;font-weight:400;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8a94a6;text-align:left;padding:8px 12px;border-bottom:1px solid #ffffff12;white-space:nowrap}
+.t td{padding:9px 12px;border-bottom:1px solid #ffffff0a;white-space:nowrap}
+.num{text-align:right;font-family:'Geist Mono',monospace}
+.inp{font-family:Geist,sans-serif;font-size:14px;color:#e6eaf2;background:#ffffff06;border:1px solid #ffffff1f;border-radius:10px;padding:9px 12px;width:100%}
+.states{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.st{padding:18px;min-height:170px;display:flex;flex-direction:column;gap:10px}
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,#ffffff08,#ffffff14,#ffffff08)}
+</style>
+</helmet>
+<div class="gl">
+<div class="wrap">
+<nav class="rail glass" aria-label="Primary">
+<div style="display:flex;align-items:center;gap:10px;padding:6px 8px 14px"><span style="width:28px;height:28px;border-radius:8px;background:#2f5bdb;box-shadow:0 0 20px -4px #4f7cff;display:inline-flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;color:#fff">CA</span><span style="font-weight:600">CashApp</span><span class="lab" style="margin-left:auto">AI</span></div>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="8"><a class="{{n.cls}}" href="#"><span class="code">{{n.code}}</span><span>{{n.label}}</span><span class="mono" style="margin-left:auto;font-size:11px;color:#5d6778">{{n.count}}</span></a></sc-for>
+</nav>
+<main class="main">
+<div class="glass top"><span style="font-size:18px;font-weight:600">Matching Lab</span><span class="pill wa mono">DEV</span><span class="pill lk">Read-only replay</span><span class="pill mu">Sample data</span><span style="margin-left:auto;font-size:12.5px;color:#8a94a6">Replays never call Fusion</span></div>
+<div class="split">
+<section class="chat" aria-label="Lab assistant">
+<div class="chh"><span>Lab assistant</span><span style="display:flex;align-items:center;gap:6px;color:#8cf2e7"><span class="dot"></span>Connected</span><span style="margin-left:auto;color:#8a94a6">Haiku 5.5</span></div>
+<div class="thread">
+<div class="ub">Try a ±3 day window for INR only and replay the last 30 days.</div>
+<div class="act"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Proposed p_0192 · replayed 1,912 past items</div>
+<div class="md">Done. <strong>41 items</strong> would match differently: 19 ambiguous INR items resolve to one receipt and 3 move to awaiting receipt. Nothing changes outside INR.</div>
+</div>
+<div class="comp">
+<div class="box"><textarea aria-label="Message" placeholder="Describe a matching change to test…"></textarea>
+<div style="display:flex;align-items:center"><span class="pill mu mono" style="font-size:11px">matching.*</span><div style="flex:1"></div><button class="send" type="button" aria-label="Send"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div></div>
+<div class="hints"><span><span class="k">↵</span>Send</span><span><span class="k">/</span>Prompts</span></div>
+</div>
+</section>
+<section class="res" aria-label="Replay results">
+<div class="glass"><div class="hd"><span style="display:flex;flex-direction:column"><span class="lab">Candidate p_0192 vs live v41</span><span style="font-weight:600">Replay complete · 42 s</span></span><span class="pill ok">1,912 items · 30 days</span></div>
+<div class="diff" style="padding:10px 0"><div style="padding:0 18px 6px;color:#a9b2c3">matching.receipt_date_window_days.INR</div><div class="del">− 5</div><div class="add">+ 3</div></div></div>
+<div class="cmp">
+<div class="glass"><span class="lab">Match differently</span><span class="big">41</span></div>
+<div class="glass"><span class="lab">Newly matched</span><span class="big" style="color:#8cf2e7">+19</span></div>
+<div class="glass"><span class="lab">Newly failed</span><span class="big" style="color:#fca5a5">+3</span></div>
+<div class="glass"><span class="lab">Newly ambiguous</span><span class="big">0</span></div>
+</div>
+<div class="glass"><div class="hd"><span style="font-weight:600">Money affected</span><span class="lab">by currency</span></div>
+<table class="t"><thead><tr><th>Currency</th><th class="num">Newly matched</th><th class="num">Newly unmatched</th><th class="num">Items</th></tr></thead><tbody>
+<tr><td class="mono">INR</td><td class="num" style="color:#8cf2e7">2,904,110.00</td><td class="num" style="color:#fca5a5">118,400.00</td><td class="num">22</td></tr>
+<tr><td class="mono">USD · CAD · EUR</td><td class="num" style="color:#8a94a6">0.00</td><td class="num" style="color:#8a94a6">0.00</td><td class="num">0</td></tr>
+</tbody></table></div>
+<div class="glass"><div class="hd"><span style="font-weight:600">Items that change</span><a href="#" style="font-size:13px">Export CSV</a></div>
+<div style="overflow-x:auto"><table class="t"><thead><tr><th>Item</th><th>Amount</th><th>Before</th><th>After</th></tr></thead><tbody>
+<sc-for list="{{diffs}}" as="d" hint-placeholder-count="6"><tr><td class="mono" style="color:#9db8ff">{{d.id}}</td><td class="mono">{{d.amt}}</td><td><span class="{{d.bc}}">{{d.before}}</span></td><td><span class="{{d.ac}}">{{d.after}}</span></td></tr></sc-for>
+</tbody></table></div></div>
+<div class="glass" style="box-shadow:0 0 0 1px #4f7cff66,0 0 60px -30px #4f7cff"><div class="hd"><span style="font-weight:600">Promote to live</span><span class="pill lk">Audited</span></div>
+<div class="bd" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;flex-wrap:wrap;gap:8px"><span class="pill ok">Replay ran on current v41</span><span class="pill ok">You can write config</span></div>
+<label style="display:flex;flex-direction:column;gap:6px"><span class="lab">Reason · required</span><input class="inp" value="INR same-amount receipts 4–5 days apart; replay resolves 19" onChange="{{noop}}"></label>
+<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><button class="btn pri" type="button">Promote p_0192</button><button class="btn" type="button">Discard</button><span style="font-size:12px;color:#8a94a6">Records J. Stevenson · replay rp_3381 · expected version 41</span></div>
+</div></div>
+</section>
+</div>
+</main>
+</div>
+<section class="states" aria-label="States">
+<div class="glass st"><span class="lab">Empty</span><span style="font-size:17px;font-weight:600">No candidate yet</span><span style="font-size:13px;color:#a9b2c3">Ask the assistant for a change, or pick a matching key to try.</span></div>
+<div class="glass st"><span class="lab">Loading · replay</span><div style="height:6px;border-radius:3px;background:#ffffff12"><div style="width:60%;height:6px;border-radius:3px;background:#4f7cff;box-shadow:0 0 12px #4f7cff"></div></div><span class="mono" style="font-size:12px;color:#a9b2c3">1,140 of 1,912 items</span><div class="sk"></div></div>
+<div class="glass st" style="border-color:#f8717155"><span class="lab" style="color:#fca5a5">Error · stale replay</span><span style="font-size:17px;font-weight:600">Live config moved to v42</span><span style="font-size:13px;color:#a9b2c3">Promote is blocked until you replay against the new version.</span><div><button class="btn" type="button">Replay again</button></div></div>
+<div class="glass st"><span class="lab">No permission</span><span style="font-size:17px;font-weight:600">Replay only</span><span style="font-size:13px;color:#a9b2c3">Operators can replay and read results. Promote needs config write.</span></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Dashboard','DB',''],['Flow','FL','312'],['Exceptions','EX','63'],['Engine','EN',''],['Review','RV','3'],['Reports','RP',''],['Lab','LB','2'],['Config','CF','']];
+const active = 'Lab';
+const nav = items.map(([label,code,count]) => ({ label, code, count, cls: label === active ? 'nav on' : 'nav' }));
+const tone = (s) => s.indexOf('Applied')===0 ? 'pill ok' : s.indexOf('Ambiguous')===0 ? 'pill wa' : 'pill ac';
+const diffs = [['WI-19802','INR 412,330.00','Ambiguous','Applied RCPT-80114'],['WI-19840','INR 88,000.00','Ambiguous','Applied RCPT-80391'],['WI-19911','INR 118,400.00','Applied RCPT-80702','Awaiting receipt'],['WI-20017','INR 64,250.00','Ambiguous','Applied RCPT-81220'],['WI-20103','INR 205,000.00','Ambiguous','Applied RCPT-81904'],['WI-20188','INR 9,900.00','Applied RCPT-82466','Awaiting receipt']].map(([id,amt,before,after]) => ({ id, amt, before, after, bc: tone(before), ac: tone(after) }));
+return { nav, diffs, noop: () => {} };
+}
+}
+</script>
+</body>
+</html>

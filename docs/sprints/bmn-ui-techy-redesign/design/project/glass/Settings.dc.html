@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glass Orbit: settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#05060a}
+a{color:#9db8ff}a:hover{color:#c7d6ff}
+.gl{font-family:Geist,system-ui,sans-serif;font-size:14px;line-height:1.5;color:#e6eaf2;min-height:1500px;background-color:#05060a;background-image:radial-gradient(circle,#ffffff12 1.4px,transparent 1.6px);background-size:22px 22px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.gl *{box-sizing:border-box}
+.glass{background:#0a0c11b8;backdrop-filter:blur(14px);border:1px solid #ffffff1f;border-radius:16px;box-shadow:0 1px 0 #ffffff0a inset,0 30px 80px -30px #000000e6}
+.wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.rail{flex:1 1 200px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.main{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:#a9b2c3;text-decoration:none;min-height:40px}
+.nav.on{background:#4f7cff1f;color:#c7d6ff;box-shadow:inset 0 0 0 1px #4f7cff66,0 0 28px -10px #4f7cff}
+.code{font-family:'Geist Mono',monospace;font-size:10.5px;width:26px;height:22px;border-radius:6px;border:1px solid #ffffff1f;display:inline-flex;align-items:center;justify-content:center;color:#8a94a6}
+.nav.on .code{border-color:#4f7cff;color:#9db8ff}
+.mono{font-family:'Geist Mono',monospace}
+.lab{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a94a6}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 16px}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #ffffff12}
+.bd{padding:16px 18px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;white-space:nowrap}
+.ok{background:#5fe6d817;color:#8cf2e7}.wa{background:#ffc96b14;color:#ffd98f}.ac{background:#4f7cff1f;color:#9db8ff}.mu{background:#ffffff0d;color:#a9b2c3}
+.btn{font-family:Geist,sans-serif;font-size:13px;font-weight:500;border-radius:10px;padding:8px 14px;min-height:36px;cursor:pointer;border:1px solid #ffffff1f;background:#ffffff08;color:#e6eaf2}
+.btn.pri{background:#2f5bdb;border-color:#4f7cff;color:#fff;box-shadow:0 0 24px -8px #4f7cff}
+.split{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.groups{flex:1 1 220px;padding:10px;display:flex;flex-direction:column;gap:2px}
+.grp{display:flex;justify-content:space-between;padding:8px 12px;border-radius:10px;color:#a9b2c3;text-decoration:none;min-height:38px}
+.grp.on{background:#4f7cff1f;color:#c7d6ff}
+.body{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.set{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:12px 18px;border-bottom:1px solid #ffffff0a}
+.set .k{flex:1 1 260px;display:flex;flex-direction:column}
+.inp{font-family:'Geist Mono',monospace;font-size:13px;color:#e6eaf2;background:#ffffff06;border:1px solid #ffffff1f;border-radius:9px;padding:7px 10px;width:130px}
+.inp.dirty{border-color:#ffc96b;box-shadow:0 0 0 3px #ffc96b1f}
+.t{width:100%;border-collapse:collapse}
+.t th{font-family:'Geist Mono',monospace;font-weight:400;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8a94a6;text-align:left;padding:8px 18px;border-bottom:1px solid #ffffff12}
+.t td{padding:10px 18px;border-bottom:1px solid #ffffff0a}
+.states{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.st{padding:18px;min-height:170px;display:flex;flex-direction:column;gap:10px}
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,#ffffff08,#ffffff14,#ffffff08)}
+</style>
+</helmet>
+<div class="gl">
+<div class="wrap">
+<nav class="rail glass" aria-label="Primary">
+<div style="display:flex;align-items:center;gap:10px;padding:6px 8px 14px"><span style="width:28px;height:28px;border-radius:8px;background:#2f5bdb;box-shadow:0 0 20px -4px #4f7cff;display:inline-flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;color:#fff">CA</span><span style="font-weight:600">CashApp</span><span class="lab" style="margin-left:auto">AI</span></div>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="8"><a class="{{n.cls}}" href="#"><span class="code">{{n.code}}</span><span>{{n.label}}</span><span class="mono" style="margin-left:auto;font-size:11px;color:#5d6778">{{n.count}}</span></a></sc-for>
+</nav>
+<main class="main">
+<div class="glass top"><span style="font-size:18px;font-weight:600">Settings</span><span class="pill wa mono">DEV</span><span class="pill ok">Stored in the database · v41</span>
+<label style="margin-left:auto;display:flex;align-items:center;gap:8px;border:1px solid #ffffff1f;border-radius:10px;padding:6px 10px;background:#ffffff06;min-width:240px"><span class="lab" style="font-size:10px">Find</span><input type="search" placeholder="Setting key" style="flex:1;background:transparent;border:0;outline:none;color:#e6eaf2;font-family:inherit;font-size:13px"></label></div>
+<div class="split">
+<nav class="glass groups" aria-label="Setting groups">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="9"><a class="{{g.cls}}" href="#"><span>{{g.name}}</span><span class="mono" style="font-size:12px;color:#8a94a6">{{g.n}}</span></a></sc-for>
+<div style="margin-top:10px;padding:12px;border-radius:10px;background:#ffffff06;font-size:12.5px;color:#a9b2c3">Only the database connection lives outside the database, in Vault. Every other setting is here, versioned and audited.</div>
+</nav>
+<div class="body">
+<div class="glass"><div class="hd"><span style="font-weight:600">Matching</span><span class="pill wa">1 unsaved change</span></div>
+<sc-for list="{{keys}}" as="k" hint-placeholder-count="9"><div class="set"><span class="k"><span class="mono" style="font-size:13px">{{k.key}}</span><span style="font-size:12px;color:#8a94a6">{{k.help}}</span></span><input class="{{k.cls}}" aria-label="{{k.key}}" value="{{k.val}}" onChange="{{k.noop}}"><span class="mono" style="font-size:11.5px;color:#8a94a6;width:150px">{{k.who}}</span></div></sc-for>
+<div class="bd" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span class="mono" style="color:#ffd98f;font-size:13px">tolerance.CAD 0.10 → 0.15</span><input aria-label="Reason" placeholder="Why are you changing this? (required)" style="flex:1 1 240px;font-family:Geist,sans-serif;font-size:14px;color:#e6eaf2;background:#ffffff06;border:1px solid #ffffff1f;border-radius:10px;padding:8px 12px"><button class="btn" type="button">Revert</button><button class="btn pri" type="button">Save as v42</button></div></div>
+<div class="glass" style="box-shadow:0 0 0 1px #5fe6d855,0 30px 80px -30px #000"><div class="hd"><span style="display:flex;flex-direction:column"><span class="lab">Connection</span><span style="font-weight:600">fusion-sql-mcp · Fusion reads</span></span><span class="pill ok">Healthy · 180 ms</span></div>
+<div class="bd" style="display:flex;flex-direction:column;gap:12px">
+<label style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center"><span class="mono" style="font-size:13px;width:170px">mcp.server_url</span><input class="inp" style="width:min(380px,100%)" aria-label="mcp.server_url" value="https://greenlight-dev.internal:8000/mcp" onChange="{{noop}}"></label>
+<div style="display:flex;flex-wrap:wrap;gap:6px 24px;font-size:13px;color:#a9b2c3"><span>OAuth client <span class="mono" style="color:#e6eaf2">cashapp-dev</span></span><span>Secret in OCI Vault</span><span>Source <span class="mono" style="color:#e6eaf2">fusion dev-1</span></span><span>Last call 14:02:08 · run_query · 64 rows</span></div>
+<span style="font-size:13px;color:#a9b2c3">Used for receipt search, invoice and credit memo lookups, lab replays and the assistant’s read-only queries. Applying receipts stays on the direct Fusion client.</span>
+<div style="display:flex;gap:10px;align-items:center"><button class="btn" type="button">Test connection</button><span style="font-size:12.5px;color:#8cf2e7">Token valid · 6 tools · fusion_rest_get 210 ms</span></div>
+</div></div>
+<div class="glass"><div class="hd"><span style="font-weight:600">Access: groups to roles</span><button class="btn" type="button">Map a group</button></div>
+<table class="t"><thead><tr><th>Identity-domain group</th><th>Role</th><th>Can</th></tr></thead><tbody>
+<tr><td class="mono">CASHAPP_ADMINS</td><td><span class="pill ac">Admin</span></td><td style="color:#a9b2c3;font-size:13px">Everything, incl. engine control and config</td></tr>
+<tr><td class="mono">CASHAPP_OPERATORS</td><td><span class="pill ok">Operator</span></td><td style="color:#a9b2c3;font-size:13px">Work items, lab replays, reports</td></tr>
+<tr><td class="mono">AR_ANALYSTS</td><td><span class="pill mu">Viewer</span></td><td style="color:#a9b2c3;font-size:13px">Reports</td></tr>
+</tbody></table></div>
+<div class="glass"><div class="hd"><span style="font-weight:600">Change history</span><span class="lab">last 3</span></div>
+<table class="t"><tbody>
+<tr><td class="mono" style="color:#8a94a6">v41</td><td style="font-size:13px">21 Oct · J. Stevenson</td><td class="mono" style="font-size:12.5px">tolerance.INR 0.25 → 0.49</td><td style="color:#8a94a6;font-size:13px">“lab replay rp_3290”</td></tr>
+<tr><td class="mono" style="color:#8a94a6">v40</td><td style="font-size:13px">19 Oct · J. Stevenson</td><td class="mono" style="font-size:12.5px">pollers.intake_minutes 5 → 2</td><td style="color:#8a94a6;font-size:13px">“faster intake”</td></tr>
+<tr><td class="mono" style="color:#8a94a6">v39</td><td style="font-size:13px">15 Oct · M. Okafor</td><td class="mono" style="font-size:12.5px">models.reader_a.effort medium → high</td><td style="color:#8a94a6;font-size:13px">“low confidence spike”</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</main>
+</div>
+<div role="region" aria-label="Assistant dock" style="align-self:center;width:min(880px,100%);display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center"><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Where are items waiting longest?</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Pause apply until 15:00</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Export this week’s report</button></div>
+<div style="display:flex;align-items:center;gap:10px;border:1px solid #ffffff1f;background:#0e1117;border-radius:16px;padding:10px 12px 10px 16px;box-shadow:0 0 0 4px #4f7cff1f,0 30px 60px -30px #000"><span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9db8ff">Assistant</span><input aria-label="Ask the assistant" placeholder="Ask or tell CashApp to do something…" style="flex:1;background:transparent;border:0;outline:none;color:#e6eaf2;font-family:Geist,sans-serif;font-size:15px"><a href="#" style="font-size:12.5px">Full screen</a><button type="button" aria-label="Send" style="width:32px;height:32px;border-radius:8px;background:#2f5bdb;color:#fff;border:0;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
+<span style="text-align:center;font-family:'Geist Mono',monospace;font-size:10.75px;text-transform:uppercase;letter-spacing:.04em;color:#8a94a6">Acts with your permissions · every change asks you to confirm · ⌘K</span>
+</div>
+<section class="states" aria-label="States">
+<div class="glass st"><span class="lab">Loading</span><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+<div class="glass st"><span class="lab">Empty · search</span><span style="font-size:17px;font-weight:600">No setting matches “tolerence”</span><span style="font-size:13px;color:#a9b2c3">Did you mean tolerance?</span></div>
+<div class="glass st" style="border-color:#f8717155"><span class="lab" style="color:#fca5a5">Error · conflict</span><span style="font-size:17px;font-weight:600">Someone saved v42 first</span><span style="font-size:13px;color:#a9b2c3">Your edit is kept. Review their change, then save again.</span><div><button class="btn" type="button">Review the difference</button></div></div>
+<div class="glass st" style="border-color:#f8717155"><span class="lab" style="color:#fca5a5">Error · invalid value</span><span style="font-size:17px;font-weight:600">tolerance.CAD must be 0.00 to 1.00</span><span style="font-size:13px;color:#a9b2c3">1.50 was rejected. Nothing was saved.</span></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Dashboard','DB',''],['Flow','FL','312'],['Exceptions','EX','63'],['Engine','EN',''],['Review','RV','3'],['Reports','RP',''],['Lab','LB','2'],['Config','CF','']];
+const active = 'Config';
+const nav = items.map(([label,code,count]) => ({ label, code, count, cls: label === active ? 'nav on' : 'nav' }));
+const groups = [['Matching','9'],['Pollers','2'],['Concurrency','3'],['Models','8'],['Extraction','5'],['Auto-fix','12'],['Aging','3'],['Uploads','4'],['Access','3'],['fusion-sql-mcp','4']].map(([name,n]) => ({ name, n, cls: name==='Matching' ? 'grp on' : 'grp' }));
+const noop = () => {};
+const keys = [
+['receipt_date_window_days','Days either side of the payment date','5','2 Oct · J. Stevenson',false],
+['receipt_date_window_days.INR','INR override','5','2 Oct · J. Stevenson',false],
+['tolerance.default','Match tolerance, any currency','0.10','seed',false],
+['tolerance.INR','INR tolerance','0.49','21 Oct · J. Stevenson',false],
+['tolerance.CAD','CAD tolerance','0.15','unsaved',true],
+['bank_fee_band.USD','Bank fees accepted as variance','0–35.00','seed',false],
+['discount.require_reference','Only take discounts the remittance names','true','seed',false],
+['await_receipt.aging_days','Escalate after this many days waiting','30','seed',false]].map(([key,help,val,who,d]) => ({ key, help, val, who, cls: d ? 'inp dirty' : 'inp', noop }));
+return { nav, groups, keys, noop };
+}
+}
+</script>
+</body>
+</html>

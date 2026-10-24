@@ -41,18 +41,17 @@ variable "vcn_cidr" {
 }
 
 variable "subnet_cidrs" {
-  description = "CIDR block per subnet: lb, app, db, streaming, genai."
+  description = "CIDR block per subnet: lb, app, db, genai."
   type        = map(string)
   default = {
-    lb        = "10.20.0.0/24"
-    app       = "10.20.1.0/24"
-    db        = "10.20.2.0/24"
-    streaming = "10.20.3.0/24"
-    genai     = "10.20.4.0/24"
+    lb    = "10.20.0.0/24"
+    app   = "10.20.1.0/24"
+    db    = "10.20.2.0/24"
+    genai = "10.20.4.0/24"
   }
 
   validation {
-    condition     = alltrue([for k in ["lb", "app", "db", "streaming", "genai"] : contains(keys(var.subnet_cidrs), k)])
-    error_message = "subnet_cidrs must define lb, app, db, streaming and genai."
+    condition     = alltrue([for k in ["lb", "app", "db", "genai"] : contains(keys(var.subnet_cidrs), k)])
+    error_message = "subnet_cidrs must define lb, app, db and genai."
   }
 }

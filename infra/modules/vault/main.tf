@@ -12,10 +12,9 @@ locals {
   # ignore_changes keeps Terraform from ever reading or resetting it.
   placeholders = merge(
     {
-      "streaming-auth-token" = "IAM auth token for the Streaming SASL user"
-      "anthropic-api-key"    = "Anthropic API key (zero data retention organisation)"
-      "oidc-client-secret"   = "OCI IAM Identity Domain confidential application client secret"
-      "smtp-password"        = "SMTP password for notifications"
+      "anthropic-api-key"  = "Anthropic API key (zero data retention organisation)"
+      "oidc-client-secret" = "OCI IAM Identity Domain confidential application client secret"
+      "smtp-password"      = "SMTP password for notifications"
     },
     { for pod in var.fusion_pods : "fusion-${pod}-password" => "Fusion integration user password for pod ${pod}" },
   )

@@ -36,6 +36,7 @@ class PurgeReport:
     objects_kept_shared: int = 0
     resumed: int = 0  # PENDING purges completed from an earlier crash
     skipped: int = 0  # candidates no longer eligible under lock, or purged concurrently
+    lab_replay_items: int = 0  # LAB_REPLAY_ITEM rows of finished replays purged (or would be)
 
     def to_json(self) -> dict[str, JsonValue]:
         return {
@@ -50,4 +51,5 @@ class PurgeReport:
             "objects_kept_shared": self.objects_kept_shared,
             "resumed": self.resumed,
             "skipped": self.skipped,
+            "lab_replay_items": self.lab_replay_items,
         }

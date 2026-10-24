@@ -9,8 +9,10 @@ from typing import Annotated
 
 import typer
 
-from cashapp.integrations.fusion import FusionClient, FusionClientFactory, FusionError
+from cashapp.integrations.fusion import FusionClient, FusionError
+from cashapp.integrations.fusion.factory import standalone_factory
 from cashapp.integrations.fusion.fake import FakeFusionClient
+from cashapp.services.runtime_settings import SettingsIncompleteError, start_runtime_settings
 from cashapp.settings import SettingsError, aload_settings
 from cashapp.tools.receipt_signal_study.report import write_report
 from cashapp.tools.receipt_signal_study.run import run_study
@@ -30,8 +32,8 @@ async def build_client(pod: str, prior_dir: Path | None) -> FusionClient:
                 "--pod fake needs --prior <dir> to seed it", param_hint="--pod"
             )
         return FakeFusionClient.from_json(prior_dir / "day" / "fusion.json")
-    settings = await aload_settings()
-    return FusionClientFactory(settings).for_pod(pod)
+    runtime = await start_runtime_settings(await aload_settings())
+    return standalone_factory(runtime).for_pod(pod)
 
 
 @app.command()
@@ -105,7 +107,14 @@ async def _run(
         for path in write_report(result, out):
             typer.echo(str(path))
         return 0
-    except (FusionError, SettingsError, KeyError, OSError, ValueError) as exc:
+    except (
+        FusionError,
+        SettingsError,
+        SettingsIncompleteError,
+        KeyError,
+        OSError,
+        ValueError,
+    ) as exc:
         typer.echo(f"study failed: {type(exc).__name__}: {exc}", err=True)
         return EXIT_STUDY_ERROR
     finally:

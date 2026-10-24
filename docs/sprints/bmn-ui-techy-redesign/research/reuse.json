@@ -1,0 +1,82 @@
+{
+  "lens": "reuse",
+  "model": "haiku",
+  "approaches": [
+    {
+      "name": "extend-existing-llm-chat-and-ingest",
+      "summary": "Keep the one shared LlmChat component and the one /chat/stream endpoint; add a 'rules' PromptKey for matching-rule refinement and restyle through shared tokens. Route failed-receipt uploads through the existing intake ingest() as SourceKind.MANUAL with a new multipart router. Dashboard built from KpiCard and the existing shadcn chart.tsx.",
+      "how": [
+        "Add 'rules' to PromptKey and a systemPromptKey/actions map in the chat service; no new chat component.",
+        "Restyle llm-chat.tsx and llm-chat/* parts (composer, message-list, action-chips) with dark tokens in globals.css, borrowing AIX look (chips row, activity group, header pill) as new parts inside components/common/llm-chat/.",
+        "New api/src/cashapp/api/routers/receipt_review.py: multipart UploadFile list (python-multipart already pinned), store bytes via ObjectStoreDep, call pollers/intake/ingest.ingest() with SourceKind.MANUAL and a batch_id.",
+        "Next proxy route for the upload; review result read from existing items/[id] view.",
+        "Progress dashboard: KpiCard for counts/money, recharts via components/ui/chart.tsx, per-model efficiency from llm_usage.py daily and cohere-utilisation endpoints."
+      ],
+      "merit": 9,
+      "confidence": 0.8,
+      "evidence": [
+        "web/components/common/llm-chat.tsx:17-27 (LlmChatProps: context, systemPromptKey, actions, onAction, variant; already configured by props)",
+        "web/components/common/llm-chat/chat-schemas.ts:12 (PromptKey = 'item' | 'flow'; the extension point)",
+        "api/src/cashapp/api/routers/chat.py:1-7,38-60 (single POST /chat/stream SSE, CHAT_USE permission)",
+        "web/components/common/kpi-card.tsx:1-30 (reusable stat tile)",
+        "web/components/ui/chart.tsx and web/components/reports/failures-by-code-chart.tsx (existing recharts wrapper to reuse)",
+        "api/src/cashapp/pollers/intake/ingest.py:52-60 (ingest(uow_factory, object_store, artifact, source_kind, batch_id))",
+        "api/src/cashapp/domain/work_item.py:7-11 (SourceKind.MANUAL already exists)",
+        "api/pyproject.toml:25 (python-multipart already a dependency, no UploadFile use yet)",
+        "api/src/cashapp/api/routers/llm_usage.py:37-67 (daily usage and cohere-utilisation for model efficiency)"
+      ],
+      "risks": [
+        "Adding a 'rules' prompt key touches the chat service and its allow-list; keep the single endpoint and do not add a second chat path.",
+        "Multipart upload needs size limits and content sniffing (sniff.py exists) before storage; zero-retention and no raw artifact logging apply.",
+        "Per-model accuracy and adjudicator agreement may need new aggregate queries; those belong in a repository, not the router.",
+        "Restyling shared llm-chat parts changes existing item and flow chats; verify visually on both."
+      ]
+    },
+    {
+      "name": "port-aix-chat-wholesale",
+      "summary": "Copy the AIX-Payroll-Compare chat feature (thread, composer chips, header pills, markdown, code-block parts) into web/ as the assistant, replacing or sitting beside the existing llm-chat.",
+      "how": [
+        "Copy src/features/chat/ui/thread, composer and activity trees from D:\\AIX-Payroll-Compare\\webapp.",
+        "Adapt its conversation API and turn/stream code to the cashapp /chat/stream contract.",
+        "Mount it as the single assistant surface in the shell.",
+        "Keep existing llm-chat only for item and flow contexts, or retire it."
+      ],
+      "merit": 4,
+      "confidence": 0.45,
+      "evidence": [
+        "D:\\AIX-Payroll-Compare\\webapp\\src\\features\\chat\\ui\\chat-panel.tsx:49 (AIX panel shell)",
+        "D:\\AIX-Payroll-Compare\\webapp\\src\\features\\chat\\ui\\thread\\ (assistant-message, code-block, header-pills)",
+        "D:\\AIX-Payroll-Compare\\webapp\\src\\features\\chat\\ui\\composer\\ (chips-row, plus-menu)",
+        "web/components/common/llm-chat.tsx (existing shared chat that already covers the same job)"
+      ],
+      "risks": [
+        "Duplicates the shared llm-chat component, which violates CLAUDE.md non-negotiable 7 (one chat component).",
+        "AIX chat is coupled to its own conversation store, proposals and plugins; large porting surface with little reuse of the cashapp backend.",
+        "Imports from AIX would bring its tests and e2e assumptions; much of it is out of scope for a rules-refinement chat."
+      ]
+    },
+    {
+      "name": "adopt-npm-chat-runtime",
+      "summary": "Replace the hand-rolled SSE chat state (use-chat.ts, chat-reducer.ts) with an npm chat runtime such as @assistant-ui/react, keeping the shared component as a thin wrapper around it.",
+      "how": [
+        "Install @assistant-ui/react (0.15.31) or @ai-sdk/react (4.0.155); write one custom adapter to POST /chat/stream and parse its SSE frames.",
+        "Wrap it in components/common/llm-chat.tsx so props stay the public contract.",
+        "Use its thread and composer primitives styled with the dark tokens.",
+        "Keep the upload and dashboard work from approach 1 unchanged."
+      ],
+      "merit": 5,
+      "confidence": 0.5,
+      "evidence": [
+        "npm view @assistant-ui/react version -> 0.15.31 (checked 2026-10-23)",
+        "npm view @ai-sdk/react version -> 4.0.155",
+        "web/components/common/llm-chat/use-chat.ts and chat-reducer.ts (existing SSE state machine that a library would replace)",
+        "web/package.json: cmdk, react-markdown, recharts, sonner already present (no chat runtime yet)"
+      ],
+      "risks": [
+        "New dependency that owns streaming, retries and message state; the existing error and disconnected phases (chat-status.tsx) and the stream-error frame contract would need a custom adapter.",
+        "Version churn risk: pre-1.0 package (0.15.x), and the AI SDK major is 4.x; both need the two-week-old rule checked at pin time.",
+        "Could end up as a second chat implementation if the wrapper is not strict, breaking the single-component rule."
+      ]
+    }
+  ]
+}

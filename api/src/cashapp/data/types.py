@@ -56,9 +56,8 @@ class OracleJson(UserDefinedType[Any]):
 
     def result_processor(self, dialect: Dialect, coltype: Any) -> Any:
         def process(value: Any) -> Any:
-            # Thin mode returns dict/list for native JSON; accept text too.
-            if isinstance(value, str | bytes):
-                return json.loads(value)
+            # Native JSON is already decoded (dict, list, str, number), so a str here is a JSON
+            # string value, not JSON text: parsing it would fail on any plain string setting.
             return value
 
         return process

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glass Orbit: shell and theme</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#05060a}
+a{color:#9db8ff}a:hover{color:#c7d6ff}
+.gl{font-family:Geist,system-ui,sans-serif;font-size:14px;line-height:1.5;color:#e6eaf2;min-height:1500px;background-color:#05060a;background-image:radial-gradient(circle,#ffffff12 1.4px,transparent 1.6px);background-size:22px 22px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.gl *{box-sizing:border-box}
+.glass{background:#0a0c11b8;backdrop-filter:blur(14px);border:1px solid #ffffff1f;border-radius:16px;box-shadow:0 1px 0 #ffffff0a inset,0 30px 80px -30px #000000e6}
+.wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.rail{flex:1 1 200px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.main{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:#a9b2c3;text-decoration:none;min-height:40px}
+.nav:hover{background:#ffffff0a;color:#e6eaf2}
+.nav.on{background:#4f7cff1f;color:#c7d6ff;box-shadow:inset 0 0 0 1px #4f7cff66,0 0 28px -10px #4f7cff}
+.code{font-family:'Geist Mono',monospace;font-size:10.5px;width:26px;height:22px;border-radius:6px;border:1px solid #ffffff1f;display:inline-flex;align-items:center;justify-content:center;color:#8a94a6}
+.nav.on .code{border-color:#4f7cff;color:#9db8ff}
+.mono{font-family:'Geist Mono',monospace}
+.lab{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a94a6}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 16px}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #ffffff12}
+.bd{padding:16px 18px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;white-space:nowrap}
+.ok{background:#5fe6d817;color:#8cf2e7}.wa{background:#ffc96b14;color:#ffd98f}.er{background:#f8717117;color:#fca5a5}.ac{background:#4f7cff1f;color:#9db8ff}.mu{background:#ffffff0d;color:#a9b2c3}.lk{background:#b794ff1a;color:#d4bfff}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:#5fe6d8;box-shadow:0 0 10px #5fe6d8}
+.btn{font-family:Geist,sans-serif;font-size:13px;font-weight:500;border-radius:10px;padding:8px 14px;min-height:36px;cursor:pointer;border:1px solid #ffffff1f;background:#ffffff08;color:#e6eaf2}
+.btn.pri{background:#2f5bdb;border-color:#4f7cff;color:#fff;box-shadow:0 0 24px -8px #4f7cff}
+.btn.warn{border-color:#ffc96b55;color:#ffd98f;background:#ffc96b0f}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.sw{height:56px;border-radius:10px;border:1px solid #ffffff1f}
+.states{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.st{padding:18px;min-height:200px;display:flex;flex-direction:column;gap:10px}
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,#ffffff08,#ffffff14,#ffffff08)}
+.kpi{padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+.big{font-family:'Geist Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-.02em}
+</style>
+</helmet>
+<div class="gl">
+<div class="wrap">
+<nav class="rail glass" aria-label="Primary">
+<div style="display:flex;align-items:center;gap:10px;padding:6px 8px 14px"><span style="width:28px;height:28px;border-radius:8px;background:#2f5bdb;box-shadow:0 0 20px -4px #4f7cff;display:inline-flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;color:#fff">CA</span><span style="font-weight:600">CashApp</span><span class="lab" style="margin-left:auto">AI</span></div>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="7"><a class="{{n.cls}}" href="#"><span class="code">{{n.code}}</span><span>{{n.label}}</span><span class="mono" style="margin-left:auto;font-size:11px;color:#5d6778">{{n.count}}</span></a></sc-for>
+<div style="margin-top:16px;padding:12px 10px 4px;border-top:1px solid #ffffff12;display:flex;align-items:center;gap:10px"><span style="width:28px;height:28px;border-radius:50%;background:#151922;border:1px solid #ffffff1f;display:inline-flex;align-items:center;justify-content:center;font-size:11px">JS</span><span style="display:flex;flex-direction:column;line-height:1.2"><span style="font-size:13px">J. Stevenson</span><span class="lab" style="font-size:10px">admin</span></span></div>
+</nav>
+<main class="main">
+<div class="glass top">
+<span class="lab">Shell</span><span style="color:#5d6778">/</span><span>Theme</span>
+<span class="pill wa mono">DEV</span><span class="pill ok"><span class="dot"></span>Live</span><span class="pill mu">Sample data</span>
+<label style="margin-left:auto;display:flex;align-items:center;gap:8px;border:1px solid #ffffff1f;border-radius:10px;padding:6px 10px;background:#ffffff06;min-width:260px"><span class="lab" style="font-size:10px">Search</span><input type="search" placeholder="Item, receipt, invoice" style="flex:1;background:transparent;border:0;outline:none;color:#e6eaf2;font-family:inherit;font-size:13px"><span class="mono" style="font-size:11px;color:#5d6778;border:1px solid #ffffff1f;border-radius:5px;padding:0 5px">⌘K</span></label>
+</div>
+<div class="glass">
+<div class="hd"><span style="font-size:20px;font-weight:600;letter-spacing:-.01em">Theme tokens</span><span class="lab">globals.css → shadcn vars</span></div>
+<div class="bd grid">
+<sc-for list="{{swatches}}" as="s" hint-placeholder-count="10"><div style="display:flex;flex-direction:column;gap:6px"><div class="sw" style="{{s.style}}"></div><span style="font-size:13px">{{s.name}}</span><span class="mono" style="font-size:11px;color:#8a94a6">{{s.hex}} · {{s.maps}}</span></div></sc-for>
+</div></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+<div class="glass"><div class="hd"><span class="lab">Status enum</span><span class="lab">status-badge</span></div>
+<div class="bd" style="display:flex;flex-wrap:wrap;gap:8px"><span class="pill ok">Applied</span><span class="pill ac">In progress</span><span class="pill mu">Awaiting receipt</span><span class="pill wa">Needs attention</span><span class="pill er">Failed</span><span class="pill lk">Locked</span></div>
+<div class="bd" style="border-top:1px solid #ffffff12;display:flex;flex-wrap:wrap;gap:8px"><button class="btn pri" type="button">Requeue</button><button class="btn" type="button">Lock</button><button class="btn warn" type="button">Pause</button><button class="btn" type="button" style="background:transparent;border-color:transparent;color:#a9b2c3">Cancel</button></div></div>
+<div class="glass"><div class="hd"><span class="lab">Type</span><span class="lab">Geist · Geist Mono</span></div>
+<div class="bd" style="display:flex;flex-direction:column;gap:8px"><span class="big" style="font-size:40px;color:#e6eaf2">1,284</span><span style="font-size:20px;font-weight:600">Heading 20 / 600</span><span>Body 14 / 400. Money is mono: <span class="mono" style="color:#8cf2e7">USD 4,812,330.17</span></span><span class="lab">Label 11 · mono · uppercase</span></div></div>
+</div>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+<div class="glass kpi"><span class="lab">Receipts matched · 7d</span><span class="big">1,284</span><span style="font-size:12px;color:#8cf2e7">+6.1% vs prior 7d</span></div>
+<div class="glass kpi"><span class="lab">Automation rate · 7d</span><span class="big">87.4%</span><div style="height:6px;border-radius:3px;background:#ffffff12"><div style="width:87%;height:6px;border-radius:3px;background:#4f7cff;box-shadow:0 0 12px #4f7cff"></div></div></div>
+<div class="glass kpi"><span class="lab">Open exceptions</span><span class="big" style="color:#ffd98f">63</span><span style="font-size:12px;color:#8a94a6">12 locked by people</span></div>
+</div>
+</main>
+</div>
+<div class="glass" style="display:flex;flex-wrap:wrap;gap:8px 20px;padding:8px 16px;font-size:12px;color:#8a94a6"><span class="pill ok"><span class="dot"></span>Bus healthy</span><span class="mono">lag 312</span><span class="mono" style="color:#ffd98f">dlq 4</span><span>Pollers 2/2 · intake 2m · receipt watcher 5m</span><span style="margin-left:auto" class="mono">us-ashburn-1</span></div>
+<div role="region" aria-label="Assistant dock" style="align-self:center;width:min(880px,100%);display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center"><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Where are items waiting longest?</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Pause apply until 15:00</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Export this week’s report</button></div>
+<div style="display:flex;align-items:center;gap:10px;border:1px solid #ffffff1f;background:#0e1117;border-radius:16px;padding:10px 12px 10px 16px;box-shadow:0 0 0 4px #4f7cff1f,0 30px 60px -30px #000"><span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9db8ff">Assistant</span><input aria-label="Ask the assistant" placeholder="Ask or tell CashApp to do something…" style="flex:1;background:transparent;border:0;outline:none;color:#e6eaf2;font-family:Geist,sans-serif;font-size:15px"><a href="#" style="font-size:12.5px">Full screen</a><button type="button" aria-label="Send" style="width:32px;height:32px;border-radius:8px;background:#2f5bdb;color:#fff;border:0;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
+<span style="text-align:center;font-family:'Geist Mono',monospace;font-size:10.75px;text-transform:uppercase;letter-spacing:.04em;color:#8a94a6">Acts with your permissions · every change asks you to confirm · ⌘K</span>
+</div>
+<section class="states" aria-label="States">
+<div class="glass st"><span class="lab">Loading</span><div style="display:flex;gap:12px"><div style="width:110px;display:flex;flex-direction:column;gap:8px"><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="sk" style="height:30px"></div><div class="sk" style="height:80px"></div></div></div><span style="color:#8a94a6;font-size:13px">Loading your session…</span></div>
+<div class="glass st"><span class="lab">Empty · no role</span><span style="font-size:17px;font-weight:600">No role is mapped to your groups</span><span style="color:#a9b2c3;font-size:13px">Your identity-domain groups are not mapped to an app role yet. An admin maps them in Config.</span><div><a href="#">Request access</a></div></div>
+<div class="glass st" style="border-color:#f8717155"><span class="lab" style="color:#fca5a5">Error · API unreachable</span><span style="font-size:17px;font-weight:600">The cash app API is not answering</span><span style="color:#a9b2c3;font-size:13px">Pipeline workers keep running. Retrying in 8 seconds.</span><div><button class="btn" type="button">Retry now</button></div></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Dashboard','DB',''],['Flow','FL','312'],['Exceptions','EX','63'],['Engine','EN',''],['Review','RV','3'],['Reports','RP',''],['Lab','LB','2'],['Config','CF','']];
+const active = 'Dashboard';
+const nav = items.map(([label,code,count]) => ({ label, code, count, cls: label === active ? 'nav on' : 'nav' }));
+const swatches = [['bg','#05060a','--background'],['s1','#0a0c11','--card'],['s3','#151922','--muted'],['line2','#ffffff1f','--border'],['tx','#e6eaf2','--foreground'],['soft','#8a94a6','--muted-foreground'],['acc-hi','#4f7cff','--primary / --ring'],['ok','#5fe6d8','--status-success'],['warn','#ffc96b','--status-attention'],['err','#f87171','--status-error']].map(([name,hex,maps]) => ({ name, hex, maps, style: 'background:' + hex }));
+return { nav, swatches };
+}
+}
+</script>
+</body>
+</html>

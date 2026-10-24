@@ -9,6 +9,13 @@ marked **confirm on pod** until a person has checked it against the Security Con
 pod; replace the marker with `CONFIRMED <date> <pod>` when you do. Never guess: if a name does not
 exist on the pod, find the right duty role in the Security Console and correct this file.
 
+> **Transport (2026-10-23, fusion-mcp-transport).** REST reads and REST writes no longer use this
+> integration user: they go through the fusion-sql-mcp (Greenlight) server, whose own service
+> accounts need the REST read duties below (and write duties for the comment and attachment
+> writes). This user is now used only for the SOAP apply and unapply (and the `?WSDL` probe).
+> Register the cash app as an OAuth client of that server (scope `greenlight/mcp`) and set the
+> `mcp.*` configuration keys.
+
 ## 1. Integration user
 
 Create one dedicated integration user per pod. Do not reuse a named person's account.
@@ -37,7 +44,7 @@ below is preferred over a seeded job role. All role names are **confirm on pod**
 | REST read: customer accounts | `GET` of the customer account resource (path chosen in the Fusion client contracts) | Customer account inquiry duty (for example Customer Account Inquiry or the Trading Community inquiry duty) | confirm on pod |
 | SOAP apply | `createApplyReceipt` on `/fscmService/StandardReceiptService` | Apply receipt duty (Accounts Receivable Specialist `Apply Receipts`) | confirm on pod |
 | SOAP unapply | the unapply operation on `/fscmService/StandardReceiptService` | Unapply receipt duty (same family as apply; the operation itself is unverified) | confirm on pod |
-| BIP `runReport` | `runReport` on `/xmlpserver/services/ExternalReportWSSService` | BI Consumer or BI Author for the `/Custom/CashApp/` folder, plus read permission on the two data models and reports (see `fusion/bip/README.md`) | confirm on pod |
+| ~~BIP `runReport`~~ | removed 2026-10-23: the relationships and receipt-signals SQL now runs through the MCP server's `run_query` (no catalog report, no BIP role) | none for this app; the MCP server's service account needs read access to the tables the SQL reads | n/a |
 | Receipt attachments | `POST standardReceipts/{id}/child/attachments` and its read | Receipt attachment duty (manage attachments on receipts) | confirm on pod |
 | Receipt comments | `PATCH standardReceipts/{id}` with `Comments` | Receipt update duty (edit receipt comments) | confirm on pod |
 

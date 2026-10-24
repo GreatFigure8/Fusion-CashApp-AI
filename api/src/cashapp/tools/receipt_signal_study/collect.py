@@ -80,28 +80,28 @@ async def collect_applications(
 
 
 def parse_statement_signals(xml: bytes) -> dict[int, StatementSignals]:
-    """Parse the s32 `receipt_signals` report. Bank accounts are hashed here and never kept."""
+    """Parse the receipt-signals data model rows. The bank account arrives already hashed."""
     refs: dict[int, list[str]] = {}
     addenda: dict[int, list[str]] = {}
     names: dict[int, list[str]] = {}
     hashes: dict[int, list[str]] = {}
     root = safe_fromstring(xml)
     for row in iter_local(root, "G_1"):
-        raw_id = child_text(row, "RECEIPT_ID")
+        raw_id = child_text(row, "CASH_RECEIPT_ID")
         if raw_id is None or not raw_id.isdigit():
             continue
         receipt_id = int(raw_id)
         for target, tag in (
             (refs, "STATEMENT_LINE_REFERENCE"),
-            (addenda, "ADDENDA_TEXT"),
-            (names, "PAYER_NAME"),
+            (addenda, "STATEMENT_LINE_ADDENDA"),
+            (names, "STATEMENT_PAYER_NAME"),
         ):
             value = child_text(row, tag)
             if value is not None:
                 target.setdefault(receipt_id, []).append(value)
-        account = child_text(row, "PAYER_BANK_ACCOUNT")
-        if account is not None:
-            hashes.setdefault(receipt_id, []).append(hash_account(account))
+        account_hash = child_text(row, "PAYER_BANK_ACCOUNT_HASH")
+        if account_hash is not None:
+            hashes.setdefault(receipt_id, []).append(account_hash.lower())
     ids = set(refs) | set(addenda) | set(names) | set(hashes)
     return {
         i: StatementSignals(
@@ -120,7 +120,10 @@ async def collect_statement_signals(
 ) -> dict[int, StatementSignals]:
     xml = await client.run_report(
         report_path,
-        {"P_CREATION_FROM": created_from.isoformat(), "P_CREATION_TO": created_to.isoformat()},
+        {
+            "P_DATE_FROM": created_from.date().isoformat(),
+            "P_DATE_TO": created_to.date().isoformat(),
+        },
     )
     return parse_statement_signals(xml)
 

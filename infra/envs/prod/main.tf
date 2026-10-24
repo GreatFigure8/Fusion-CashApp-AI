@@ -5,18 +5,22 @@ locals {
   secret_ids = merge(module.vault.secret_ids, { "atp-dsn" = module.atp.connect_string_secret_id })
   vault_ref  = { for name, id in local.secret_ids : name => "vault:${id}" }
 
-  # Environment for the api and every worker. Names follow the settings model (CASHAPP_ prefix,
-  # __ nesting); secret leaves are vault:<secret-ocid> references resolved at start-up.
-  api_env = merge(
+  # Environment for the api and every worker: the bootstrap set only (CASHAPP_ prefix, __
+  # nesting). Every other setting is a DB config key edited in Settings; see
+  # docs/reference/settings.md. Secret leaves are vault:<secret-ocid> references.
+  api_env = {
+    CASHAPP_ENV             = local.environment
+    CASHAPP_ATP__DSN        = local.vault_ref["atp-dsn"]
+    CASHAPP_ATP__USER       = local.schema_name
+    CASHAPP_ATP__PASSWORD   = local.vault_ref["atp-app-password"]
+    CASHAPP_SECRETS__SOURCE = "vault"
+  }
+
+  # The removed deploy variables, with the values they always had. Only the release migration
+  # container receives them (output migration_env): the s48 data migration seeds the DB config
+  # keys from them. Once every environment has applied s48 this local can be emptied.
+  settings_seed_env = merge(
     {
-      CASHAPP_ENV                                     = local.environment
-      CASHAPP_ATP__DSN                                = local.vault_ref["atp-dsn"]
-      CASHAPP_ATP__USER                               = local.schema_name
-      CASHAPP_ATP__PASSWORD                           = local.vault_ref["atp-app-password"]
-      CASHAPP_STREAMING__BOOTSTRAP_SERVERS            = module.streaming.bootstrap_servers
-      CASHAPP_STREAMING__SASL_USERNAME                = "${var.tenancy_name}/${var.streaming_user}/${module.streaming.stream_pool_id}"
-      CASHAPP_STREAMING__SASL_PASSWORD                = local.vault_ref["streaming-auth-token"]
-      CASHAPP_STREAMING__CONSUMER_GROUP               = "cashapp-${local.environment}"
       CASHAPP_OBJECT_STORAGE__NAMESPACE               = module.object_storage.namespace
       CASHAPP_OBJECT_STORAGE__BUCKET                  = module.object_storage.bucket_name
       CASHAPP_ANTHROPIC__API_KEY                      = local.vault_ref["anthropic-api-key"]
@@ -109,18 +113,6 @@ module "atp" {
   data_storage_size_in_gb  = var.atp_storage_gb
 }
 
-module "streaming" {
-  source = "../../modules/streaming"
-
-  compartment_ocid = var.compartment_ocid
-  environment      = local.environment
-  region           = var.region
-  subnet_id        = module.network.subnet_ids["streaming"]
-  nsg_ids          = [module.network.nsg_ids["streaming"]]
-  kms_key_id       = module.vault.key_id
-  partitions       = var.partitions
-}
-
 module "genai" {
   source = "../../modules/genai"
 
@@ -142,7 +134,6 @@ module "iam" {
   tenancy_ocid      = var.tenancy_ocid
   vault_id          = module.vault.vault_id
   key_id            = module.vault.key_id
-  stream_pool_id    = module.streaming.stream_pool_id
   bucket_name       = "cashapp-${local.environment}-artifacts"
   genai_endpoint_id = module.genai.endpoint_id
 }

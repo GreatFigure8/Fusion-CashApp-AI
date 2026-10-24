@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { ROLES, type EditorKind, type ConfigUi } from "./config-registry";
+import { ROLES, SECRET_NAME_PATTERN, type EditorKind, type ConfigUi } from "./config-registry";
 
 /** Client-safe, fast-feedback mirrors of the API's validation. The API stays the authority. */
 
@@ -114,6 +114,14 @@ export function schemaForEditor(
       return opts.pattern
         ? z.string().regex(new RegExp(opts.pattern), "Use the format HH:MM.")
         : z.string();
+    case "secret-ref":
+      return z
+        .string()
+        .trim()
+        .regex(
+          new RegExp(SECRET_NAME_PATTERN),
+          "Use lower-case letters, digits, '.', '_' or '-' (up to 120 characters).",
+        );
     case "decimal-nullable":
       return decimalString.nullable();
     case "json":

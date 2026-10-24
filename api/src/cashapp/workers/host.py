@@ -14,6 +14,8 @@ from collections.abc import Sequence
 from types import FrameType
 from typing import cast
 
+from cashapp.integrations.fusion.client import FusionClient
+from cashapp.integrations.fusion.errors import FusionError
 from cashapp.pipeline.roles import Container, RoleSpec, RoleState, Runnable
 from cashapp.services.claims import ClaimService
 from cashapp.workers.container import WorkerContainer
@@ -120,6 +122,7 @@ class WorkerHost:
         try:
             recovered = await ClaimService(container.uow_factory, container.clock).recover_expired()
             log.info("startup recovery done", extra={"recovered": recovered})
+            await self._verify_fusion_framework()
 
             container.set_on_processed(telemetry.notify_processed)
             telemetry_task = asyncio.create_task(telemetry.run(telemetry_stop), name="telemetry")
@@ -140,6 +143,21 @@ class WorkerHost:
             await container.aclose()
             self._unhook_signals(loop, previous)
         return exit_code
+
+    async def _verify_fusion_framework(self) -> None:
+        """Fail start if the Fusion REST probe 400s (a wrong REST-Framework-Version); an
+        unreachable or unconfigured MCP server is logged and start continues."""
+        try:
+            fusion = self._container.resolve(FusionClient)
+            verify = getattr(fusion, "verify_framework", None)
+            if verify is not None:
+                await verify()
+        except FusionError as exc:
+            if exc.http_status == 400:
+                raise
+            log.warning("fusion check skipped", extra={"fusion_code": exc.code.value})
+        except Exception as exc:
+            log.warning("fusion check skipped", extra={"error_type": type(exc).__name__})
 
     async def _run_roles(self) -> int:
         stop = self._stop
@@ -180,7 +198,8 @@ class WorkerHost:
 
     async def _wait_for_grace(self) -> None:
         loop = asyncio.get_running_loop()
-        deadline = loop.time() + self._container.settings.worker.shutdown_grace_seconds
+        grace = await self._container.runtime.shutdown_grace_seconds()
+        deadline = loop.time() + grace
         pending: set[asyncio.Task[None]] = {t for t in self._tasks.values() if not t.done()}
         while pending:
             remaining = deadline - loop.time()

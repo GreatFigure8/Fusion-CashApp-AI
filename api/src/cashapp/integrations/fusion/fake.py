@@ -21,6 +21,7 @@ from cashapp.domain.error_codes import ErrorCode
 from cashapp.domain.money import to_money
 from cashapp.integrations.fusion import bip, query, soap
 from cashapp.integrations.fusion.client import ReceiptDateBasis
+from cashapp.integrations.fusion.datamodels import RELATIONSHIPS_PATH
 from cashapp.integrations.fusion.errors import FusionError, FusionFault, fault_from_messages
 from cashapp.integrations.fusion.guard import WriteGuard
 from cashapp.integrations.fusion.models import (
@@ -78,7 +79,7 @@ class FakeFusionClient:
         reports: Mapping[str, bytes] | None = None,
         raw: Mapping[str, bytes] | None = None,
         guard: WriteGuard | None = None,
-        relationships_report_path: str = "/Custom/CashApp/Relationships.xdo",
+        relationships_report_path: str = RELATIONSHIPS_PATH,
         today: Callable[[], date] | None = None,
     ) -> None:
         self._transactions: dict[int, FusionTransaction] = {
@@ -457,7 +458,7 @@ class FakeFusionClient:
     # --- writes --------------------------------------------------------------------------------
 
     async def apply_receipt(self, request: ApplyRequest) -> ApplyResult:
-        self._guard.check("apply_receipt")
+        await self._guard.check("apply_receipt")
         self._record("apply_receipt", request)
         injected = self._injected("apply_receipt")
         if isinstance(injected, FusionError):
@@ -567,7 +568,7 @@ class FakeFusionClient:
         )
 
     async def unapply_receipt(self, request: UnapplyRequest) -> UnapplyResult:
-        self._guard.check("unapply_receipt")
+        await self._guard.check("unapply_receipt")
         self._record("unapply_receipt", request)
         injected = self._injected("unapply_receipt")
         if isinstance(injected, FusionError):
@@ -598,7 +599,7 @@ class FakeFusionClient:
         return UnapplyResult(ok=False, fault=fault, raw_messages=fault.messages)
 
     async def set_receipt_comment(self, receipt_id: int, text: str) -> None:
-        self._guard.check("set_receipt_comment")
+        await self._guard.check("set_receipt_comment")
         self._record("set_receipt_comment", receipt_id, text)
         self._raise_if_injected("set_receipt_comment")
         receipt = await self._known_receipt(receipt_id)
@@ -608,7 +609,7 @@ class FakeFusionClient:
     async def attach_to_receipt(
         self, receipt_id: int, filename: str, content: bytes, content_type: str, title: str
     ) -> AttachmentRef:
-        self._guard.check("attach_to_receipt")
+        await self._guard.check("attach_to_receipt")
         self._record("attach_to_receipt", receipt_id, filename, content, content_type, title)
         self._raise_if_injected("attach_to_receipt")
         await self._known_receipt(receipt_id)
@@ -626,7 +627,7 @@ class FakeFusionClient:
         return receipt
 
     async def rest_post(self, path: str, json: Mapping[str, Any]) -> dict[str, Any]:
-        self._guard.check("rest_post")
+        await self._guard.check("rest_post")
         self._record("rest_post", path, json)
         self._raise_if_injected("rest_post")
         resource = _resource(path)
@@ -744,13 +745,10 @@ _RECEIPT_DESCRIBE = json.dumps(
 
 
 def _default_raw() -> dict[str, bytes]:
-    """Minimal WSDL shapes for the two SOAP services and the receipt describe (UNVERIFIED)."""
+    """Minimal WSDL shape for the receipt SOAP service (UNVERIFIED)."""
     return {
         soap.SOAP_PATH_RECEIPTS: _WSDL_TEMPLATE.format(
             name="StandardReceiptService", operation="createApplyReceipt"
-        ).encode(),
-        bip.BIP_PATH: _WSDL_TEMPLATE.format(
-            name="ExternalReportWSSService", operation="runReport"
         ).encode(),
     }
 

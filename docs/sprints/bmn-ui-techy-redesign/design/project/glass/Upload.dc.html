@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glass Orbit: failed-receipt review</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#05060a}
+a{color:#9db8ff}a:hover{color:#c7d6ff}
+.gl{font-family:Geist,system-ui,sans-serif;font-size:14px;line-height:1.5;color:#e6eaf2;min-height:1500px;background-color:#05060a;background-image:radial-gradient(circle,#ffffff12 1.4px,transparent 1.6px);background-size:22px 22px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.gl *{box-sizing:border-box}
+.glass{background:#0a0c11b8;backdrop-filter:blur(14px);border:1px solid #ffffff1f;border-radius:16px;box-shadow:0 1px 0 #ffffff0a inset,0 30px 80px -30px #000000e6}
+.wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.rail{flex:1 1 200px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.main{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:#a9b2c3;text-decoration:none;min-height:40px}
+.nav.on{background:#4f7cff1f;color:#c7d6ff;box-shadow:inset 0 0 0 1px #4f7cff66,0 0 28px -10px #4f7cff}
+.code{font-family:'Geist Mono',monospace;font-size:10.5px;width:26px;height:22px;border-radius:6px;border:1px solid #ffffff1f;display:inline-flex;align-items:center;justify-content:center;color:#8a94a6}
+.nav.on .code{border-color:#4f7cff;color:#9db8ff}
+.mono{font-family:'Geist Mono',monospace}
+.lab{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a94a6}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 16px}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #ffffff12}
+.bd{padding:16px 18px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;white-space:nowrap}
+.ok{background:#5fe6d817;color:#8cf2e7}.wa{background:#ffc96b14;color:#ffd98f}.er{background:#f8717117;color:#fca5a5}.ac{background:#4f7cff1f;color:#9db8ff}.mu{background:#ffffff0d;color:#a9b2c3}.lk{background:#b794ff1a;color:#d4bfff}
+.btn{font-family:Geist,sans-serif;font-size:13px;font-weight:500;border-radius:10px;padding:8px 14px;min-height:36px;cursor:pointer;border:1px solid #ffffff1f;background:#ffffff08;color:#e6eaf2}
+.btn.pri{background:#2f5bdb;border-color:#4f7cff;color:#fff;box-shadow:0 0 24px -8px #4f7cff}
+.drop{border:1.5px dashed #4f7cff88;border-radius:16px;background:#4f7cff0a;padding:32px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.th{border:1px solid #ffffff14;border-radius:12px;overflow:hidden;background:#ffffff05;display:flex;flex-direction:column}
+.img{height:112px;background:#151922;display:flex;flex-direction:column;gap:7px;padding:14px 18px}
+.ln{height:6px;border-radius:3px;background:#ffffff1f}
+.bar{height:4px;border-radius:2px;background:#ffffff12}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px}
+.t{width:100%;border-collapse:collapse}
+.t th{font-family:'Geist Mono',monospace;font-weight:400;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8a94a6;text-align:left;padding:8px 12px;border-bottom:1px solid #ffffff12;white-space:nowrap}
+.t td{padding:10px 12px;border-bottom:1px solid #ffffff0a;white-space:nowrap}
+.t tr.sel td{background:#4f7cff14}
+.states{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.st{padding:18px;min-height:180px;display:flex;flex-direction:column;gap:10px}
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,#ffffff08,#ffffff14,#ffffff08)}
+</style>
+</helmet>
+<div class="gl">
+<div class="wrap">
+<nav class="rail glass" aria-label="Primary">
+<div style="display:flex;align-items:center;gap:10px;padding:6px 8px 14px"><span style="width:28px;height:28px;border-radius:8px;background:#2f5bdb;box-shadow:0 0 20px -4px #4f7cff;display:inline-flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;color:#fff">CA</span><span style="font-weight:600">CashApp</span><span class="lab" style="margin-left:auto">AI</span></div>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="7"><a class="{{n.cls}}" href="#"><span class="code">{{n.code}}</span><span>{{n.label}}</span><span class="mono" style="margin-left:auto;font-size:11px;color:#5d6778">{{n.count}}</span></a></sc-for>
+</nav>
+<main class="main">
+<div class="glass top"><span style="font-size:18px;font-weight:600">Review</span><span class="pill wa mono">DEV</span><span class="pill mu">Sample data</span><span style="margin-left:auto;font-size:12.5px;color:#8a94a6">Today <span class="mono" style="color:#e6eaf2">7 / 20</span> uploads</span></div>
+<div class="glass bd" style="display:flex;flex-direction:column;gap:16px">
+<div class="drop">
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9db8ff" stroke-width="1.6" aria-hidden="true"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg>
+<span style="font-size:17px;font-weight:600">Drop failed receipt images</span>
+<span style="font-size:13px;color:#a9b2c3">PNG, JPG, WEBP or PDF · up to 5 MB each · 10 files at a time · location data is stripped</span>
+<label class="btn" for="gpick" style="display:inline-flex;align-items:center">Choose files</label><input id="gpick" type="file" multiple style="position:absolute;left:-9999px">
+</div>
+<div class="thumbs">
+<sc-for list="{{files}}" as="f" hint-placeholder-count="5"><div class="th"><div class="img" aria-hidden="true"><div class="ln" style="width:60%"></div><div class="ln" style="width:85%"></div><div class="ln" style="width:40%"></div><div class="ln" style="width:75%"></div></div>
+<div style="padding:10px 12px;display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{f.name}}</span><span class="mono" style="font-size:11px;color:#8a94a6">{{f.size}}</span><div class="bar"><div style="{{f.prog}}"></div></div><span class="{{f.cls}}" style="align-self:flex-start;font-size:11.5px">{{f.status}}</span></div></div></sc-for>
+</div>
+<div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" type="button">Clear</button><button class="btn pri" type="button">Submit 2 for in-depth review</button></div>
+</div>
+<div class="cols">
+<div class="glass"><div class="hd"><span style="font-weight:600">Review queue</span><span class="lab">same stations · high effort</span></div>
+<div style="overflow-x:auto"><table class="t"><thead><tr><th>Item</th><th>File</th><th>Stage</th><th>Status</th><th>Age</th></tr></thead><tbody>
+<sc-for list="{{queue}}" as="q" hint-placeholder-count="5"><tr class="{{q.row}}"><td class="mono" style="color:#9db8ff">{{q.id}}</td><td style="font-size:13px">{{q.file}}</td><td class="mono" style="font-size:12px;color:#a9b2c3">{{q.stage}}</td><td><span class="{{q.cls}}">{{q.status}}</span></td><td class="mono" style="color:#8a94a6">{{q.age}}</td></tr></sc-for>
+</tbody></table></div></div>
+<div class="glass"><div class="hd"><span style="display:flex;flex-direction:column"><span class="mono" style="font-size:12px;color:#8a94a6">WI-20440 · scan_0412.jpg</span><span style="font-weight:600">In-depth review result</span></span><span class="pill ok">Applied · 0.94</span></div>
+<div class="bd" style="display:flex;flex-wrap:wrap;gap:16px">
+<div style="flex:1 1 150px;min-height:220px;border-radius:12px;background:#151922;border:1px solid #ffffff14;display:flex;flex-direction:column;gap:8px;padding:16px" role="img" aria-label="Receipt preview with the amount region highlighted"><div class="ln" style="width:55%"></div><div class="ln" style="width:80%"></div><div style="border:1.5px solid #ffc96b;border-radius:6px;padding:6px;margin-top:10px;box-shadow:0 0 18px -6px #ffc96b"><div class="ln" style="width:70%;background:#ffc96b"></div></div><div class="ln" style="width:65%"></div><span class="mono" style="font-size:11px;color:#8a94a6;margin-top:auto">page 1 · amount</span></div>
+<div style="flex:2 1 220px;display:flex;flex-direction:column;gap:8px">
+<table class="t"><thead><tr><th>Field</th><th>Value</th><th>Source</th></tr></thead><tbody>
+<tr><td style="color:#8a94a6">Payer</td><td>[Payer 0231]</td><td><span class="pill ok">A = B</span></td></tr>
+<tr><td style="color:#8a94a6">Amount</td><td class="mono">USD 7,412.50</td><td><span class="pill wa">A, B differed</span></td></tr>
+<tr><td style="color:#8a94a6">Date</td><td class="mono">2026-10-18</td><td><span class="pill ok">A = B</span></td></tr>
+<tr><td class="mono" style="color:#8a94a6">INV-220931</td><td class="mono">5,000.00</td><td><span class="pill ok">A = B</span></td></tr>
+<tr><td class="mono" style="color:#8a94a6">INV-220944</td><td class="mono">2,412.50</td><td><span class="pill mu">B only</span></td></tr>
+</tbody></table>
+<span style="font-size:13px;color:#ffd98f">Reader B read 7,412.80 from blurred cents; the adjudicator took Reader A.</span>
+<span style="font-size:13px;color:#a9b2c3">Applied to <span class="mono">RCPT-88231</span> · 2 lines · residual 0.00</span>
+<div style="display:flex;gap:14px;font-size:13px"><a href="#">Open item</a><a href="#">History</a></div>
+</div></div></div>
+</div>
+</main>
+</div>
+<div role="region" aria-label="Assistant dock" style="align-self:center;width:min(880px,100%);display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center"><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Where are items waiting longest?</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Pause apply until 15:00</button><button type="button" style="font-family:Geist,sans-serif;font-size:13px;border-radius:999px;border:1px solid #ffffff1f;background:#0e1117;color:#e6eaf2;padding:6px 14px;min-height:34px">Export this week’s report</button></div>
+<div style="display:flex;align-items:center;gap:10px;border:1px solid #ffffff1f;background:#0e1117;border-radius:16px;padding:10px 12px 10px 16px;box-shadow:0 0 0 4px #4f7cff1f,0 30px 60px -30px #000"><span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9db8ff">Assistant</span><input aria-label="Ask the assistant" placeholder="Ask or tell CashApp to do something…" style="flex:1;background:transparent;border:0;outline:none;color:#e6eaf2;font-family:Geist,sans-serif;font-size:15px"><a href="#" style="font-size:12.5px">Full screen</a><button type="button" aria-label="Send" style="width:32px;height:32px;border-radius:8px;background:#2f5bdb;color:#fff;border:0;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
+<span style="text-align:center;font-family:'Geist Mono',monospace;font-size:10.75px;text-transform:uppercase;letter-spacing:.04em;color:#8a94a6">Acts with your permissions · every change asks you to confirm · ⌘K</span>
+</div>
+<section class="states" aria-label="States">
+<div class="glass st"><span class="lab">Empty · queue</span><span style="font-size:17px;font-weight:600">Nothing under review</span><span style="font-size:13px;color:#a9b2c3">Drop images above. Each one becomes a work item that runs the same stations at high effort.</span></div>
+<div class="glass st"><span class="lab">Loading · result</span><div class="sk" style="height:80px"></div><div class="sk"></div><div class="sk"></div><span style="font-size:13px;color:#8a94a6">Both readers done, adjudicating…</span></div>
+<div class="glass st" style="border-color:#f8717155"><span class="lab" style="color:#fca5a5">Error · upload</span><span style="font-size:17px;font-weight:600">scan_big.png is over 5 MB</span><span style="font-size:13px;color:#a9b2c3">The other files were kept. Crop or compress it and add it again.</span><div><button class="btn" type="button">Remove file</button></div></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+const items = [['Dashboard','DB',''],['Flow','FL','312'],['Exceptions','EX','63'],['Engine','EN',''],['Review','RV','3'],['Reports','RP',''],['Lab','LB','2'],['Config','CF','']];
+const active = 'Review';
+const nav = items.map(([label,code,count]) => ({ label, code, count, cls: label === active ? 'nav on' : 'nav' }));
+const C = { ok:'#5fe6d8', ac:'#4f7cff', lk:'#b794ff', er:'#f87171' };
+const files = [['scan_0412.jpg','1.8 MB',100,'ok','Stored'],['scan_0413.jpg','2.1 MB',62,'ac','Uploading 62%'],['remit_photo.webp','0.9 MB',100,'lk','Duplicate of WI-20388'],['scan_big.png','7.4 MB',0,'er','Over 5 MB'],['notes.txt','4 KB',0,'er','Not an image']].map(([name,size,p,t,status]) => ({ name, size, status, cls: 'pill ' + t, prog: 'height:4px;border-radius:2px;width:' + p + '%;background:' + C[t] }));
+const queue = [['WI-20440','scan_0412.jpg','done','Done','ok','12m'],['WI-20441','scan_0399.jpg','adjudicate','Running','ac','4m'],['WI-20442','scan_0400.jpg','extract','Running','ac','3m'],['WI-20435','fax_1017.pdf','match_receipt','Needs a person','wa','1h'],['WI-20436','scan_0390.jpg','await_receipt','Waiting','mu','2h']].map(([id,file,stage,status,t,age]) => ({ id, file, stage, status, age, cls: 'pill ' + t, row: id==='WI-20440' ? 'sel' : '' }));
+return { nav, files, queue };
+}
+}
+</script>
+</body>
+</html>

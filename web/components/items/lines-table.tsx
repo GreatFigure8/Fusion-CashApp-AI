@@ -1,3 +1,4 @@
+import { GlassPanel, PanelHeader } from "@/components/common/glass-panel";
 import { Money } from "@/components/common/money";
 import { StatusBadge } from "@/components/common/status-badge";
 import {
@@ -19,8 +20,8 @@ export function LinesTable({
   currency: string | null;
 }) {
   return (
-    <section aria-label="Lines" className="rounded-lg border bg-card">
-      <h2 className="border-b px-3 py-2 text-sm font-medium">Lines</h2>
+    <GlassPanel aria-label="Lines" className="min-w-0 overflow-x-auto">
+      <PanelHeader title="Lines" titleSize="label" />
       {lines.length === 0 ? (
         <p className="p-3 text-sm text-muted-foreground">No lines have been matched yet.</p>
       ) : (
@@ -63,6 +64,6 @@ export function LinesTable({
           </TableBody>
         </Table>
       )}
-    </section>
+    </GlassPanel>
   );
 }

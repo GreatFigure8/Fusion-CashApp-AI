@@ -1,19 +1,20 @@
 "use client";
 
-import { ErrorAlert } from "@/components/common/error-alert";
+import { StateCard } from "@/components/common/state-card";
+import { Button } from "@/components/ui/button";
 
 export default function ReportsError({ reset }: { error: Error; reset: () => void }) {
   return (
-    <ErrorAlert
-      error={{
-        status: 500,
-        code: "internal_error",
-        message: "Something went wrong while showing the reports.",
-        requestId: null,
-        details: [],
-      }}
-      title="Couldn't show the reports"
-      onRetry={reset}
+    <StateCard
+      kind="error"
+      label="Error · reports"
+      headline="Couldn't show the reports"
+      body="Something went wrong while showing the reports."
+      actions={
+        <Button variant="outline" size="sm" onClick={reset}>
+          Retry
+        </Button>
+      }
     />
   );
 }

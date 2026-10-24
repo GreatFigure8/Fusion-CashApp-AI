@@ -14,12 +14,14 @@ from typing import Annotated, Any, Literal
 from pydantic import (
     AfterValidator,
     BaseModel,
+    BeforeValidator,
     Field,
     StringConstraints,
     TypeAdapter,
     field_validator,
 )
 
+from cashapp.domain.engine import Station
 from cashapp.domain.error_codes import ErrorCode
 from cashapp.domain.money import CurrencyCode, MoneyStr
 
@@ -30,6 +32,13 @@ def _adapter(tp: Any) -> TypeAdapter[Any]:
 
 
 @dataclass(frozen=True)
+class GroupSpec:
+    label: str
+    description: str
+    order: int
+
+
+@dataclass(frozen=True)
 class ConfigKey[T]:
     name: str
     group: str
@@ -37,6 +46,8 @@ class ConfigKey[T]:
     default: T
     description: str
     admin_only_write: bool = True
+    restart_required: bool = False
+    secret_ref: bool = False
 
     def validate(self, value: object) -> T:
         result: T = _adapter(self.type).validate_python(value)
@@ -77,8 +88,21 @@ def _error_code_or_star(value: dict[str, int]) -> dict[str, int]:
     return value
 
 
+def _unique_items[V](value: list[V]) -> list[V]:
+    if len(set(value)) != len(value):
+        raise ValueError("values must be unique")
+    return value
+
+
 def _key[T](
-    name: str, tp: Any, default: T, description: str, *, admin_only_write: bool = True
+    name: str,
+    tp: Any,
+    default: T,
+    description: str,
+    *,
+    admin_only_write: bool = True,
+    restart_required: bool = False,
+    secret_ref: bool = False,
 ) -> ConfigKey[T]:
     return ConfigKey(
         name=name,
@@ -87,7 +111,54 @@ def _key[T](
         default=default,
         description=description,
         admin_only_write=admin_only_write,
+        restart_required=restart_required,
+        secret_ref=secret_ref,
     )
+
+
+SECRET_NAME_PATTERN = r"^[a-z0-9][a-z0-9._-]{0,119}$"  # noqa: S105
+SecretRef = Annotated[str, StringConstraints(pattern=SECRET_NAME_PATTERN)]
+"""The name of a secret stored encrypted in the database (set on the Settings page). A secret
+key never holds the secret itself, only this name. An OCI Vault secret OCID also matches."""
+
+
+class FusionTestData(BaseModel, frozen=True):
+    business_unit: str
+    transaction_type: str
+    receipt_method: str
+    bank_account: str
+
+
+class FusionPod(BaseModel, frozen=True):
+    base_url: str
+    username: str
+    password_ref: SecretRef
+    is_production: bool = False
+    testdata: FusionTestData | None = None
+    mcp_source: str | None = None
+
+    @field_validator("base_url")
+    @classmethod
+    def _strip_trailing_slash(cls, value: str) -> str:
+        return value.rstrip("/")
+
+
+def _lower_pod_keys(value: object) -> object:
+    if isinstance(value, dict):
+        return {str(name).lower(): item for name, item in value.items()}  # pyright: ignore[reportUnknownVariableType, reportUnknownArgumentType]
+    return value
+
+
+def _lower_name(value: object) -> object:
+    return value.lower() if isinstance(value, str) else value
+
+
+_FusionPods = Annotated[dict[str, FusionPod], BeforeValidator(_lower_pod_keys)]
+_FusionPodName = Annotated[str, BeforeValidator(_lower_name)] | None
+_OptStr = str | None
+_OptSecret = SecretRef | None
+_LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR"]
+_Port = Annotated[int, Field(ge=1, le=65535)]
 
 
 _Seconds = Annotated[int, Field(gt=0)]
@@ -279,6 +350,461 @@ FUSION_RECEIPT_NOTE_MAX_CHARS = _key(
     240,
     "Maximum characters of the note written to a Fusion receipt's Comments field.",
 )
+UI_SAMPLE_DATA = _key(
+    "ui.sample_data",
+    bool,
+    False,
+    "Show the Sample data pill: the environment runs on generated test data. Ignored in prod.",
+)
+UI_ACCESS_REQUEST_URL = _key(
+    "ui.access_request_url",
+    str | None,
+    None,
+    "Link behind Request access when a user's groups map to no role.",
+)
+
+CHAT_CONFIRM_TTL_SECONDS = _key(
+    "chat.confirm_ttl_seconds",
+    Annotated[int, Field(ge=60, le=3600)],
+    600,
+    "Seconds a proposed assistant change stays open for the person to confirm.",
+)
+CHAT_MAX_TOOL_CALLS_PER_TURN = _key(
+    "chat.max_tool_calls_per_turn",
+    Annotated[int, Field(ge=1, le=20)],
+    8,
+    "Most tool calls the assistant may make in one reply.",
+)
+
+# --- deploy settings moved off the environment (db-stored-settings) -----------------------------
+
+STREAMING_TOPIC_PREFIX = _key(
+    "streaming.topic_prefix",
+    str,
+    "cashapp",
+    "Prefix of every queue (topic) name.",
+    restart_required=True,
+)
+OBJECT_STORAGE_NAMESPACE: ConfigKey[str | None] = _key(
+    "object_storage.namespace",
+    _OptStr,
+    None,
+    "OCI Object Storage namespace (region is fixed at us-ashburn-1).",
+    restart_required=True,
+)
+OBJECT_STORAGE_BUCKET: ConfigKey[str | None] = _key(
+    "object_storage.bucket",
+    _OptStr,
+    None,
+    "OCI Object Storage bucket for raw artifacts.",
+    restart_required=True,
+)
+ANTHROPIC_BASE_URL: ConfigKey[str | None] = _key(
+    "anthropic.base_url",
+    _OptStr,
+    None,
+    "Override of the Claude API base URL; empty uses the SDK default.",
+    restart_required=True,
+)
+ANTHROPIC_API_KEY_REF: ConfigKey[str | None] = _key(
+    "anthropic.api_key_ref",
+    _OptSecret,
+    None,
+    "Name of the stored secret holding the Claude API key (zero-retention organisation).",
+    restart_required=True,
+    secret_ref=True,
+)
+OCI_GENAI_ENDPOINT = _key(
+    "oci_genai.endpoint",
+    str,
+    "https://inference.generativeai.us-ashburn-1.oci.oraclecloud.com",
+    "OCI Generative AI inference endpoint (Ashburn).",
+    restart_required=True,
+)
+OCI_GENAI_COMPARTMENT_OCID: ConfigKey[str | None] = _key(
+    "oci_genai.compartment_ocid",
+    _OptStr,
+    None,
+    "Compartment OCID used for Generative AI calls and metrics.",
+    restart_required=True,
+)
+OCI_GENAI_DEDICATED_ENDPOINT_OCID: ConfigKey[str | None] = _key(
+    "oci_genai.dedicated_endpoint_ocid",
+    _OptStr,
+    None,
+    "OCID of the dedicated AI cluster endpoint that serves Reader B.",
+    restart_required=True,
+)
+OCI_GENAI_DEDICATED_CLUSTER_OCID: ConfigKey[str | None] = _key(
+    "oci_genai.dedicated_cluster_ocid",
+    _OptStr,
+    None,
+    "OCID of the dedicated AI cluster, for utilisation metrics; empty turns the metric off.",
+)
+OCI_GENAI_CLUSTER_METRIC_NAMESPACE = _key(
+    "oci_genai.cluster_metric_namespace",
+    str,
+    "oci_generativeai",
+    "OCI Monitoring namespace of the cluster utilisation metric.",
+)
+OCI_GENAI_CLUSTER_METRIC_QUERY: ConfigKey[str | None] = _key(
+    "oci_genai.cluster_metric_query",
+    _OptStr,
+    None,
+    "MQL query template with a {cluster_ocid} placeholder; empty keeps the metric off.",
+)
+IDENTITY_ISSUER: ConfigKey[str | None] = _key(
+    "identity.issuer",
+    _OptStr,
+    None,
+    "Issuer of sign-in tokens (identity domain).",
+    restart_required=True,
+)
+IDENTITY_JWKS_URL: ConfigKey[str | None] = _key(
+    "identity.jwks_url",
+    _OptStr,
+    None,
+    "JWKS URL used to verify token signatures.",
+    restart_required=True,
+)
+IDENTITY_AUDIENCE: ConfigKey[str | None] = _key(
+    "identity.audience",
+    _OptStr,
+    None,
+    "Audience the API accepts in tokens.",
+    restart_required=True,
+)
+IDENTITY_GROUPS_CLAIM = _key(
+    "identity.groups_claim",
+    str,
+    "groups",
+    "Token claim that carries the user's identity-domain groups.",
+    restart_required=True,
+)
+IDENTITY_USERINFO_URL: ConfigKey[str | None] = _key(
+    "identity.userinfo_url",
+    _OptStr,
+    None,
+    "Userinfo endpoint asked for the user's groups when the access token carries none.",
+    restart_required=True,
+)
+FUSION_PODS = _key(
+    "fusion.pods",
+    _FusionPods,
+    dict[str, FusionPod](),
+    "Fusion pods by lower-case name: base URL, user, password secret OCID, test-data defaults.",
+    restart_required=True,
+)
+FUSION_DEFAULT_POD: ConfigKey[str | None] = _key(
+    "fusion.default_pod",
+    _FusionPodName,
+    None,
+    "Name of the pod the pipeline uses; must be one of fusion.pods.",
+    restart_required=True,
+)
+FUSION_WRITE_ENABLED = _key(
+    "fusion.write_enabled",
+    bool,
+    False,
+    "Master switch: when off, nothing is written to Fusion.",
+)
+FUSION_UNAPPLY_VERIFIED = _key(
+    "fusion.unapply_verified",
+    bool,
+    False,
+    "Set once a live probe has confirmed the unapply SOAP contract; gates reversal.",
+)
+FUSION_RELATIONSHIPS_REPORT_PATH: ConfigKey[str | None] = _key(
+    "fusion.relationships_report_path",
+    _OptStr,
+    None,
+    "BI Publisher report path that returns pay-on-behalf relationships.",
+)
+OBSERVABILITY_LOG_LEVEL: ConfigKey[Literal["DEBUG", "INFO", "WARNING", "ERROR"]] = _key(
+    "observability.log_level",
+    _LogLevel,
+    "INFO",
+    "Root log level.",
+    restart_required=True,
+)
+OBSERVABILITY_OTLP_ENDPOINT: ConfigKey[str | None] = _key(
+    "observability.otlp_endpoint",
+    _OptStr,
+    None,
+    "OTLP endpoint for traces; empty turns tracing off.",
+    restart_required=True,
+)
+OBSERVABILITY_OCI_MONITORING_NAMESPACE = _key(
+    "observability.oci_monitoring_namespace",
+    str,
+    "cashapp",
+    "OCI Monitoring namespace for custom metrics.",
+    restart_required=True,
+)
+WORKER_SHUTDOWN_GRACE_SECONDS = _key(
+    "worker.shutdown_grace_seconds",
+    Annotated[int, Field(ge=1)],
+    30,
+    "Seconds a worker waits for in-flight work on shutdown.",
+)
+INTAKE_DROP_FOLDER: ConfigKey[str | None] = _key(
+    "intake.drop_folder",
+    _OptStr,
+    None,
+    "Folder the intake poller watches (also holds the local object store).",
+    restart_required=True,
+)
+SMTP_HOST: ConfigKey[str | None] = _key(
+    "smtp.host",
+    _OptStr,
+    None,
+    "SMTP host; empty turns the email channel off.",
+    restart_required=True,
+)
+SMTP_PORT = _key("smtp.port", _Port, 587, "SMTP port.", restart_required=True)
+SMTP_USERNAME: ConfigKey[str | None] = _key(
+    "smtp.username", _OptStr, None, "SMTP user.", restart_required=True
+)
+SMTP_FROM_ADDRESS: ConfigKey[str | None] = _key(
+    "smtp.from_address",
+    _OptStr,
+    None,
+    "From address of notification email.",
+    restart_required=True,
+)
+SMTP_PASSWORD_REF: ConfigKey[str | None] = _key(
+    "smtp.password_ref",
+    _OptSecret,
+    None,
+    "Name of the stored secret holding the SMTP password.",
+    restart_required=True,
+    secret_ref=True,
+)
+
+REQUIRED_KEYS: tuple[ConfigKey[Any], ...] = (
+    OBJECT_STORAGE_NAMESPACE,
+    OBJECT_STORAGE_BUCKET,
+    ANTHROPIC_API_KEY_REF,
+    OCI_GENAI_COMPARTMENT_OCID,
+    OCI_GENAI_DEDICATED_ENDPOINT_OCID,
+    IDENTITY_ISSUER,
+    IDENTITY_JWKS_URL,
+    IDENTITY_AUDIENCE,
+    FUSION_PODS,
+    FUSION_DEFAULT_POD,
+    FUSION_RELATIONSHIPS_REPORT_PATH,
+    INTAKE_DROP_FOLDER,
+)
+"""Keys whose default is empty but which every process needs; `RuntimeSettings.start` names
+every one that is still empty."""
+
+CONFIG_GROUPS: Mapping[str, GroupSpec] = MappingProxyType(
+    {
+        "intake": GroupSpec(
+            "Pollers: intake", "Mailbox and drop-folder poller, and the drop folder.", 10
+        ),
+        "receipt_watcher": GroupSpec(
+            "Pollers: receipt watcher", "Fusion receipt watcher timing.", 20
+        ),
+        "matching": GroupSpec("Matching", "Receipt and line matching rules and tolerances.", 30),
+        "retries": GroupSpec("Auto-fix retries", "Attempt limits and backoff for auto-fix.", 40),
+        "aging": GroupSpec("Aging", "How long items may wait before escalation.", 50),
+        "escalation": GroupSpec("Escalation", "Thresholds that send an item to a person.", 60),
+        "models": GroupSpec("Models", "Which model plays each role, at what effort.", 70),
+        "extraction": GroupSpec("Extraction", "Extraction fan-in behaviour.", 80),
+        "concurrency": GroupSpec("Concurrency", "Parallelism per stage and per receipt.", 90),
+        "locks": GroupSpec("Locks", "Person lock lease on an item.", 100),
+        "backlog": GroupSpec("Backlog", "Backlog release rate.", 110),
+        "retention": GroupSpec("Retention", "How long data is kept.", 120),
+        "budget": GroupSpec("Budget", "LLM spend ceiling.", 130),
+        "notifications": GroupSpec(
+            "Notifications", "Recipients, batching and outage detection.", 140
+        ),
+        "reports": GroupSpec("Reports", "Daily summary timing.", 150),
+        "discount": GroupSpec("Discounts", "Discount-taking rules.", 160),
+        "fusion": GroupSpec("Fusion", "Fusion pods, write switch and report paths.", 170),
+        "streaming": GroupSpec(
+            "Event bus", "Queue naming. The queue itself is a database table.", 180
+        ),
+        "object_storage": GroupSpec("Object Storage", "Bucket that holds raw artifacts.", 190),
+        "anthropic": GroupSpec("Claude API", "Anthropic API connection.", 200),
+        "oci_genai": GroupSpec("OCI Generative AI", "Reader B endpoint and cluster metrics.", 210),
+        "identity": GroupSpec("Sign-in", "Identity domain token validation.", 220),
+        "observability": GroupSpec("Observability", "Logging, tracing and metrics.", 230),
+        "worker": GroupSpec("Workers", "Worker shutdown behaviour.", 240),
+        "smtp": GroupSpec("Email (SMTP)", "Outgoing email; empty host turns it off.", 250),
+        "chat": GroupSpec("Assistant", "Assistant tool calls and confirmations.", 260),
+        "mcp": GroupSpec("Fusion MCP", "Connection to the fusion-sql-mcp server.", 280),
+        "ui": GroupSpec("User interface", "Sample-data pill and the access request link.", 290),
+        "lab": GroupSpec("Matching lab", "Replay limits and windows of the matching lab.", 310),
+        "uploads": GroupSpec(
+            "Uploads and review", "Failed-receipt upload limits and review effort.", 300
+        ),
+        "engine": GroupSpec("Engine", "Paused and draining stations, engine status timing.", 270),
+    }
+)
+ENGINE_PAUSED_STATIONS = _key(
+    "engine.paused_stations",
+    list[Station],
+    list[Station](),
+    "Stations held by a person: their consumers take no new delivery until resumed.",
+)
+ENGINE_DRAINING_STATIONS = _key(
+    "engine.draining_stations",
+    list[Station],
+    list[Station](),
+    "Stations being drained: paused, and reported drained once nothing is in flight.",
+)
+ENGINE_STATUS_CACHE_SECONDS = _key(
+    "engine.status_cache_seconds",
+    _Seconds,
+    5,
+    "How long one computed engine status is shared by every reader in a process.",
+)
+ENGINE_STREAM_TICK_SECONDS = _key(
+    "engine.stream_tick_seconds",
+    _Seconds,
+    2,
+    "How often an open engine stream checks whether the status changed.",
+)
+ENGINE_AUDIT_PAGE_SIZE = _key(
+    "engine.audit_page_size",
+    Annotated[int, Field(ge=1, le=200)],
+    50,
+    "Default page size of the engine audit log.",
+)
+
+
+# --- mcp.* : the fusion-sql-mcp (Greenlight) connection (fusion-mcp-transport) ---------------
+# Hot: the client reconnects when the connection settings change, so none needs a restart.
+_HttpsUrl = Annotated[str, StringConstraints(pattern=r"^(https://\S+)?$")]
+
+MCP_SERVER_URL = _key(
+    "mcp.server_url",
+    _HttpsUrl,
+    "",
+    "Streamable HTTP endpoint of the fusion-sql-mcp server; empty means not configured.",
+)
+MCP_TOKEN_URL = _key(
+    "mcp.token_url",
+    _HttpsUrl,
+    "",
+    "OAuth token endpoint of the identity domain that issues the MCP client_credentials JWT.",
+)
+MCP_CLIENT_ID = _key(
+    "mcp.client_id", str, "", "OAuth client id the cash app uses for the MCP server."
+)
+MCP_CLIENT_SECRET_REF = _key(
+    "mcp.client_secret_ref",
+    _OptSecret,
+    None,
+    "Name of the stored secret holding the MCP OAuth client secret; never the secret itself.",
+    secret_ref=True,
+)
+MCP_SCOPE = _key("mcp.scope", str, "greenlight/mcp", "OAuth scope requested for the MCP token.")
+MCP_FUSION_SOURCE = _key(
+    "mcp.fusion_source",
+    str,
+    "",
+    "The MCP server's Fusion source label used when a pod has no mcp_source of its own.",
+)
+MCP_TIMEOUT_SECONDS = _key(
+    "mcp.timeout_seconds",
+    Annotated[int, Field(ge=1, le=600)],
+    60,
+    "Seconds before one MCP tool call is abandoned.",
+)
+MCP_MAX_ROWS = _key(
+    "mcp.max_rows",
+    Annotated[int, Field(ge=1, le=50000)],
+    2000,
+    "Row cap of the assistant's Fusion query tool and the page size of run_query.",
+)
+
+UPLOADS_MAX_FILE_BYTES = _key(
+    "uploads.max_file_bytes",
+    Annotated[int, Field(ge=1, le=10_485_760)],
+    5_242_880,
+    "Largest accepted size, in bytes, of one uploaded failed-receipt file.",
+)
+UPLOADS_MAX_FILES_PER_REQUEST = _key(
+    "uploads.max_files_per_request",
+    Annotated[int, Field(ge=1, le=20)],
+    10,
+    "Most files accepted in one upload request.",
+)
+UPLOADS_DAILY_PER_USER = _key(
+    "uploads.daily_per_user",
+    Annotated[int, Field(ge=0, le=500)],
+    20,
+    "Most files one user may submit for in-depth review per UTC day (0 blocks uploads).",
+)
+UPLOADS_ALLOWED_TYPES = _key(
+    "uploads.allowed_types",
+    Annotated[
+        list[Literal["png", "jpeg", "webp", "pdf"]],
+        Field(min_length=1),
+        AfterValidator(_unique_items),
+    ],
+    ["png", "jpeg", "webp", "pdf"],
+    "File types accepted for upload, decided from the file's bytes, not its declared type.",
+)
+UPLOADS_MAX_PIXELS = _key(
+    "uploads.max_pixels",
+    Annotated[int, Field(ge=1, le=100_000_000)],
+    40_000_000,
+    "Largest accepted image, in pixels (width times height), checked before decoding.",
+)
+UPLOADS_MAX_PDF_PAGES = _key(
+    "uploads.max_pdf_pages",
+    Annotated[int, Field(ge=1, le=100)],
+    20,
+    "Most pages accepted in one uploaded PDF.",
+)
+UPLOADS_STAGE_TTL_SECONDS = _key(
+    "uploads.stage_ttl_seconds",
+    Annotated[int, Field(ge=60, le=86_400)],
+    3600,
+    "Seconds a chat-attached upload waits to be submitted before it expires.",
+)
+REVIEW_EFFORT = ConfigKey(
+    name="review.effort",
+    group="uploads",
+    type=Literal["low", "medium", "high", "max"],
+    default="high",
+    description="Reader A and adjudicator effort for items uploaded for in-depth review.",
+)
+
+LAB_MAX_ITEMS = _key(
+    "lab.max_items",
+    Annotated[int, Field(ge=1, le=20000)],
+    2000,
+    "Most past items one matching-lab replay evaluates.",
+)
+LAB_MAX_CONCURRENCY = _key(
+    "lab.max_concurrency",
+    Annotated[int, Field(ge=1, le=16)],
+    4,
+    "Items a matching-lab replay evaluates at once (each does Fusion reads).",
+)
+LAB_DEFAULT_WINDOW_DAYS = _key(
+    "lab.default_window_days",
+    Annotated[int, Field(ge=1, le=365)],
+    30,
+    "Days of past items a replay covers when the request gives no window.",
+)
+LAB_MAX_WINDOW_DAYS = _key(
+    "lab.max_window_days",
+    Annotated[int, Field(ge=1, le=365)],
+    90,
+    "Longest replay window a request may ask for.",
+)
+LAB_CHAT_WAIT_SECONDS = _key(
+    "lab.chat_wait_seconds",
+    Annotated[int, Field(ge=0, le=600)],
+    120,
+    "Seconds the chat lab.replay tool waits before returning a still-running card.",
+)
 
 _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     INTAKE_POLL_INTERVAL_SECONDS,
@@ -313,7 +839,88 @@ _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     REPORTS_DAILY_SUMMARY_CUTOVER,
     DISCOUNT_ENABLED,
     FUSION_RECEIPT_NOTE_MAX_CHARS,
+    CHAT_CONFIRM_TTL_SECONDS,
+    CHAT_MAX_TOOL_CALLS_PER_TURN,
+    STREAMING_TOPIC_PREFIX,
+    OBJECT_STORAGE_NAMESPACE,
+    OBJECT_STORAGE_BUCKET,
+    ANTHROPIC_BASE_URL,
+    ANTHROPIC_API_KEY_REF,
+    OCI_GENAI_ENDPOINT,
+    OCI_GENAI_COMPARTMENT_OCID,
+    OCI_GENAI_DEDICATED_ENDPOINT_OCID,
+    OCI_GENAI_DEDICATED_CLUSTER_OCID,
+    OCI_GENAI_CLUSTER_METRIC_NAMESPACE,
+    OCI_GENAI_CLUSTER_METRIC_QUERY,
+    IDENTITY_ISSUER,
+    IDENTITY_JWKS_URL,
+    IDENTITY_AUDIENCE,
+    IDENTITY_GROUPS_CLAIM,
+    IDENTITY_USERINFO_URL,
+    FUSION_PODS,
+    FUSION_DEFAULT_POD,
+    FUSION_WRITE_ENABLED,
+    FUSION_UNAPPLY_VERIFIED,
+    FUSION_RELATIONSHIPS_REPORT_PATH,
+    OBSERVABILITY_LOG_LEVEL,
+    OBSERVABILITY_OTLP_ENDPOINT,
+    OBSERVABILITY_OCI_MONITORING_NAMESPACE,
+    WORKER_SHUTDOWN_GRACE_SECONDS,
+    INTAKE_DROP_FOLDER,
+    SMTP_HOST,
+    SMTP_PORT,
+    SMTP_USERNAME,
+    SMTP_FROM_ADDRESS,
+    SMTP_PASSWORD_REF,
+    ENGINE_PAUSED_STATIONS,
+    ENGINE_DRAINING_STATIONS,
+    ENGINE_STATUS_CACHE_SECONDS,
+    ENGINE_STREAM_TICK_SECONDS,
+    ENGINE_AUDIT_PAGE_SIZE,
+    MCP_SERVER_URL,
+    MCP_TOKEN_URL,
+    MCP_CLIENT_ID,
+    MCP_CLIENT_SECRET_REF,
+    MCP_SCOPE,
+    MCP_FUSION_SOURCE,
+    MCP_TIMEOUT_SECONDS,
+    MCP_MAX_ROWS,
+    UI_SAMPLE_DATA,
+    UI_ACCESS_REQUEST_URL,
+    UPLOADS_MAX_FILE_BYTES,
+    UPLOADS_MAX_FILES_PER_REQUEST,
+    UPLOADS_DAILY_PER_USER,
+    UPLOADS_ALLOWED_TYPES,
+    UPLOADS_MAX_PIXELS,
+    UPLOADS_MAX_PDF_PAGES,
+    UPLOADS_STAGE_TTL_SECONDS,
+    REVIEW_EFFORT,
+    LAB_MAX_ITEMS,
+    LAB_MAX_CONCURRENCY,
+    LAB_DEFAULT_WINDOW_DAYS,
+    LAB_MAX_WINDOW_DAYS,
+    LAB_CHAT_WAIT_SECONDS,
 )
+
+
+_SECRET_WORDS = ("password", "api_key", "secret", "token")
+
+
+def _check_flags(key: ConfigKey[Any]) -> None:
+    if key.group not in CONFIG_GROUPS:
+        raise RuntimeError(f"config key {key.name} is in group {key.group!r} with no GroupSpec")
+    if key.secret_ref:
+        try:
+            key.validate("Not a secret name!")
+        except ValueError:
+            pass
+        else:
+            raise RuntimeError(f"secret key {key.name} must be typed SecretRef")
+        if not key.name.endswith("_ref"):
+            raise RuntimeError(f"secret_ref key {key.name} must be named *_ref")
+    elif not key.name.endswith("_url") and any(word in key.name for word in _SECRET_WORDS):
+        # An endpoint URL (for example mcp.token_url) names a secret's issuer, never holds one.
+        raise RuntimeError(f"config key {key.name} looks secret but is not a secret_ref key")
 
 
 def _build_registry() -> Mapping[str, ConfigKey[Any]]:
@@ -323,6 +930,7 @@ def _build_registry() -> Mapping[str, ConfigKey[Any]]:
             raise RuntimeError(f"duplicate config key {key.name}")
         # A bad default (for example a fable model id) must fail at import, not at runtime.
         key.validate(key.default)
+        _check_flags(key)
         registry[key.name] = key
     return MappingProxyType(registry)
 

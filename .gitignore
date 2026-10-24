@@ -1,5 +1,6 @@
 # Python
 .venv/
+.venv-local/
 __pycache__/
 *.pyc
 .pytest_cache/
@@ -36,3 +37,6 @@ next-env.d.ts
 
 # Local tooling
 .claude/worktrees/
+
+# Local credentials, never committed
+.secrets/

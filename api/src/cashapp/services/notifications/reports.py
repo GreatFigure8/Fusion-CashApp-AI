@@ -15,6 +15,7 @@ from cashapp.services.notifications.channel import ChannelSendError
 if TYPE_CHECKING:
     from cashapp.integrations.email.fake import FakeChannel
     from cashapp.integrations.email.smtp import SmtpEmailChannel
+    from cashapp.services.runtime_settings import RuntimeSettings
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +86,7 @@ async def send_report_email(
     uow: UnitOfWork | None = None,
     kind: str = "report",
     clock: Clock | None = None,
+    runtime: "RuntimeSettings | None" = None,
 ) -> None:
     """Email a report. With ``uow`` one NOTIFICATION_LOG row is written (flush only).
 
@@ -107,10 +109,9 @@ async def send_report_email(
 
     if channel is None:
         from cashapp.integrations.email.smtp import SmtpEmailChannel
-        from cashapp.settings import get_settings
 
-        smtp = get_settings().smtp
-        if smtp is None:
+        smtp = runtime.smtp() if runtime is not None else None
+        if runtime is None or smtp is None:
             error = ChannelSendError("email", "smtp_not_configured")
             if uow is not None:
                 await _record(
@@ -123,7 +124,7 @@ async def send_report_email(
                     clock=now_clock,
                 )
             raise error
-        channel = SmtpEmailChannel(smtp)
+        channel = SmtpEmailChannel(smtp, lambda: runtime.secret(smtp.password_ref))
 
     message = _build_message(recipients, subject, body, attachments, body_html, None)
     try:

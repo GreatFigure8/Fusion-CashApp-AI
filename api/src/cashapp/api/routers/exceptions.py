@@ -1,6 +1,5 @@
 """The exception workbench: the worklist, and the Fusion context of one item. Read-only."""
 
-from functools import lru_cache
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
@@ -8,6 +7,7 @@ from fastapi import APIRouter, Depends, Query
 from cashapp.api.config_deps import RuntimeConfigDep
 from cashapp.api.deps import UowFactoryDep
 from cashapp.api.errors import ERROR_RESPONSES, ApiError
+from cashapp.api.fusion_deps import FusionClientDep
 from cashapp.api.schemas.exceptions import (
     ExceptionListOut,
     ExceptionListQuery,
@@ -16,12 +16,10 @@ from cashapp.api.schemas.exceptions import (
 from cashapp.auth.deps import require_permission
 from cashapp.domain.principal import Permission, Principal
 from cashapp.integrations.fusion.client import FusionClient
-from cashapp.integrations.fusion.factory import build_fusion_client
 from cashapp.integrations.fusion.guard import read_only
 from cashapp.services.exceptions_query import ExceptionsQueryService
 from cashapp.services.fusion_context import FusionContextCache, FusionContextService
 from cashapp.services.locking import ItemNotFound
-from cashapp.settings import get_settings
 
 router = APIRouter(tags=["exceptions"], responses=ERROR_RESPONSES)
 
@@ -31,10 +29,9 @@ _context_cache = FusionContextCache()
 """One cache per process; every API instance keeps its own 60 second view."""
 
 
-@lru_cache
-def get_fusion_reader() -> FusionClient:
-    """A read-only Fusion client, built on first use. These endpoints never write to Fusion."""
-    return read_only(build_fusion_client(get_settings()))
+async def get_fusion_reader(client: FusionClientDep) -> FusionClient:
+    """A read-only view of the shared Fusion client. These endpoints never write to Fusion."""
+    return read_only(client)
 
 
 def get_exceptions_service(runtime: RuntimeConfigDep) -> ExceptionsQueryService:

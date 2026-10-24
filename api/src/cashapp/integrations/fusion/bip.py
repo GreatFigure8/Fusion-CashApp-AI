@@ -1,14 +1,13 @@
-"""BI Publisher `runReport` envelope and the pay-on-behalf relationships report parser.
+"""The `DATA_DS/G_1` XML shape the report parsers read, and the pay-on-behalf relationships parser.
 
-The service namespace, element names and the basic-auth assumption are UNVERIFIED (CONTRACTS.md).
+Rows now come from ad-hoc SQL run through the MCP server's `run_query` (datamodels/), rendered back
+into the XML the callers already parse. There is no BI Publisher `runReport` call any more.
 """
 
 from __future__ import annotations
 
-import base64
-import binascii
 import xml.etree.ElementTree as ET
-from collections.abc import Mapping
+from collections.abc import Iterable, Sequence
 from typing import cast, get_args
 
 from cashapp.domain.error_codes import ErrorCode
@@ -17,57 +16,30 @@ from cashapp.integrations.fusion.models import CustomerRelationship, Relationshi
 from cashapp.integrations.fusion.xmlutil import (
     XmlParseError,
     child_text,
-    first_local,
-    full_text,
     iter_local,
     safe_fromstring,
 )
 
-BIP_PATH = "/xmlpserver/services/ExternalReportWSSService"
-BIP_NS = "http://xmlns.oracle.com/oxp/service/PublicReportService"  # UNVERIFIED
-SOAP_ENV_NS = "http://schemas.xmlsoap.org/soap/envelope/"
 RELATIONSHIPS_PARAM = "P_ACCOUNT_NUMBERS"
 
 _DIRECTIONS: tuple[str, ...] = get_args(RelationshipDirection)
 
 
-def build_run_report_envelope(path: str, params: Mapping[str, str], fmt: str) -> bytes:
-    ET.register_namespace("soapenv", SOAP_ENV_NS)
-    ET.register_namespace("pub", BIP_NS)
-    envelope = ET.Element(f"{{{SOAP_ENV_NS}}}Envelope")
-    ET.SubElement(envelope, f"{{{SOAP_ENV_NS}}}Header")
-    body = ET.SubElement(envelope, f"{{{SOAP_ENV_NS}}}Body")
-    run = ET.SubElement(body, f"{{{BIP_NS}}}runReport")
-    request = ET.SubElement(run, f"{{{BIP_NS}}}reportRequest")
-    ET.SubElement(request, f"{{{BIP_NS}}}attributeFormat").text = fmt
-    ET.SubElement(request, f"{{{BIP_NS}}}reportAbsolutePath").text = path
-    ET.SubElement(request, f"{{{BIP_NS}}}sizeOfDataChunkDownload").text = "-1"
-    values = ET.SubElement(request, f"{{{BIP_NS}}}parameterNameValues")
-    for name, value in params.items():
-        item = ET.SubElement(values, f"{{{BIP_NS}}}item")
-        ET.SubElement(item, f"{{{BIP_NS}}}name").text = name
-        holder = ET.SubElement(item, f"{{{BIP_NS}}}values")
-        ET.SubElement(holder, f"{{{BIP_NS}}}item").text = value
-    return ET.tostring(envelope, encoding="utf-8", xml_declaration=True)
+def rows_to_data_ds_xml(columns: Sequence[str], rows: Iterable[Sequence[object]]) -> bytes:
+    """Render query rows as the BI Publisher `DATA_DS/G_1` XML the report parsers read.
 
-
-def parse_run_report_response(xml: bytes) -> bytes:
-    """Return the Base64-decoded `reportBytes`; any fault or malformed envelope is an error."""
-    try:
-        root = safe_fromstring(xml)
-    except XmlParseError as exc:
-        raise FusionError(ErrorCode.FUSION_FAULT, "unparseable BI Publisher response") from exc
-    fault = first_local(root, "Fault")
-    if fault is not None:
-        text = full_text(fault)[:300] or "BI Publisher fault"
-        raise FusionError(ErrorCode.FUSION_FAULT, text)
-    report = first_local(root, "reportBytes")
-    if report is None or not (report.text or "").strip():
-        raise FusionError(ErrorCode.FUSION_FAULT, "BI Publisher response has no reportBytes")
-    try:
-        return base64.b64decode((report.text or "").strip(), validate=False)
-    except (binascii.Error, ValueError) as exc:
-        raise FusionError(ErrorCode.FUSION_FAULT, "reportBytes is not valid Base64") from exc
+    Column names are upper-cased; a `None` value omits its element; values are XML-escaped by the
+    serializer. `Decimal` keeps its exact text.
+    """
+    names = [name.upper() for name in columns]
+    root = ET.Element("DATA_DS")
+    for row in rows:
+        group = ET.SubElement(root, "G_1")
+        for name, value in zip(names, row, strict=False):
+            if value is None:
+                continue
+            ET.SubElement(group, name).text = str(value)
+    return ET.tostring(root, encoding="utf-8", xml_declaration=True)
 
 
 def parse_relationships_xml(data: bytes) -> list[CustomerRelationship]:

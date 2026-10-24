@@ -14,12 +14,14 @@ from pydantic import ValidationError
 
 from cashapp.data.uow import UowFactory
 from cashapp.domain.clock import Clock
+from cashapp.domain.engine import ConsumerRef
 from cashapp.domain.receipt_arrived import RECEIPT_ARRIVED_TOPIC, ReceiptArrived
 from cashapp.pipeline.bus import Delivery, EventBus, close_stream, next_or_stop
 from cashapp.pipeline.events import TopicNamer, enqueue
 from cashapp.pipeline.roles import RoleState, RoleStatus
 from cashapp.services.awaiting_receipt import WakeResult, wake_for_receipt
 from cashapp.services.config import RuntimeConfig
+from cashapp.services.engine.pause_gate import PauseGate
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +42,7 @@ class ReceiptArrivedConsumer:
         config: RuntimeConfig,
         clock: Clock,
         namer: TopicNamer,
+        pause_gate: PauseGate | None = None,
     ) -> None:
         self._uow_factory = uow_factory
         self._bus = bus
@@ -47,6 +50,7 @@ class ReceiptArrivedConsumer:
         self._config = config
         self._clock = clock
         self._namer = namer
+        self._pause_gate = pause_gate
         self._status: RoleStatus = "starting"
         self._detail: str | None = None
         self._last_activity_at: datetime | None = None
@@ -130,6 +134,11 @@ class ReceiptArrivedConsumer:
         self._status = "running"
         try:
             while not stop.is_set():
+                if self._pause_gate is not None:
+                    # Paused: receipt events stay uncommitted on the bus until resumed.
+                    await self._pause_gate.wait_while_paused(ConsumerRef.receipt_arrived(), stop)
+                    if stop.is_set():
+                        break
                 delivery = await next_or_stop(stream, stop)
                 if delivery is None:
                     break
