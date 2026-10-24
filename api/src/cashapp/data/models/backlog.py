@@ -46,4 +46,7 @@ class BacklogBatch(Base):
     promoted_from_id: Mapped[int | None] = mapped_column(
         ForeignKey("backlog_batch.id", name="FK_BACKLOG_BATCH_PROMOTED"), nullable=True
     )
-    audit: Mapped[list[dict[str, Any]]] = mapped_column(JsonDoc(), nullable=False, default=list)
+    # AUDIT is an Oracle reserved word, so the column is AUDIT_LOG.
+    audit: Mapped[list[dict[str, Any]]] = mapped_column(
+        "audit_log", JsonDoc(), nullable=False, default=list
+    )

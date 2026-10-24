@@ -41,7 +41,8 @@ def upgrade() -> None:
         sa.Column("updated_at", UtcDateTime(), nullable=False),
         sa.Column("import_error", sa.Text(), nullable=True),
         sa.Column("promoted_from_id", sa.BigInteger().with_variant(sa.Integer(), "sqlite")),
-        sa.Column("audit", JsonDoc(), nullable=False),
+        # AUDIT is an Oracle reserved word, so the column is AUDIT_LOG (the attribute stays `audit`).
+        sa.Column("audit_log", JsonDoc(), nullable=False),
         sa.PrimaryKeyConstraint("id", name="PK_BACKLOG_BATCH"),
         sa.UniqueConstraint("name", name="UQ_BACKLOG_BATCH_NAME"),
         sa.ForeignKeyConstraint(

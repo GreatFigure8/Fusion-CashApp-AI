@@ -2,9 +2,10 @@
 
 Data migration only: no table or column changes. It reads the legacy `CASHAPP_*` variables of the
 process that runs it (on DEV that keeps the running pods working), validates each value with the
-key's own type and writes one `CONFIG_SETTING` row and one `CONFIG_CHANGE` row per key. It fails,
-naming every missing or plain-text value, rather than seed an empty one. Re-running skips keys
-that already have a row.
+key's own type and writes one `CONFIG_SETTING` row and one `CONFIG_CHANGE` row per key. A variable
+that is not set is skipped, never seeded empty (a fresh database enters them on the Settings
+page); a plain-text secret or an invalid value fails the migration. Re-running skips keys that
+already have a row.
 
 Revision ID: s48_db_stored_settings
 Revises: ui01_chat_agent_tool_registry
@@ -60,11 +61,11 @@ def upgrade() -> None:
     seed = read_legacy_seed()
 
     problems: list[str] = []
-    problems.extend(
-        f"{legacy_env_name(name)} is not set (DB key {name})"
-        for name in seed.missing
-        if name not in existing
-    )
+    # A key with no legacy variable is not seeded (a fresh database has none): it is entered on
+    # the Settings page, and RuntimeSettings.start() reports any required key still unset.
+    unseeded = [name for name in seed.missing if name not in existing]
+    if unseeded:
+        log.info("s48: %d settings had no deploy variable and are left unset", len(unseeded))
     problems.extend(
         f"{name} holds a plain-text secret; give it as vault:<secret-ocid> "
         "(locally, map the OCID in CASHAPP_SECRETS__LOCAL_VALUES)"
