@@ -481,6 +481,13 @@ IDENTITY_GROUPS_CLAIM = _key(
     "Token claim that carries the user's identity-domain groups.",
     restart_required=True,
 )
+IDENTITY_USERINFO_URL: ConfigKey[str | None] = _key(
+    "identity.userinfo_url",
+    _OptStr,
+    None,
+    "Userinfo endpoint asked for the user's groups when the access token carries none.",
+    restart_required=True,
+)
 FUSION_PODS = _key(
     "fusion.pods",
     _FusionPods,
@@ -849,6 +856,7 @@ _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     IDENTITY_JWKS_URL,
     IDENTITY_AUDIENCE,
     IDENTITY_GROUPS_CLAIM,
+    IDENTITY_USERINFO_URL,
     FUSION_PODS,
     FUSION_DEFAULT_POD,
     FUSION_WRITE_ENABLED,

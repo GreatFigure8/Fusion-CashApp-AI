@@ -1,6 +1,7 @@
 """FastAPI dependencies that turn a Bearer token into a Principal and enforce permissions."""
 
 from collections.abc import Awaitable, Callable
+from dataclasses import replace
 from typing import Annotated
 
 from fastapi import Depends, Request
@@ -10,6 +11,7 @@ from cashapp.api.deps import UowFactoryDep
 from cashapp.api.errors import ApiError
 from cashapp.api.runtime_deps import RuntimeSettingsDep
 from cashapp.auth.tokens import TokenValidator
+from cashapp.auth.userinfo import UserInfoGroups
 from cashapp.domain.principal import Permission, Principal
 from cashapp.services.identity import resolve_principal
 from cashapp.services.runtime_settings import IdentityConfig
@@ -18,6 +20,7 @@ _bearer = HTTPBearer(auto_error=False)
 
 
 _validator: tuple[IdentityConfig, TokenValidator] | None = None
+_userinfo = UserInfoGroups()
 
 
 def get_token_validator(runtime: RuntimeSettingsDep) -> TokenValidator:
@@ -38,11 +41,16 @@ async def current_principal(
 ) -> Principal:
     if credentials is None or credentials.scheme.lower() != "bearer":
         raise ApiError(401, "unauthenticated", "Sign-in required")
+    identity = runtime.identity()
     claims = await validator.validate(credentials.credentials)
-    async with uow_factory() as uow:
-        principal = await resolve_principal(
-            uow, claims, groups_claim=runtime.identity().groups_claim
+    if identity.userinfo_url and not claims.groups(identity.groups_claim):
+        groups = await _userinfo.groups(
+            identity.userinfo_url, credentials.credentials, identity.groups_claim
         )
+        if groups:
+            claims = replace(claims, raw={**claims.raw, identity.groups_claim: sorted(groups)})
+    async with uow_factory() as uow:
+        principal = await resolve_principal(uow, claims, groups_claim=identity.groups_claim)
     request.state.principal_subject = principal.subject
     return principal
 

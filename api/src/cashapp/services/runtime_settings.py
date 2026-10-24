@@ -77,6 +77,7 @@ class IdentityConfig:
     jwks_url: str
     audience: str
     groups_claim: str
+    userinfo_url: str | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -282,6 +283,7 @@ class RuntimeSettings:
             jwks_url=self._text(ck.IDENTITY_JWKS_URL),
             audience=self._text(ck.IDENTITY_AUDIENCE),
             groups_claim=self.pinned(ck.IDENTITY_GROUPS_CLAIM),
+            userinfo_url=self.pinned(ck.IDENTITY_USERINFO_URL),
         )
 
     def fusion(self) -> FusionConfig:

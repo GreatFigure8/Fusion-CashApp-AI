@@ -8,7 +8,7 @@ import { serverEnv } from "@/lib/env";
 
 const DISCOVERY_TTL_MS = 60 * 60 * 1000;
 const HTTP_TIMEOUT_MS = 5000;
-const DEFAULT_SCOPES = "openid profile email offline_access";
+const DEFAULT_SCOPES = "openid profile email offline_access groups";
 
 // Read here until s27's env schema carries OIDC_SCOPES. The API audience scope of the
 // identity-domain resource app goes in this value at deploy time.

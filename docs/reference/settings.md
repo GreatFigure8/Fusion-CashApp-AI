@@ -259,6 +259,7 @@ Identity domain token validation.
 | `identity.jwks_url` | `str \| None` | (required) | restart, admin | JWKS URL used to verify token signatures. |
 | `identity.audience` | `str \| None` | (required) | restart, admin | Audience the API accepts in tokens. |
 | `identity.groups_claim` | `str` | `"groups"` | restart, admin | Token claim that carries the user's identity-domain groups. |
+| `identity.userinfo_url` | `str \| None` | `null` | restart, admin | Userinfo endpoint asked for the user's groups when the access token carries none. |
 
 ### Observability (`observability`)
 
