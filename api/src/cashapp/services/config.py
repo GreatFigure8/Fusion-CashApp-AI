@@ -316,16 +316,17 @@ class DbConfigStore:
     async def load(self) -> Mapping[str, StoredSetting]:
         async with self._uow_factory() as uow:
             rows = await uow.repo(ConfigSettingRepository).all()
-        return {
-            row.key: StoredSetting(
-                key=row.key,
-                value=cast(JsonValue, row.value),
-                version=row.version,
-                updated_at=row.updated_at,
-                updated_by=row.updated_by,
-            )
-            for row in rows
-        }
+            # Mapped inside the unit of work: closing it expires the rows' attributes.
+            return {
+                row.key: StoredSetting(
+                    key=row.key,
+                    value=cast(JsonValue, row.value),
+                    version=row.version,
+                    updated_at=row.updated_at,
+                    updated_by=row.updated_by,
+                )
+                for row in rows
+            }
 
 
 def effective_value[T](key: ConfigKey[T], stored: StoredSetting | None) -> tuple[T, int]:
