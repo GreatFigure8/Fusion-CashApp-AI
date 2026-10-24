@@ -20,8 +20,6 @@ resource "oci_identity_policy" "runtime" {
 
   statements = [
     "Allow dynamic-group ${oci_identity_dynamic_group.containers.name} to read secret-bundles in ${local.comp} where target.vault.id = '${var.vault_id}'",
-    "Allow dynamic-group ${oci_identity_dynamic_group.containers.name} to use stream-push in ${local.comp} where target.streampool.id = '${var.stream_pool_id}'",
-    "Allow dynamic-group ${oci_identity_dynamic_group.containers.name} to use stream-pull in ${local.comp} where target.streampool.id = '${var.stream_pool_id}'",
     "Allow dynamic-group ${oci_identity_dynamic_group.containers.name} to manage objects in ${local.comp} where target.bucket.name = '${var.bucket_name}'",
     # VERIFY: scope to the endpoint (target.generativeai-endpoint.id) if the policy language allows it.
     "Allow dynamic-group ${oci_identity_dynamic_group.containers.name} to use generative-ai-family in ${local.comp}",
@@ -40,6 +38,5 @@ resource "oci_identity_policy" "services" {
 
   statements = [
     "Allow service objectstorage-${var.region} to use keys in ${local.comp} where target.key.id = '${var.key_id}'",
-    "Allow service streaming to use keys in ${local.comp} where target.key.id = '${var.key_id}'",
   ]
 }

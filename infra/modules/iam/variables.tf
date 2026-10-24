@@ -45,12 +45,7 @@ variable "vault_id" {
 }
 
 variable "key_id" {
-  description = "Master key used by Object Storage and Streaming."
-  type        = string
-}
-
-variable "stream_pool_id" {
-  description = "Stream pool the containers may push to and pull from."
+  description = "Master key used by Object Storage."
   type        = string
 }
 

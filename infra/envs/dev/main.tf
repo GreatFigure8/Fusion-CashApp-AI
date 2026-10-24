@@ -21,10 +21,6 @@ locals {
   # keys from them. Once every environment has applied s48 this local can be emptied.
   settings_seed_env = merge(
     {
-      CASHAPP_STREAMING__BOOTSTRAP_SERVERS            = module.streaming.bootstrap_servers
-      CASHAPP_STREAMING__SASL_USERNAME                = "${var.tenancy_name}/${var.streaming_user}/${module.streaming.stream_pool_id}"
-      CASHAPP_STREAMING__SASL_PASSWORD                = local.vault_ref["streaming-auth-token"]
-      CASHAPP_STREAMING__CONSUMER_GROUP               = "cashapp-${local.environment}"
       CASHAPP_OBJECT_STORAGE__NAMESPACE               = module.object_storage.namespace
       CASHAPP_OBJECT_STORAGE__BUCKET                  = module.object_storage.bucket_name
       CASHAPP_ANTHROPIC__API_KEY                      = local.vault_ref["anthropic-api-key"]
@@ -117,18 +113,6 @@ module "atp" {
   data_storage_size_in_gb  = var.atp_storage_gb
 }
 
-module "streaming" {
-  source = "../../modules/streaming"
-
-  compartment_ocid = var.compartment_ocid
-  environment      = local.environment
-  region           = var.region
-  subnet_id        = module.network.subnet_ids["streaming"]
-  nsg_ids          = [module.network.nsg_ids["streaming"]]
-  kms_key_id       = module.vault.key_id
-  partitions       = var.partitions
-}
-
 module "genai" {
   source = "../../modules/genai"
 
@@ -150,7 +134,6 @@ module "iam" {
   tenancy_ocid      = var.tenancy_ocid
   vault_id          = module.vault.vault_id
   key_id            = module.vault.key_id
-  stream_pool_id    = module.streaming.stream_pool_id
   bucket_name       = "cashapp-${local.environment}-artifacts"
   genai_endpoint_id = module.genai.endpoint_id
 }

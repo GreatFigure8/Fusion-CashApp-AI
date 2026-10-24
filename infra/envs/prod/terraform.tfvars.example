@@ -1,7 +1,6 @@
 # Non-secret example values. Copy to prod.tfvars (gitignored) and fill in.
 # Secret values (passwords, tokens, keys) are never set here: set them in OCI Vault.
 tenancy_ocid     = "ocid1.tenancy.oc1..example"
-tenancy_name     = "example-tenancy"
 compartment_ocid = "ocid1.compartment.oc1..example"
 certificate_ocid = "ocid1.certificate.oc1.iad.example"
 web_hostname     = "cashapp.example.com"
@@ -25,7 +24,6 @@ identity = {
   oidc_client_id = "example-client-id"
 }
 
-streaming_user = "cashapp-streaming"
 
 atp_compute_count = 4
 genai_units       = 1

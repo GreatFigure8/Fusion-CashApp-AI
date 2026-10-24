@@ -68,21 +68,6 @@ output "atp_schema_script" {
   value       = "infra/sql/schemas.sql"
 }
 
-output "stream_pool_id" {
-  description = "OCID of the stream pool."
-  value       = module.streaming.stream_pool_id
-}
-
-output "stream_pool_bootstrap_servers" {
-  description = "Kafka bootstrap server of the stream pool."
-  value       = module.streaming.bootstrap_servers
-}
-
-output "stream_topics" {
-  description = "Every pre-created topic."
-  value       = module.streaming.topics
-}
-
 output "bucket_name" {
   description = "Artifact bucket name."
   value       = module.object_storage.bucket_name
