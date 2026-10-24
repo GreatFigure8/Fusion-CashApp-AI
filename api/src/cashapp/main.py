@@ -29,7 +29,9 @@ def _lifespan(settings: Settings | None):
         # authenticated) before the DB-stored settings, identity included, are loaded.
         resolved = settings if settings is not None else get_settings()
         runtime = build_runtime_settings(resolved, get_uow_factory())
-        await runtime.start()
+        # Not strict: a fresh database has no settings yet, and the API must be up for them to be
+        # entered. Workers still refuse to start with a required key unset.
+        await runtime.start(strict=False)
         reconfigure_observability(runtime, service_name=SERVICE_NAME)
         set_runtime_settings(runtime)
         logger.info("api settings loaded")

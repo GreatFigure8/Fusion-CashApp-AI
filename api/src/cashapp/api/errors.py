@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from cashapp.api.request_context import REQUEST_ID_HEADER, get_request_id
+from cashapp.services.runtime_settings import SettingsIncompleteError
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +112,19 @@ async def _handle_http_exception(request: Request, exc: Exception) -> JSONRespon
     return _response(request, exc.status_code, code, message, headers=exc.headers)
 
 
+async def _handle_settings_incomplete(request: Request, exc: Exception) -> JSONResponse:
+    if not isinstance(exc, SettingsIncompleteError):
+        raise exc
+    problems = [{"problem": p} for p in exc.problems]
+    return _response(
+        request,
+        503,
+        "settings_incomplete",
+        "Required settings are not set yet; enter them (python -m cashapp.tools.setup_config).",
+        problems,
+    )
+
+
 async def _handle_unhandled(request: Request, exc: Exception) -> JSONResponse:
     logger.exception("Unhandled exception", exc_info=exc)
     return _response(request, 500, "internal_error", "An unexpected error occurred.")
@@ -120,4 +134,5 @@ def install_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(ApiError, _handle_api_error)
     app.add_exception_handler(RequestValidationError, _handle_validation_error)
     app.add_exception_handler(StarletteHTTPException, _handle_http_exception)
+    app.add_exception_handler(SettingsIncompleteError, _handle_settings_incomplete)
     app.add_exception_handler(Exception, _handle_unhandled)

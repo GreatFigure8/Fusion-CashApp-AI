@@ -136,11 +136,17 @@ class RuntimeSettings:
         self._settings = settings
         self._pinned: dict[str, Any] = {}
         self._started = False
+        self._problems: list[str] = []
 
     # --- lifecycle ----------------------------------------------------------------------
 
-    async def start(self) -> None:
-        """Pin the restart-required keys and check the required ones. Idempotent."""
+    async def start(self, *, strict: bool = True) -> None:
+        """Pin the restart-required keys and check the required ones. Idempotent.
+
+        With ``strict=False`` (the API) missing required keys do not stop the process: it starts
+        in setup mode so the keys can be entered, `problems` lists what is missing, and any use of
+        a missing key raises `SettingsIncompleteError`. Workers stay strict.
+        """
         if self._started:
             return
         snapshot = await self._config.snapshot()
@@ -148,15 +154,24 @@ class RuntimeSettings:
             name: snapshot.get(key) for name, key in CONFIG_KEYS.items() if key.restart_required
         }
         problems = self._check(pinned, snapshot.get(ck.FUSION_RELATIONSHIPS_REPORT_PATH))
-        if problems:
+        if problems and strict:
             raise SettingsIncompleteError(problems)
         self._pinned = pinned
         self._started = True
+        self._problems = problems
+        if problems:
+            logger.warning("settings incomplete, running in setup mode: %s", "; ".join(problems))
+            return
         # Imported here: the pipeline layer sits above services.
         from cashapp.pipeline.events import TopicNamer, set_default_namer
 
         set_default_namer(TopicNamer.from_config(self.streaming(), self._env))
         logger.info("runtime settings loaded", extra={"pinned_keys": len(pinned)})
+
+    @property
+    def problems(self) -> list[str]:
+        """Required keys still unset; empty when the process is fully configured."""
+        return list(self._problems)
 
     @staticmethod
     def _check(pinned: Mapping[str, Any], report_path: object) -> list[str]:
