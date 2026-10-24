@@ -90,7 +90,7 @@ export function EngineBoard({ status: initial, deadLetters, audit, mcp, canContr
         title="Engine"
         pills={<EngineTopPills updatedSecondsAgo={secondsAgo(live.at ?? now ?? 0, now ?? 0)} mcp={mcp} />}
       >
-        <MonoLabel>OCI Streaming · group {status.consumer_group}</MonoLabel>
+        <MonoLabel>Database queue · {status.consumer_group}</MonoLabel>
       </TopBar>
       <div className="grid gap-4 p-4">
         {!canControl ? <OperatorBanner /> : null}

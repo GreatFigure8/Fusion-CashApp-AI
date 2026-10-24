@@ -176,7 +176,7 @@ class OutboxRelay:
                         row.topic,
                         row.msg_key,
                         json.dumps(row.payload, separators=(",", ":")).encode("utf-8"),
-                        _headers(row.payload),
+                        {**_headers(row.payload), "priority": str(row.priority)},
                     )
                 except Exception as exc:
                     failed += 1

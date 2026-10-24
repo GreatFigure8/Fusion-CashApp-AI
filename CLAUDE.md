@@ -35,7 +35,7 @@ The repository is greenfield. Everything below is the design that all code must 
    Each runs every *N* minutes, with its own *N* configurable at runtime. Each is a long-running async loop inside a worker, not a scheduled job, and its only output is new events. Don't add a third without Jonathan.
 6. **Layered architecture:** a data layer (models + generic repository over an ORM), a business layer (services/runners), and a transmission layer (JSON over HTTP, request/response or streaming). See *Architecture*.
 7. **Don't repeat yourself.** Each piece of behaviour and each shared UI component exists exactly once and is configured through props or parameters. One chat-with-the-LLM component serves every place a user can talk to the LLM. One pipeline-stage runner base serves every station. One status enum serves the matcher, the API, the UI and reporting. A second copy is a defect.
-8. **Hosted 100% in OCI, in Ashburn (`us-ashburn-1`).** That covers compute, ATP, Streaming, Object Storage and Generative AI. No Vercel, no Supabase, no other cloud or region for hosting. Calls out to the Claude API are fine.
+8. **Hosted 100% in OCI, in Ashburn (`us-ashburn-1`).** That covers compute, ATP, Object Storage and Generative AI. No Vercel, no Supabase, no other cloud or region for hosting. Calls out to the Claude API are fine.
 9. **Fusion reads and REST writes go through the fusion-sql-mcp (Greenlight) server, behind `FusionClient`.** The one direct call is the SOAP `createApplyReceipt` (and the unapply), made from the API with credentials stored encrypted in the database. The server is an OAuth `client_credentials` client of the identity domain, and the app holds no Fusion REST credentials. Report-style reads (pay-on-behalf relationships, receipt signals) are ad-hoc SQL data models run through `run_query`, so no catalog report is created per tenant. **Never OIC.** Refined 2026-10-23 (bmn-ui-techy-redesign, fusion-mcp-transport); it was "integrated directly through Fusion REST, SOAP and BI Publisher".
 
 ## Architecture
@@ -113,7 +113,7 @@ intake → classify (Haiku) → extract (Opus ∥ Cohere) → adjudicate (Opus) 
 ```
 
 - **The database is the system of record.** Every artifact becomes a `work_item` with a current stage, a status, an attempt count, its last error, and a full history of transitions and auto-fixes. The bus only carries "item X is ready for stage Y" events.
-  - Why: the previous build lost selective re-drive when it moved its queue to Kafka. Keeping state in the database is what makes dequeue, fix and requeue possible.
+  - Why: the previous build lost selective re-drive when it moved its queue to Kafka (this build has no broker: the queue is a database table). Keeping state in the database is what makes dequeue, fix and requeue possible.
 - **Transactional outbox:** a state change and its outgoing event are written in the same database transaction. A relay then publishes the event. Consumers are idempotent: every handler checks the item's stage and status before acting, so redelivery is harmless.
 - **Dedupe at intake** on a content hash of the artifact. The same remittance often arrives twice. Raw artifacts are kept in OCI Object Storage, and the work item references them.
 - **Validate is code, not the LLM.** It checks:
@@ -129,10 +129,10 @@ intake → classify (Haiku) → extract (Opus ∥ Cohere) → adjudicate (Opus) 
 - **Write-back** posts the outcome to Fusion and closes the loop:
   - a receipt note saying what was applied and why lines failed (the receipt note field is small, so this needs design)
   - the remittance attached to the receipt
-- **Bus:** OCI Streaming through its Kafka-compatible endpoint (SASL_SSL), accessed only through the `EventBus` interface.
-  - Each stage has a retry path and a dead-letter path.
-  - Use one consumer group per environment, and never rename or reset it.
-  - Commit offsets only after persisting.
+- **Bus:** the queue is the `BUS_MESSAGE` table in ATP (decision: Kafka and OCI Streaming dropped, 2026-10-24), accessed only through the `EventBus` interface (`DbEventBus`).
+  - The outbox relay copies committed outbox rows onto the queue. A consumer claims due messages with `SELECT … FOR UPDATE SKIP LOCKED` and a lease, and marks a message consumed only after persisting. A message whose lease ran out unconsumed (a crash) is claimed again, so every handler stays idempotent.
+  - Each stage has a retry path and a dead-letter path (queue names with `.retry` and `.dlq`).
+  - A consumer waits on its own queue (woken at once by a publish in the same process, a short wait otherwise). That is a consumer, not a scheduled job, and it checks nothing outside the database, so the two-poller rule still holds.
 
 ### Models: who does what
 

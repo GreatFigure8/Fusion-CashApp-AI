@@ -1,7 +1,7 @@
-"""The event bus interface and its in-memory implementation (tests and ``env == "local"``).
+"""The event bus interface and its in-memory implementation (``env == "test"``).
 
-The only other implementation is ``KafkaEventBus`` in ``kafka.py``. Stages never know which one
-is plugged in.
+The other implementation is ``DbEventBus`` in ``db_bus.py``: the queue is a database table. Stages
+never know which one is plugged in.
 """
 
 import asyncio
@@ -14,6 +14,7 @@ from cashapp.domain.stages import Stage
 from cashapp.pipeline.events import StageEvent, TopicNamer, default_namer, parse_event
 
 if TYPE_CHECKING:
+    from cashapp.data.uow import UowFactory
     from cashapp.services.runtime_settings import RuntimeSettings
 
 
@@ -222,21 +223,17 @@ def _resolve(waiter: asyncio.Future[None]) -> None:
 _shared_memory_bus: InMemoryEventBus | None = None
 
 
-def build_event_bus(runtime: "RuntimeSettings") -> EventBus:
-    """``local`` runs on the process-wide in-memory bus; every other environment uses Kafka."""
+def build_event_bus(runtime: "RuntimeSettings", uow_factory: "UowFactory") -> EventBus:
+    """`test` runs on the in-memory bus; every other environment uses the database."""
     global _shared_memory_bus
     streaming = runtime.streaming()
-    if runtime.env == "local":
+    namer = TopicNamer.from_config(streaming, runtime.env)
+    if runtime.env == "test":
         if _shared_memory_bus is None:
             _shared_memory_bus = InMemoryEventBus(
-                namer=TopicNamer.from_config(streaming, runtime.env),
-                default_group=streaming.consumer_group,
+                namer=namer, default_group=streaming.consumer_group
             )
         return _shared_memory_bus
-    from cashapp.pipeline.kafka import KafkaEventBus
+    from cashapp.pipeline.db_bus import DbEventBus
 
-    return KafkaEventBus(
-        streaming,
-        runtime.secret,
-        namer=TopicNamer.from_config(streaming, runtime.env),
-    )
+    return DbEventBus(uow_factory, namer=namer)

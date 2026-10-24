@@ -193,11 +193,7 @@ type _Kind = Literal["str", "bool", "int", "secret"]
 
 # env name -> (DB key, kind). A `secret` env value is `vault:<ocid>` and becomes the OCID.
 _SIMPLE_LEGACY: Final[Mapping[str, tuple[str, _Kind]]] = {
-    "CASHAPP_STREAMING__BOOTSTRAP_SERVERS": ("streaming.bootstrap_servers", "str"),
-    "CASHAPP_STREAMING__SASL_USERNAME": ("streaming.sasl_username", "str"),
-    "CASHAPP_STREAMING__SASL_PASSWORD": ("streaming.sasl_password_ref", "secret"),
     "CASHAPP_STREAMING__TOPIC_PREFIX": ("streaming.topic_prefix", "str"),
-    "CASHAPP_STREAMING__CONSUMER_GROUP": ("streaming.consumer_group", "str"),
     "CASHAPP_OBJECT_STORAGE__NAMESPACE": ("object_storage.namespace", "str"),
     "CASHAPP_OBJECT_STORAGE__BUCKET": ("object_storage.bucket", "str"),
     "CASHAPP_ANTHROPIC__BASE_URL": ("anthropic.base_url", "str"),

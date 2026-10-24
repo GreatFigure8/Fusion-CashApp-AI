@@ -6,7 +6,7 @@ Every setting except the database connection (and the few bootstrap values below
 DB config key. Keys are edited in Settings by an admin, with a reason, and each change
 is versioned and audited. A key marked *restart* is read once when a process starts;
 all others take effect on the next read (within the cache window, 15 seconds). A key
-marked *secret* holds a Vault secret OCID, never the secret itself.
+marked *secret* holds the name of a stored secret, never the secret itself.
 
 ## Bootstrap environment
 
@@ -25,6 +25,7 @@ can be read. Any other `CASHAPP_*` variable stops the process at start-up.
 | `CASHAPP_ATP__WALLET_PASSWORD` | The database connection itself. |
 | `CASHAPP_ENV` | Picks the topic label and local or deployed behaviour before any I/O. |
 | `CASHAPP_SECRETS__LOCAL_VALUES` | Local development only: maps a secret OCID to a value instead of calling Vault. |
+| `CASHAPP_SECRETS__MASTER_KEY` |  |
 | `CASHAPP_SECRETS__SIGNER` | How to sign Vault requests; needed before any secret is read. |
 | `CASHAPP_SECRETS__SOURCE` | How to reach Vault; needed before any secret can be read. |
 | `CASHAPP_WORKER__HEALTH_PORT` | Bound before the database is reachable and pinned by the deployment manifest. |
@@ -211,15 +212,11 @@ Fusion pods, write switch and report paths.
 
 ### Event bus (`streaming`)
 
-OCI Streaming connection and topics.
+Queue naming. The queue itself is a database table.
 
 | Key | Type | Default | Flags | Description |
 |---|---|---|---|---|
-| `streaming.bootstrap_servers` | `str \| None` | (required) | restart, admin | Kafka-compatible bootstrap servers of OCI Streaming. |
-| `streaming.sasl_username` | `str \| None` | (required) | restart, admin | SASL user for OCI Streaming (tenancy/user/stream pool). |
-| `streaming.sasl_password_ref` | `Optional` | (required) | restart, secret, admin | Vault secret OCID of the OCI Streaming auth token. |
-| `streaming.topic_prefix` | `str` | `"cashapp"` | restart, admin | Prefix of every topic name. |
-| `streaming.consumer_group` | `str \| None` | (required) | restart, admin | Kafka consumer group of this environment. Never rename or reset it: offsets are lost. |
+| `streaming.topic_prefix` | `str` | `"cashapp"` | restart, admin | Prefix of every queue (topic) name. |
 
 ### Object Storage (`object_storage`)
 
@@ -237,7 +234,7 @@ Anthropic API connection.
 | Key | Type | Default | Flags | Description |
 |---|---|---|---|---|
 | `anthropic.base_url` | `str \| None` | `null` | restart, admin | Override of the Claude API base URL; empty uses the SDK default. |
-| `anthropic.api_key_ref` | `Optional` | (required) | restart, secret, admin | Vault secret OCID of the Claude API key (zero-retention organisation). |
+| `anthropic.api_key_ref` | `Optional` | (required) | restart, secret, admin | Name of the stored secret holding the Claude API key (zero-retention organisation). |
 
 ### OCI Generative AI (`oci_genai`)
 
@@ -291,4 +288,76 @@ Outgoing email; empty host turns it off.
 | `smtp.port` | `Annotated` | `587` | restart, admin | SMTP port. |
 | `smtp.username` | `str \| None` | `null` | restart, admin | SMTP user. |
 | `smtp.from_address` | `str \| None` | `null` | restart, admin | From address of notification email. |
-| `smtp.password_ref` | `Optional` | `null` | restart, secret, admin | Vault secret OCID of the SMTP password. |
+| `smtp.password_ref` | `Optional` | `null` | restart, secret, admin | Name of the stored secret holding the SMTP password. |
+
+### Assistant (`chat`)
+
+Assistant tool calls and confirmations.
+
+| Key | Type | Default | Flags | Description |
+|---|---|---|---|---|
+| `chat.confirm_ttl_seconds` | `Annotated` | `600` | admin | Seconds a proposed assistant change stays open for the person to confirm. |
+| `chat.max_tool_calls_per_turn` | `Annotated` | `8` | admin | Most tool calls the assistant may make in one reply. |
+
+### Engine (`engine`)
+
+Paused and draining stations, engine status timing.
+
+| Key | Type | Default | Flags | Description |
+|---|---|---|---|---|
+| `engine.paused_stations` | `list` | `[]` | admin | Stations held by a person: their consumers take no new delivery until resumed. |
+| `engine.draining_stations` | `list` | `[]` | admin | Stations being drained: paused, and reported drained once nothing is in flight. |
+| `engine.status_cache_seconds` | `Annotated` | `5` | admin | How long one computed engine status is shared by every reader in a process. |
+| `engine.stream_tick_seconds` | `Annotated` | `2` | admin | How often an open engine stream checks whether the status changed. |
+| `engine.audit_page_size` | `Annotated` | `50` | admin | Default page size of the engine audit log. |
+
+### Fusion MCP (`mcp`)
+
+Connection to the fusion-sql-mcp server.
+
+| Key | Type | Default | Flags | Description |
+|---|---|---|---|---|
+| `mcp.server_url` | `Annotated` | `""` | admin | Streamable HTTP endpoint of the fusion-sql-mcp server; empty means not configured. |
+| `mcp.token_url` | `Annotated` | `""` | admin | OAuth token endpoint of the identity domain that issues the MCP client_credentials JWT. |
+| `mcp.client_id` | `str` | `""` | admin | OAuth client id the cash app uses for the MCP server. |
+| `mcp.client_secret_ref` | `Optional` | `null` | secret, admin | Name of the stored secret holding the MCP OAuth client secret; never the secret itself. |
+| `mcp.scope` | `str` | `"greenlight/mcp"` | admin | OAuth scope requested for the MCP token. |
+| `mcp.fusion_source` | `str` | `""` | admin | The MCP server's Fusion source label used when a pod has no mcp_source of its own. |
+| `mcp.timeout_seconds` | `Annotated` | `60` | admin | Seconds before one MCP tool call is abandoned. |
+| `mcp.max_rows` | `Annotated` | `2000` | admin | Row cap of the assistant's Fusion query tool and the page size of run_query. |
+
+### User interface (`ui`)
+
+Sample-data pill and the access request link.
+
+| Key | Type | Default | Flags | Description |
+|---|---|---|---|---|
+| `ui.sample_data` | `bool` | `false` | admin | Show the Sample data pill: the environment runs on generated test data. Ignored in prod. |
+| `ui.access_request_url` | `str \| None` | `null` | admin | Link behind Request access when a user's groups map to no role. |
+
+### Uploads and review (`uploads`)
+
+Failed-receipt upload limits and review effort.
+
+| Key | Type | Default | Flags | Description |
+|---|---|---|---|---|
+| `uploads.max_file_bytes` | `Annotated` | `5242880` | admin | Largest accepted size, in bytes, of one uploaded failed-receipt file. |
+| `uploads.max_files_per_request` | `Annotated` | `10` | admin | Most files accepted in one upload request. |
+| `uploads.daily_per_user` | `Annotated` | `20` | admin | Most files one user may submit for in-depth review per UTC day (0 blocks uploads). |
+| `uploads.allowed_types` | `Annotated` | `["png", "jpeg", "webp", "pdf"]` | admin | File types accepted for upload, decided from the file's bytes, not its declared type. |
+| `uploads.max_pixels` | `Annotated` | `40000000` | admin | Largest accepted image, in pixels (width times height), checked before decoding. |
+| `uploads.max_pdf_pages` | `Annotated` | `20` | admin | Most pages accepted in one uploaded PDF. |
+| `uploads.stage_ttl_seconds` | `Annotated` | `3600` | admin | Seconds a chat-attached upload waits to be submitted before it expires. |
+| `review.effort` | `Literal` | `"high"` | admin | Reader A and adjudicator effort for items uploaded for in-depth review. |
+
+### Matching lab (`lab`)
+
+Replay limits and windows of the matching lab.
+
+| Key | Type | Default | Flags | Description |
+|---|---|---|---|---|
+| `lab.max_items` | `Annotated` | `2000` | admin | Most past items one matching-lab replay evaluates. |
+| `lab.max_concurrency` | `Annotated` | `4` | admin | Items a matching-lab replay evaluates at once (each does Fusion reads). |
+| `lab.default_window_days` | `Annotated` | `30` | admin | Days of past items a replay covers when the request gives no window. |
+| `lab.max_window_days` | `Annotated` | `90` | admin | Longest replay window a request may ask for. |
+| `lab.chat_wait_seconds` | `Annotated` | `120` | admin | Seconds the chat lab.replay tool waits before returning a still-running card. |

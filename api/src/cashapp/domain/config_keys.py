@@ -378,40 +378,11 @@ CHAT_MAX_TOOL_CALLS_PER_TURN = _key(
 
 # --- deploy settings moved off the environment (db-stored-settings) -----------------------------
 
-STREAMING_BOOTSTRAP_SERVERS: ConfigKey[str | None] = _key(
-    "streaming.bootstrap_servers",
-    _OptStr,
-    None,
-    "Kafka-compatible bootstrap servers of OCI Streaming.",
-    restart_required=True,
-)
-STREAMING_SASL_USERNAME: ConfigKey[str | None] = _key(
-    "streaming.sasl_username",
-    _OptStr,
-    None,
-    "SASL user for OCI Streaming (tenancy/user/stream pool).",
-    restart_required=True,
-)
-STREAMING_SASL_PASSWORD_REF: ConfigKey[str | None] = _key(
-    "streaming.sasl_password_ref",
-    _OptSecret,
-    None,
-    "Name of the stored secret holding the OCI Streaming auth token.",
-    restart_required=True,
-    secret_ref=True,
-)
 STREAMING_TOPIC_PREFIX = _key(
     "streaming.topic_prefix",
     str,
     "cashapp",
-    "Prefix of every topic name.",
-    restart_required=True,
-)
-STREAMING_CONSUMER_GROUP: ConfigKey[str | None] = _key(
-    "streaming.consumer_group",
-    _OptStr,
-    None,
-    "Kafka consumer group of this environment. Never rename or reset it: offsets are lost.",
+    "Prefix of every queue (topic) name.",
     restart_required=True,
 )
 OBJECT_STORAGE_NAMESPACE: ConfigKey[str | None] = _key(
@@ -604,10 +575,6 @@ SMTP_PASSWORD_REF: ConfigKey[str | None] = _key(
 )
 
 REQUIRED_KEYS: tuple[ConfigKey[Any], ...] = (
-    STREAMING_BOOTSTRAP_SERVERS,
-    STREAMING_SASL_USERNAME,
-    STREAMING_SASL_PASSWORD_REF,
-    STREAMING_CONSUMER_GROUP,
     OBJECT_STORAGE_NAMESPACE,
     OBJECT_STORAGE_BUCKET,
     ANTHROPIC_API_KEY_REF,
@@ -649,7 +616,9 @@ CONFIG_GROUPS: Mapping[str, GroupSpec] = MappingProxyType(
         "reports": GroupSpec("Reports", "Daily summary timing.", 150),
         "discount": GroupSpec("Discounts", "Discount-taking rules.", 160),
         "fusion": GroupSpec("Fusion", "Fusion pods, write switch and report paths.", 170),
-        "streaming": GroupSpec("Event bus", "OCI Streaming connection and topics.", 180),
+        "streaming": GroupSpec(
+            "Event bus", "Queue naming. The queue itself is a database table.", 180
+        ),
         "object_storage": GroupSpec("Object Storage", "Bucket that holds raw artifacts.", 190),
         "anthropic": GroupSpec("Claude API", "Anthropic API connection.", 200),
         "oci_genai": GroupSpec("OCI Generative AI", "Reader B endpoint and cluster metrics.", 210),
@@ -865,11 +834,7 @@ _ALL_KEYS: tuple[ConfigKey[Any], ...] = (
     FUSION_RECEIPT_NOTE_MAX_CHARS,
     CHAT_CONFIRM_TTL_SECONDS,
     CHAT_MAX_TOOL_CALLS_PER_TURN,
-    STREAMING_BOOTSTRAP_SERVERS,
-    STREAMING_SASL_USERNAME,
-    STREAMING_SASL_PASSWORD_REF,
     STREAMING_TOPIC_PREFIX,
-    STREAMING_CONSUMER_GROUP,
     OBJECT_STORAGE_NAMESPACE,
     OBJECT_STORAGE_BUCKET,
     ANTHROPIC_BASE_URL,

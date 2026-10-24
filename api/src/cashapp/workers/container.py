@@ -125,7 +125,11 @@ class WorkerContainer:
 
     @cached_property
     def tracking_bus(self) -> InFlightTrackingBus:
-        inner = self._given_bus if self._given_bus is not None else build_event_bus(self.runtime)
+        inner = (
+            self._given_bus
+            if self._given_bus is not None
+            else build_event_bus(self.runtime, self.uow_factory)
+        )
         return InFlightTrackingBus(inner, self.limiter, self._notify_processed)
 
     @property

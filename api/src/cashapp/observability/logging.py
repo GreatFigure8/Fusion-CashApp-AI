@@ -28,7 +28,7 @@ LOG_FIELDS: Final = (
 )
 
 # Libraries whose own handlers are removed so their lines come out as redacted JSON too.
-_ROUTED_LOGGERS: Final = ("uvicorn", "uvicorn.error", "uvicorn.access", "aiokafka", "httpx", "oci")
+_ROUTED_LOGGERS: Final = ("uvicorn", "uvicorn.error", "uvicorn.access", "httpx", "oci")
 # Their DEBUG lines can carry request bodies.
 _WARNING_FLOOR: Final = ("httpx", "oci")
 

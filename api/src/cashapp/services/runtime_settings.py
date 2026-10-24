@@ -45,9 +45,8 @@ class SettingsIncompleteError(RuntimeError):
 
 @dataclass(frozen=True, slots=True)
 class StreamingConfig:
-    bootstrap_servers: str
-    sasl_username: str
-    sasl_password_ref: str
+    """Queue naming. The queue is a database table, so there is no connection to configure."""
+
     topic_prefix: str
     consumer_group: str
 
@@ -255,13 +254,8 @@ class RuntimeSettings:
         return value
 
     def streaming(self) -> StreamingConfig:
-        return StreamingConfig(
-            bootstrap_servers=self._text(ck.STREAMING_BOOTSTRAP_SERVERS),
-            sasl_username=self._text(ck.STREAMING_SASL_USERNAME),
-            sasl_password_ref=self._text(ck.STREAMING_SASL_PASSWORD_REF),
-            topic_prefix=self.pinned(ck.STREAMING_TOPIC_PREFIX),
-            consumer_group=self._text(ck.STREAMING_CONSUMER_GROUP),
-        )
+        prefix = self.pinned(ck.STREAMING_TOPIC_PREFIX)
+        return StreamingConfig(topic_prefix=prefix, consumer_group=f"{prefix}-{self._env}")
 
     def object_storage(self) -> ObjectStorageConfig:
         return ObjectStorageConfig(

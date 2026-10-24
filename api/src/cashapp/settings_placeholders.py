@@ -54,10 +54,6 @@ def placeholder_settings(**overrides: Any) -> Settings:
 def placeholder_config_values() -> dict[str, JsonValue]:
     """A fake value for every required DB key, in the JSON form the database stores."""
     return {
-        ck.STREAMING_BOOTSTRAP_SERVERS.name: "localhost:9092",
-        ck.STREAMING_SASL_USERNAME.name: "fake-tenancy/fake-user/fake-pool",
-        ck.STREAMING_SASL_PASSWORD_REF.name: fake_secret_ocid("streaming"),
-        ck.STREAMING_CONSUMER_GROUP.name: "cashapp-test",
         ck.OBJECT_STORAGE_NAMESPACE.name: "fakens",
         ck.OBJECT_STORAGE_BUCKET.name: "cashapp-test",
         ck.ANTHROPIC_API_KEY_REF.name: fake_secret_ocid("anthropic"),
