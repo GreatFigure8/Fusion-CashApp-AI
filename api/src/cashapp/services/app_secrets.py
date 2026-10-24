@@ -35,9 +35,11 @@ class DbSecretSource:
     async def resolve(self, ref: str) -> str:
         async with self._uow_factory() as uow:
             row = await uow.repo(AppSecretRepository).by_name(ref)
-        if row is None:
+            # Read inside the unit of work: closing it expires the row's attributes.
+            ciphertext = None if row is None else row.ciphertext
+        if ciphertext is None:
             raise SecretResolutionError(ref)
-        return self._cipher.decrypt(ref, row.ciphertext)
+        return self._cipher.decrypt(ref, ciphertext)
 
 
 @dataclass(frozen=True, slots=True)
