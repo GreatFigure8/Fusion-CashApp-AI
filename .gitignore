@@ -36,3 +36,6 @@ next-env.d.ts
 
 # Local tooling
 .claude/worktrees/
+
+# Local credentials, never committed
+.secrets/
