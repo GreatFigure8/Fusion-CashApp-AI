@@ -6,10 +6,10 @@ output "vcn_id" {
 output "subnet_ids" {
   description = "Subnet OCIDs keyed lb, app, db, genai."
   value = {
-    lb        = oci_core_subnet.lb.id
-    app       = oci_core_subnet.app.id
-    db        = oci_core_subnet.db.id
-    genai     = oci_core_subnet.genai.id
+    lb    = oci_core_subnet.lb.id
+    app   = oci_core_subnet.app.id
+    db    = oci_core_subnet.db.id
+    genai = oci_core_subnet.genai.id
   }
 }
 
