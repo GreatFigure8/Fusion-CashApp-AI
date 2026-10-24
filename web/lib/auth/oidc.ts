@@ -43,9 +43,10 @@ async function authorizationServer(): Promise<oauth.AuthorizationServer> {
   const now = Date.now();
   if (discovery && now - discovery.at < DISCOVERY_TTL_MS) return discovery.as;
   const issuer = new URL(serverEnv.OIDC_ISSUER);
+  const expectedIssuer = new URL(serverEnv.OIDC_EXPECTED_ISSUER ?? serverEnv.OIDC_ISSUER);
   const as = oauth
     .discoveryRequest(issuer, { algorithm: "oidc", ...requestOptions() })
-    .then((response) => oauth.processDiscoveryResponse(issuer, response));
+    .then((response) => oauth.processDiscoveryResponse(expectedIssuer, response));
   discovery = { at: now, as };
   try {
     return await as;
