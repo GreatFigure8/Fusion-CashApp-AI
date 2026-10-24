@@ -7,6 +7,7 @@ versioned, audited writers the API uses, as the principal ``system:setup-cli``.
     status                      list required settings that are still unset
     set KEY JSON [--reason R]   set one setting; JSON is the value (a bare word is read as text)
     secret NAME                 store a secret; the value is read from a hidden prompt
+    map-group GROUP ROLE        map an identity-domain group to an app role (adds to the mapping)
 """
 
 import argparse
@@ -17,10 +18,11 @@ from typing import Any
 
 from cashapp.data.engine import create_engine
 from cashapp.data.uow import make_uow_factory
-from cashapp.domain.principal import Permission, Principal
+from cashapp.domain.principal import Permission, Principal, Role
 from cashapp.secrets import SecretCipher
 from cashapp.services.app_secrets import AppSecretWriter
 from cashapp.services.config import ConfigWriter, lookup_key
+from cashapp.services.group_roles import GroupRoleInput, GroupRoleService
 from cashapp.services.runtime_settings import build_runtime_settings
 from cashapp.settings import get_settings
 
@@ -66,6 +68,15 @@ async def _run(args: argparse.Namespace) -> int:
                 await uow.commit()
             print(f"{key.name} set (version {version + 1}).")
             return 0
+        if args.command == "map-group":
+            async with uow_factory() as uow:
+                service = GroupRoleService()
+                kept = [m for m in await service.current(uow) if m.group_name != args.group]
+                kept.append(GroupRoleInput(args.group, Role(args.role)))
+                await service.replace(uow, kept, SETUP_PRINCIPAL, args.reason)
+                await uow.commit()
+            print(f"group {args.group!r} mapped to {args.role}.")
+            return 0
         master = settings.secrets.master_key
         if master is None:
             print("CASHAPP_SECRETS__MASTER_KEY is not set.")
@@ -95,6 +106,10 @@ def main() -> None:
     secret = sub.add_parser("secret")
     secret.add_argument("name")
     secret.add_argument("--reason", default="First-run setup")
+    group = sub.add_parser("map-group")
+    group.add_argument("group")
+    group.add_argument("role", choices=[r.value for r in Role])
+    group.add_argument("--reason", default="First-run setup")
     raise SystemExit(asyncio.run(_run(parser.parse_args())))
 
 
